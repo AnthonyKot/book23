@@ -16,6 +16,10 @@ Then read every file in chapters/ in numeric order, the briefs in briefs/, the t
 service/*_test.go, the claims files in checks/claims/, and the archived sources in
 resources/incidents/.
 
+Before any edit or report, write a checkpoint: `review/CHECKPOINT-<date>.md` with what you read,
+what you fetched, the findings so far and the next actions, plus `review/RESUME-PROMPT.md` so a
+later session can continue without re-reading everything. Commit it. Update it after each chapter.
+
 Write your report to review/codex-$(date +%F).md and nothing else. Do not modify any chapter,
 brief, test, or planning file. If you find a defect you could fix in one line, describe it; do not
 apply it.

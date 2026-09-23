@@ -67,6 +67,10 @@ Do not rewrite prose beyond sentence level. Do not add paragraphs of explanation
 or whose incident is still open. Do not edit GUIDANCE.md or PLAN.md except the ch. 4 register
 row. Do not push.
 
+Before any edit or report, write a checkpoint: `review/CHECKPOINT-<date>.md` with what you read,
+what you fetched, the findings so far and the next actions, plus `review/RESUME-PROMPT.md` so a
+later session can continue without re-reading everything. Commit it. Update it after each chapter.
+
 ## Output
 
 For each chapter, append to review/codex-$(date +%F).md: the findings (severity BLOCK / FIX /
