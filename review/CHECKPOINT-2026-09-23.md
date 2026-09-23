@@ -22,6 +22,15 @@ then write ranked findings before sentence-level edits. Work 04 → 07, committi
 `review: chNN`; update this section after each. Run the service Go tests, `./verify.sh`, and
 `git diff --check`. Do not build service code, rebuild the site, push or publish in this pass.
 
+Chapter 04 completed: four primary-source files are archived and registered, with ten located
+claim rows. The chapter now distinguishes Instagram's observed IP rotation and concurrency,
+removes unproved Twitter rate-limit claims, and makes the v2/v1 same-IP 31st request a visible
+opposite-outcome pair. The brief specifies locked OTP reissue, both lookup routes in fixed mode,
+and a 60-row test fixture for the page cap. A new CONTEXT row fixes the 10-minute challenge
+window without changing earlier values. `go test ./...`, `./verify.sh`, and `git diff --check`
+passed; these still exercise only the existing Chapter 1/9 Go code. Next is Chapter 05: archive
+Zveare's DEF CON slides and any needed corroborating source before resolving the case F conflict.
+
 ## Chapter 00–03 pass complete
 
 The detailed findings, edits, verdicts and deferred work are in `review/codex-2026-09-23.md`.

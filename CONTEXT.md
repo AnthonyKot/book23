@@ -59,6 +59,7 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 | Tenant API key | `ck_cedar_…` / `bk_birch_…` (prefix shows tenant; shown truncated) | ch. 2 | 10 |
 | Session token lifetime | 12 hours | ch. 2 | 4 |
 | OTP length / attempts | 6 digits, unlimited (vulnerable) → 5 attempts then lock (fixed) | ch. 4 | — |
+| OTP challenge window | 10 minutes; a locked target cannot reset its attempt budget by requesting a fresh challenge inside that window | ch. 4 | — |
 | Page size | `?limit=` unbounded (vulnerable) → max 50 (fixed) | ch. 4 | — |
 | Per-route budget | 30 requests/minute on lookup routes | ch. 4 | 11 |
 | Webhook URL per tenant | `https://hooks.cedar.example/ledger` | ch. 7 | 11 |

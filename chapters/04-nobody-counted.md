@@ -1,19 +1,19 @@
 # Nobody Counted
 
-<!-- Incident switched from the register's X/Twitter 2022 candidate to Instagram 2019 (Laxman Muthiyah): see briefs/04.md for the category-fit reasoning. Claims to gate in checks/claims/04.tsv: six-digit recovery code, 10-minute validity; endpoint /api/v1/accounts/account_recovery_code_verify/; a burst of ~1,000 attempts from one address had ~250 accepted before the rest were refused (~200 per IP); the limit was keyed per source address; Facebook paid a $30,000 bounty and fixed it quickly; disclosed July 2019. Source: Laxman Muthiyah, "How I Could Have Hacked Any Instagram Account", thezerohack.com; corroborated by Threatpost and WeLiveSecurity, July 2019. Aside: HackerOne report 1439026 (zhirinovskiy, submitted 1 Jan 2022, disclosed 11 Feb 2022, $5,040 bounty), which notes that a caller could turn one lookup into a database of the user base; 5.4M records offered for sale July 2022 (The Record, 22 Jul 2022). -->
+<!-- Incident claims are gated in checks/claims/04.tsv against Muthiyah's Instagram disclosure and its original-publication metadata. The researcher observed both a race hazard and IP rotation; his report does not expose the exact limiter implementation. The Twitter aside is gated against HackerOne #1439026 and X's later incident update; neither source establishes a missing lookup rate limit. -->
 
 In 2019 Laxman Muthiyah looked at how Instagram let a person back into an account they had been
 locked out of. You gave a phone number, Instagram texted a six-digit code, and you had ten minutes
 to enter it. Six digits is a million codes. Instagram knew that and had put a limit on the endpoint
-that checks the code: a burst of about a thousand tries from one address saw only around 250
+that checks the code: in one test, about a thousand tries saw around 250
 accepted before the rest were refused. Two hundred or so tries from one place, against a million
 codes, decides nothing.
 
 The weakness Muthiyah reported was not in the code, the ten-minute window, or the size of the
-number. It was in what the limit counted. It counted tries *per source address*, and a source
-address is not a scarce thing: cloud providers rent thousands by the hour. The limit answered
-"how many times has this address guessed?" when the question that protects the account is "how many
-times has anyone guessed *this code*, for *this account*, in these ten minutes?" Muthiyah showed
+number. It was in what the limit failed to count across requests. He used both concurrent requests
+and rotating source addresses; an address is not a scarce thing. The observed limit answered too
+little about "how many times has anyone guessed *this code*, for *this account*, in these ten
+minutes?" Muthiyah showed
 Facebook a proof of concept that the number of guesses an attacker could afford, spread across
 enough addresses, was on the same order as the number of codes. Facebook paid a $30,000 bounty and
 fixed it quickly.
@@ -46,8 +46,8 @@ The fix counts against the account and the code, not the caller:
 Three details matter.
 
 - **The budget is per target, not per source.** After five wrong codes for one account's active
-  challenge, the challenge is locked and a new code must be requested. Ten thousand addresses share
-  one counter, because the counter hangs off the account, not the connection.
+  challenge, the challenge is locked for the rest of its ten-minute window; requesting a new code
+  cannot reset that budget early. Ten thousand addresses share one counter for that target.
 - **A used challenge is spent.** A correct code, or a lock, retires the challenge. Without that, an
   attacker who rents a new address also gets a fresh five tries.
 - **The per-address limit stays.** It is still worth having against noisy clients and cost blowups.
@@ -57,13 +57,13 @@ Three details matter.
 
 Because a service has many scarce things, and each one needs its own counter, keyed to itself.
 
-- **The limit lands on the loud route, not the enumerating one.** Everyone rate-limits `login`.
-  Almost nobody rate-limits the lookup that quietly confirms whether an email belongs to a user —
-  which is exactly the endpoint that turned into a five-million-record list at Twitter (below).
-- **A limit per IP is not a limit per target.** The Instagram limiter was real; it counted the
-  wrong subject. This is the mistake that hides in a passing load test.
+- **The limit lands on the loud route, not the enumerating one.** Limiting `login` would not by
+  itself bound a separate lookup that confirms whether an email belongs to a user. Twitter's
+  duplicate-account check illustrates the privacy cost of such a lookup (below).
+- **A limit per IP is not a limit per target.** Instagram's observed limit was real; concurrent
+  requests from rotating IPs got around it. This can hide in a passing load test.
 - **Reads cost too.** A page size nobody caps is a resource bug: `GET /v2/invoices?limit=1000000`
-  makes the database assemble a million rows for one request. Ledger caps `limit` at 50.
+  could demand huge work as the store grows. Ledger caps `limit` at 50.
 - **Forgotten routes have no budget at all.** The `/v1` invoice routes from Chapter 1 are behind
   `LoadInvoiceFor` now, so they can't leak across tenants — but no per-route budget was ever wired
   to them. A route the current team doesn't watch is a route nobody is counting.
@@ -87,19 +87,20 @@ door is step one either way. A budget, like `LoadInvoiceFor`, has to sit where e
 
 ## An aside on the enumerating route
 
-Twitter shows the loud-route mistake at scale. A researcher reported in January 2022 (HackerOne
+Twitter shows what repeated lookups could expose at scale. A researcher reported in January 2022 (HackerOne
 1439026, a $5,040 bounty) that submitting a phone number or email to a duplicate-account check in
 the Android login flow returned the account's ID, even for users who had turned discoverability
 off. One such lookup is a minor leak. The reporter's own impact note is the API4 point: with basic
 scripting, a caller could enumerate a large part of the user base into a phone-and-email-to-account
-table. In July 2022, 5.4 million such records were offered for sale. The login page was surely
-rate-limited. The lookup underneath it was the route that mattered, and it was not.
+table. X later confirmed that this bug had been exploited and said the affected set reported in
+2022 contained 5.4 million accounts. The public report does not establish the lookup's rate limit.
 
 <!--mission-->
 ## Exercise: which counter protects the thing?
 
-Use Ledger as built so far. The OTP challenge locks after 5 wrong codes per account; `limit` caps
-at 50; lookup routes get 30 requests/minute. Here are four routes, written as route → limiter key.
+Use Ledger at the point where Ops has limited the v2 lookup but has not yet added v1 to the
+gateway. The OTP challenge locks after 5 wrong codes per account, without a new request resetting
+the ten-minute window; `limit` caps at 50. Here are four routes, written as route → limiter key.
 
 ```text
 A. POST /v2/auth/otp/verify   -> limit 5 per (account_id, challenge_id)
@@ -109,27 +110,29 @@ D. GET  /v2/invoices?limit=N  -> cap N at 50; no per-caller budget
 ```
 
 For each: name the scarce thing the route spends, say what the limiter counts, and mark it
-adequate or not. Then find the pair that look almost identical and don't behave the same.
+adequate or not. For B and C, send 31 requests from one IP in a minute, then rotate IPs; which
+response changes? That is the near-identical pair.
 
 **Check your answer.**
 
 - **A is adequate.** The scarce thing is guesses against one account's active code. The key is the
   account and the challenge, so renting new addresses buys nothing; the fifth wrong code locks it.
-- **B is the near-identical twin of A that gets it wrong.** The scarce thing is *lookups that
-  confirm an email belongs to a customer*, which is a per-target concern. Keying the limit on
-  client IP counts the wrong subject: a caller rotating addresses enumerates freely, exactly the
-  Twitter shape. Adequate against a noisy single client, not against enumeration. Fix: also cap
-  distinct email lookups per authenticated caller, and prefer answers that don't confirm existence.
+- **B is half of the B/C pair.** The scarce thing is lookups that confirm whether an email belongs
+  to a customer. From one IP, request 31 gets a 429; rotating addresses resets the IP counter, so
+  the same caller can keep asking. Fix: also budget lookups by the authenticated tenant and route,
+  and prefer answers that do not confirm existence.
 - **C is not adequate; it's the forgotten door.** Same data as B, no limiter at all, because the
-  gateway's route table never listed v1. Register it, or route v1 through the same shared budget as
-  v2. This is Chapter 1's `/v1` again — unwatched routes escape whatever you add.
+  gateway's route table never listed v1. From the same IP, request 31 is still served: same lookup,
+  opposite outcome. Register v1 with the tenant-and-route budget too. This is Chapter 1's `/v1`
+  again — unwatched routes escape whatever you add.
 - **D is the plausible decoy.** Capping `limit` at 50 looks like the same fix as B, and it is worth
-  having: it stops one request from assembling a million rows. But it is a different scarce thing
+  having: it stops one request from demanding an unbounded page. But it is a different scarce thing
   (work per request, not lookups per caller), and it does nothing about a caller who sends the
   50-row request thousands of times. A cap on size is not a budget on frequency.
 
-If you marked B adequate because "it has a rate limit," reread the Instagram flow. Instagram had a
-rate limit too. It counted the caller when it needed to count the code.
+In the completed fix, both B and C have the 30/min tenant-and-route budget, so changing IP no
+longer resets either counter. If you marked B adequate just because it had a rate limit, reread
+the Instagram flow: the observed limit still allowed many guesses across addresses.
 
 *Incident from Laxman Muthiyah, "How I Could Have Hacked Any Instagram Account" (thezerohack.com,
 2019); Twitter aside from HackerOne report 1439026 and The Record, July 2022. Method after Colin
