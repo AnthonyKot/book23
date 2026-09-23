@@ -1,0 +1,87 @@
+# Review-and-improve prompt, chapters 08–10, for the author to run in Codex CLI from ~/book23
+
+Run after the 04–07 pass (done 2026-09-23), and before Lane A batch 2. Write the report to review/codex-<date>-08-10.md:
+
+    codex exec -m gpt-5.6-sol -s workspace-write -C ~/book23 "$(cat review/IMPROVE-PROMPT-08-10.md)" < /dev/null
+
+Afterwards: `node site/build.mjs`, commit docs/, push.
+
+---
+
+You are reviewing and improving Book 23, "Security Rebook", in this directory. **Scope of this run: chapters 08, 09 and 10** (chapters/08-*.md, 09-*.md, 10-*.md). Service code exists only for chapters 1 and 9, so chapter 9 is reviewed against its marked excerpts and `service/ch09_test.go`; the others keep their `{{excerpt:...}}` placeholders and are reviewed as prose plus brief (`briefs/NN.md`). Do not build service code in this run. Chapters 00–07 were reviewed on 2026-09-23 (`review/codex-2026-09-23.md`, `review/codex-2026-09-23-04-07.md`); do not reopen them, but read those reports first so your findings use the same rules and the design decisions they settled (scope before role, 403 for same-tenant wrong role, no prefix guard in chapter 5, `egress` with an injected dial callback in chapter 7).
+
+Sources for chapters 8 and 10 are not archived yet. For each, fetch the primary records the chapter's header comment names, save them under `resources/incidents/NN/` (rendered snapshot where a site blocks direct fetch, as done for Coinbase), add rows with checksums to `resources/incidents/SOURCES.tsv`, and create `checks/claims/NN.tsv` with locators before judging source fidelity. Chapter 9's archive and claims file exist; check the five rows added on 2026-09-23 (09-10 to 09-14) against the PDF as well.
+
+Chapter-specific points. **Chapter 8**: its brief was written when chapter 5 still had a prefix guard; that guard no longer exists in either mode, so check that chapter 8's mechanism (a `Public` declaration by copy-paste, and a `Debug` flag that appends the loader's reason to chapter 1's 404) stands on its own, and that its `Settings`/`PublicRoutes` design fits chapter 5's declared-access table as now specified in `briefs/05.md`. **Chapter 9**: the only chapter in scope with real code; every printed Go block must match its marked excerpt in `service/` byte for byte, every exercise row must have a test in `service/ch09_test.go` asserting both modes, and every incident sentence must stay an ACMA allegation with the filing's redactions unfilled. **Chapter 10**: check that the refund quote's use of the stored `FXRate` does not contradict chapter 6's `ConfirmRefund` design, that invoice 412 and the 0.70–1.10 band do not collide with any fixed number, and that the Kiln and SwissBorg accounts are quoted as each party's own statement.
+
+Three design questions to answer explicitly, because Lane A builds from these briefs next: does each exercise pair produce a *visible* difference in response or state (chapter 2's D/E did not); does each chapter's brief give Lane A enough to build the handlers and both-mode tests without guessing; and does any chapter's Ledger design contradict the "State of Ledger" table in `briefs/DRAFTING-BRIEF.md`. Record answers per chapter in the report; fix a brief where the fix is a sentence, otherwise leave a BLOCK with options. Read first:
+CONTEXT.md, PLAN.md, GUIDANCE.md, docs/CH01-INCIDENT-CHOICE.md, docs/HANDOVER.md,
+briefs/DRAFTING-BRIEF.md. Then every chapter in chapters/ in numeric order, its brief in briefs/,
+the tests in service/*_test.go, the claims in checks/claims/, and the archived sources in
+resources/incidents/.
+
+Work one chapter at a time, in order. For each chapter, first write findings, then apply the
+fixes you are allowed to apply, then commit that chapter's changes with a message that begins
+"review: chNN". Never push.
+
+## What to check (GUIDANCE.md §2 is the test; these are its instances)
+
+1. Source fidelity: every incident fact (date, number, endpoint, quote, timeline, consequence)
+   must be found in resources/incidents/NN/ and have a row in checks/claims/NN.tsv with a
+   locator. Facts not found are UNSUPPORTED; sentences that go beyond the record are OVERSTATED.
+2. Class fit: state the mechanism from the source in one sentence and whether it supports the
+   chapter's OWASP class.
+3. Spine: delete "Ledger" and the cast mentally; does the worked example collapse, or is the
+   service only a label? Which earlier object or repair does the chapter reuse inside its example?
+4. Mechanism: the missing check is shown, the reason it is structurally skipped is given, and a
+   second path or step repeats the skip. Quote the hinge sentence.
+5. Exercise: list the cases; name the plausible decoy and the near-identical pair with opposite
+   outcomes; every verdict traces input → check (or its absence) → response or state change.
+6. Code and tests: every printed Go block matches a marked excerpt in service/ exactly; no
+   `{{excerpt:...}}` placeholder remains in a chapter whose service code exists; every exercise
+   table row has a test asserting both the vulnerable and the fixed outcome. Run
+   `cd service && go test ./...` and record the result.
+7. Cold read, in persona: a developer who can follow a Go handler and an HTTP request but has not
+   learned to trace authorization across routes. Where did attention drop, could you predict the
+   decoy, can you state the missing check in one sentence, what is the next door?
+8. Continuity: does the chapter add a new problem or restate the previous one with new nouns?
+   Any name or number that conflicts with CONTEXT.md's fixed table?
+
+## What you may change
+
+- Facts: correct any UNSUPPORTED or OVERSTATED sentence to what the archived source supports, or
+  delete it. Add missing rows to the claims file with locators. Never add an incident detail that
+  is not in an archived source; if the record is silent, the prose is silent.
+- Code and tests: fill placeholders from the marked excerpts; fix drift between a printed block
+  and its excerpt by changing the chapter, not the code; add missing test cases so every table
+  row is asserted in both modes; fix a test whose assertion disagrees with the table only after
+  deciding, and recording, which one is right.
+- Exercise: if the decoy or the lookalike pair is missing, add one case in the chapter's own
+  style, with its worked answer and its test row.
+- Prose: sentence-level only. Fix an untraced verdict by adding the trace; fix an asserted hinge
+  by adding the one or two sentences that show it; cut a hedge; fix a wrong term. Keep the
+  author's voice, headings, order and examples. Do not restructure a chapter, replace its
+  incident, rewrite its opening, or change its length by more than about 10%. If a chapter needs
+  more than that, say so in the findings and leave it.
+- CONTEXT.md: add fixed values the briefs propose (they say "add to CONTEXT") if no two values
+  look alike; record incident switches (ch. 4 → Instagram 2019) in the register and decision
+  record; never change an existing value.
+
+## What you must not do
+
+Do not rewrite prose beyond sentence level. Do not add paragraphs of explanation, summaries,
+"key takeaways", or a second incident. Do not touch chapters whose brief says they are stopped
+or whose incident is still open. Do not edit GUIDANCE.md or PLAN.md except the ch. 4 register
+row. Do not push.
+
+Before any edit or report, write a checkpoint: `review/CHECKPOINT-<date>.md` with what you read,
+what you fetched, the findings so far and the next actions, plus `review/RESUME-PROMPT.md` so a
+later session can continue without re-reading everything. Commit it. Update it after each chapter.
+
+## Output
+
+For each chapter, append to review/codex-$(date +%F).md: the findings (severity BLOCK / FIX /
+NOTE, ranked), what you changed (file and line), what you left for the author with the reason,
+and a one-paragraph verdict: ready for the author's read or not, and the single most important
+reason. End the file with a list of every proposed change you did not make because it exceeded
+the sentence-level rule, so the author can decide.
