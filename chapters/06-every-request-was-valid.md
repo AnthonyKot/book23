@@ -1,15 +1,16 @@
 # Every Request Was Valid
 
-<!-- claims to gate in checks/claims/06.tsv. Source A: United States v. Just In Time Tickets, Inc. and Evan Kohanian, complaint, E.D.N.Y. 21-CV-215, dated 14 Jan 2021, https://www.ftc.gov/system/files/documents/cases/2._complaint-filed-jit.pdf — bots Automatick (aka Smartick) Jan 2017–Sept 2018 and Tixman Sept 2018–at least Feb 2019; bot searched, reserved, entered saved card and account details, bypassed/solved CAPTCHAs; "reservation clock"; more than 14,186 purchases, more than 48,451 tickets since 1 Jan 2017; more than 436 Ticketmaster accounts each with a unique email; more than 320 names; over 280 addresses; more than 450 credit cards; at least 160 corporate cards; over 12,500 IP addresses; rotating proxy services; Ticketmaster blocked multiple same-day purchases from one IP; purchase-limit checks monitored name, billing address, account, IP and cookies, and card number until around Oct 2018; Elton John concerts named; more than $8.6 million revenue; 2016 Assurance of Discontinuance with NY AG (25 Feb 2016). Source B: stipulated order, filed 15 Jan 2021, https://www.ftc.gov/system/files/documents/cases/4._stipulated_order_for_permanent_injunction_and_civil_penalty-filed-jit.pdf — $11,200,000 civil penalty judgment, $1,642,658.96 payable, remainder suspended; "neither admit nor deny". Source C: FTC press release 22 Jan 2021, https://www.ftc.gov/news-events/news/press-releases/2021/01/ftc-brings-first-ever-cases-under-bots-act — first cases under the BOTS Act; three brokers; more than 150,000 tickets across the three; over $3.7 million paid in total. -->
+<!-- Incident claims are gated in checks/claims/06.tsv against the FTC complaint, the stipulated order and the FTC release (resources/incidents/06/). Everything about the broker is the government's allegation; the defendants neither admitted nor denied it. -->
 
 In January 2021 the United States, on the Federal Trade Commission's behalf, filed a complaint in
 the Eastern District of New York against a Long Island ticket broker called Just In Time Tickets
 and its owner. It was the first case brought under the BOTS Act, and nothing in the complaint is a
-vulnerability. The alleged evasion was not a login bypass or a way to read another customer's
-data; it was a way to exceed purchase limits.
+vulnerability. Nobody bypassed a login. Nobody read another customer's data. The allegation is
+that a broker bought tickets, and bought far more of them than the rules allowed.
 
-What the government described was an ordinary-looking purchase flow repeated past its posted
-limits. From January 2017 the broker allegedly ran a program called Automatick, later one called Tixman.
+What the government described was an ordinary-looking purchase flow, repeated past its posted
+limits many thousands of times. From January 2017, the complaint says, the broker ran a program
+called Automatick, later one called Tixman.
 The operator typed in which tickets he wanted and what he would pay; the bot searched
 Ticketmaster's sites, reserved any seats that matched, and held them while the owner decided
 which to buy, "at least until the reservation clock expired". It kept the card and account details
@@ -24,17 +25,17 @@ address, account, IP address and cookies, and, until around October 2018, the ca
 one of those keys on *who is buying*. So the broker multiplied who was buying: more than 436
 accounts, each with its own email address, opened under more than 320 names, more than 280
 addresses, more than 450 credit cards, and over 12,500 IP addresses bought from rotating proxy
-services. The complaint says those identities helped evade the limits, not that every account
-individually stayed under one. The defendants settled without
+services. The complaint's word for what those identities did is "evade": the limits were there,
+and the buyer was never the same buyer twice. The defendants settled without
 admitting or denying the allegations, under an $11.2 million judgment of which $1,642,658.96
 was payable and the rest suspended. Across the three brokers charged that week the FTC counted
 more than 150,000 tickets.
 
 The complaint never uses the word API, and the flow it describes was a website. But the shape is
 the one OWASP calls **unrestricted access to sensitive business flows**, API6: a flow the
-business meant to be used a little, exposed in a way that lets one party use it a lot. The
-individual requests could appear valid. The harm is the volume, and the limit that was meant to bound the
-volume was attached to a thing the attacker could manufacture.
+business meant to be used a little, exposed in a way that lets one party use it a lot. Taken one
+at a time, the requests look valid. The harm is the volume, and the limit that was meant to bound
+the volume was attached to a thing the attacker could manufacture.
 
 ## The flow the UI limits and the API does not
 
@@ -98,7 +99,7 @@ counter as it would sit in the handler:
 
 Now run the same script through the integration key. The key resolves to a service identity that
 has never refunded anything and gets a fresh bucket. Alice's session is at £1,000 and stopped;
-Cedar's key confirms the fourth quote, and the fifth. Dana has her own bucket too. The limit was
+Cedar's key confirms the fourth quote. Dana has her own bucket too. The limit was
 written "per person" because a person was the only caller the author pictured, and the flow
 accepts three kinds.
 
@@ -111,8 +112,8 @@ to multiply.
 Two more reasons this class is hard, both in the complaint.
 
 - **The flow is not the bug.** Every check that belongs to a single request is present. The rule
-  that was broken is a rule about a *sequence* of requests, which a handler cannot infer from the
-  current request alone.
+  that was broken is a rule about a *sequence* of requests, and a handler holding one request has
+  nowhere to put it.
 - **The controls that exist look like security.** Ticketmaster had CAPTCHAs, IP blocks and card
   matching; the bot solved the CAPTCHAs and the proxies rotated the IPs. Ledger's per-route
   limiter, 30 requests a minute on lookup routes, would not notice three refunds in a morning.
@@ -136,8 +137,8 @@ Three things sit around that method.
    deploy, so eventually it gets removed instead.
 2. **Exceeding it opens the admin flow.** The quote is parked with `status: needs_approval`, Dana
    sees it, and `POST /v2/refunds/{quote}/approve` is an admin-only route in the sense the
-function-level chapter established: the route declares its role, and Alice calling it for a
-Cedar quote gets 403 after the tenant-scope check passes.
+   function-level chapter established: the route declares its role, and Alice calling it for a
+   Cedar quote gets 403 once the tenant-scope check has passed.
 3. **Velocity is a signal, not a limit.** Ops records quotes per tenant per hour. A refund a
    minute for an hour, all under £1,000, is not blocked, it is flagged, because a rule about
    pounds cannot see a pattern about pace. The complaint's evidence was patterns: 436 accounts,
