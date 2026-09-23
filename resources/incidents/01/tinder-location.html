@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.5 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>How I was able to track the location of any Tinder user. - Include Security Research Blog</title>
+	<link rel="canonical" href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="How I was able to track the location of any Tinder user. - Include Security Research Blog" />
+	<meta property="og:description" content="By Max Veytsman At IncludeSec we specialize in application security assessment for our clients, that means taking applications apart and finding really crazy vulnerabilities before other hackers do. When we have time off from client work we like to analyze popular apps to see what we find. Towards the end of 2013 we found a ... Read more" />
+	<meta property="og:url" content="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/" />
+	<meta property="og:site_name" content="Include Security Research Blog" />
+	<meta property="article:published_time" content="2014-02-19T16:28:00+00:00" />
+	<meta property="article:modified_time" content="2021-02-18T19:17:17+00:00" />
+	<meta property="og:image" content="https://i2.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?fit=320%2C427&ssl=1" />
+	<meta property="og:image:width" content="320" />
+	<meta property="og:image:height" content="427" />
+	<meta property="og:image:type" content="image/png" />
+	<meta name="author" content="IncludeSec" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:creator" content="@includesecurity" />
+	<meta name="twitter:site" content="@includesecurity" />
+	<meta name="twitter:label1" content="Written by" />
+	<meta name="twitter:data1" content="by Max Veytsman" />
+	<meta name="twitter:label2" content="Est. reading time" />
+	<meta name="twitter:data2" content="7 minutes" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#article","isPartOf":{"@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/"},"author":{"name":"IncludeSec","@id":"https:\/\/blog.includesecurity.com\/#\/schema\/person\/57d4885372e70cdd2a6580c2b5b576b3"},"headline":"How I was able to track the location of any Tinder user.","datePublished":"2014-02-19T16:28:00+00:00","dateModified":"2021-02-18T19:17:17+00:00","mainEntityOfPage":{"@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/"},"wordCount":1338,"commentCount":24,"publisher":{"@id":"https:\/\/blog.includesecurity.com\/#organization"},"image":{"@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#primaryimage"},"thumbnailUrl":"https:\/\/i0.wp.com\/blog.includesecurity.com\/wp-content\/uploads\/2014\/02\/tinder-screen-anonymized.png?fit=320%2C427&ssl=1","articleSection":["Exploit","Privacy","Tinder","TinderFinder"],"inLanguage":"en-US","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/","url":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/","name":"How I was able to track the location of any Tinder user. - Include Security Research Blog","isPartOf":{"@id":"https:\/\/blog.includesecurity.com\/#website"},"primaryImageOfPage":{"@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#primaryimage"},"image":{"@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#primaryimage"},"thumbnailUrl":"https:\/\/i0.wp.com\/blog.includesecurity.com\/wp-content\/uploads\/2014\/02\/tinder-screen-anonymized.png?fit=320%2C427&ssl=1","datePublished":"2014-02-19T16:28:00+00:00","dateModified":"2021-02-18T19:17:17+00:00","breadcrumb":{"@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/"]}]},{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#primaryimage","url":"https:\/\/i0.wp.com\/blog.includesecurity.com\/wp-content\/uploads\/2014\/02\/tinder-screen-anonymized.png?fit=320%2C427&ssl=1","contentUrl":"https:\/\/i0.wp.com\/blog.includesecurity.com\/wp-content\/uploads\/2014\/02\/tinder-screen-anonymized.png?fit=320%2C427&ssl=1","width":320,"height":427},{"@type":"BreadcrumbList","@id":"https:\/\/blog.includesecurity.com\/2014\/02\/how-i-was-able-to-track-the-location-of-any-tinder-user\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/blog.includesecurity.com\/"},{"@type":"ListItem","position":2,"name":"How I was able to track the location of any Tinder user."}]},{"@type":"WebSite","@id":"https:\/\/blog.includesecurity.com\/#website","url":"https:\/\/blog.includesecurity.com\/","name":"Include Security Research Blog","description":"Team Research blog","publisher":{"@id":"https:\/\/blog.includesecurity.com\/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/blog.includesecurity.com\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":"Organization","@id":"https:\/\/blog.includesecurity.com\/#organization","name":"Include Security","url":"https:\/\/blog.includesecurity.com\/","logo":{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/blog.includesecurity.com\/#\/schema\/logo\/image\/","url":"https:\/\/i0.wp.com\/blog.includesecurity.com\/wp-content\/uploads\/2021\/02\/includesec.png?fit=151%2C151&ssl=1","contentUrl":"https:\/\/i0.wp.com\/blog.includesecurity.com\/wp-content\/uploads\/2021\/02\/includesec.png?fit=151%2C151&ssl=1","width":151,"height":151,"caption":"Include Security"},"image":{"@id":"https:\/\/blog.includesecurity.com\/#\/schema\/logo\/image\/"},"sameAs":["https:\/\/x.com\/includesecurity","https:\/\/www.linkedin.com\/company\/include-security-llc","https:\/\/www.youtube.com\/user\/IncludeSecurity"]},{"@type":"Person","@id":"https:\/\/blog.includesecurity.com\/#\/schema\/person\/57d4885372e70cdd2a6580c2b5b576b3","name":"IncludeSec","image":{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/secure.gravatar.com\/avatar\/f3755f7645427e29f16e7cc6676acfafb5baebd81746984de767fa426ddec3ca?s=96&d=identicon&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/f3755f7645427e29f16e7cc6676acfafb5baebd81746984de767fa426ddec3ca?s=96&d=identicon&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/f3755f7645427e29f16e7cc6676acfafb5baebd81746984de767fa426ddec3ca?s=96&d=identicon&r=g","caption":"IncludeSec"},"description":"Hackin'"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel='dns-prefetch' href='//secure.gravatar.com' />
+<link rel='dns-prefetch' href='//widgets.wp.com' />
+<link rel='dns-prefetch' href='//s0.wp.com' />
+<link rel='dns-prefetch' href='//0.gravatar.com' />
+<link rel='dns-prefetch' href='//1.gravatar.com' />
+<link rel='dns-prefetch' href='//2.gravatar.com' />
+<link rel='dns-prefetch' href='//jetpack.wordpress.com' />
+<link rel='dns-prefetch' href='//public-api.wordpress.com' />
+<link rel='preconnect' href='//i0.wp.com' />
+<link rel='preconnect' href='//c0.wp.com' />
+<link rel="alternate" type="application/rss+xml" title="Include Security Research Blog &raquo; Feed" href="https://blog.includesecurity.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Include Security Research Blog &raquo; Comments Feed" href="https://blog.includesecurity.com/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Include Security Research Blog &raquo; How I was able to track the location of any Tinder user. Comments Feed" href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://blog.includesecurity.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fblog.includesecurity.com%2F2014%2F02%2Fhow-i-was-able-to-track-the-location-of-any-tinder-user%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://blog.includesecurity.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fblog.includesecurity.com%2F2014%2F02%2Fhow-i-was-able-to-track-the-location-of-any-tinder-user%2F&#038;format=xml" />
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-break:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style^=border-color],[style*=";border-color"],[style*="; border-color"]){border-style:solid}html :where([style^=border-top-color],[style*=";border-top-color"],[style*="; border-top-color"]){border-top-style:solid}html :where([style^=border-right-color],[style*=";border-right-color"],[style*="; border-right-color"]){border-right-style:solid}html :where([style^=border-bottom-color],[style*=";border-bottom-color"],[style*="; border-bottom-color"]){border-bottom-style:solid}html :where([style^=border-left-color],[style*=";border-left-color"],[style*="; border-left-color"]){border-left-style:solid}html :where([style^=border-width],[style*=";border-width"],[style*="; border-width"]){border-style:solid}html :where([style^=border-top-width],[style*=";border-top-width"],[style*="; border-top-width"]){border-top-style:solid}html :where([style^=border-right-width],[style*=";border-right-width"],[style*="; border-right-width"]){border-right-style:solid}html :where([style^=border-bottom-width],[style*=";border-bottom-width"],[style*="; border-bottom-width"]){border-bottom-style:solid}html :where([style^=border-left-width],[style*=";border-left-width"],[style*="; border-left-width"]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<link rel='stylesheet' id='wp-block-heading-css' href='https://c0.wp.com/c/7.1.1/wp-includes/blocks/heading/style.min.css' media='all' />
+<link rel='stylesheet' id='wp-block-paragraph-css' href='https://c0.wp.com/c/7.1.1/wp-includes/blocks/paragraph/style.min.css' media='all' />
+<link rel='stylesheet' id='wp-block-group-css' href='https://c0.wp.com/c/7.1.1/wp-includes/blocks/group/style.min.css' media='all' />
+<style id="wp-block-library-inline-css-extra">
+.has-text-align-justify{text-align:justify;}
+/*# sourceURL=wp-block-library-inline-css */
+</style>
+
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--font-family--albert-sans: 'Albert Sans', sans-serif;--wp--preset--font-family--alegreya: Alegreya, serif;--wp--preset--font-family--arvo: Arvo, serif;--wp--preset--font-family--bodoni-moda: 'Bodoni Moda', serif;--wp--preset--font-family--bricolage-grotesque: 'Bricolage Grotesque', sans-serif;--wp--preset--font-family--cabin: Cabin, sans-serif;--wp--preset--font-family--chivo: Chivo, sans-serif;--wp--preset--font-family--commissioner: Commissioner, sans-serif;--wp--preset--font-family--cormorant: Cormorant, serif;--wp--preset--font-family--courier-prime: 'Courier Prime', monospace;--wp--preset--font-family--crimson-pro: 'Crimson Pro', serif;--wp--preset--font-family--dm-mono: 'DM Mono', monospace;--wp--preset--font-family--dm-sans: 'DM Sans', sans-serif;--wp--preset--font-family--dm-serif-display: 'DM Serif Display', serif;--wp--preset--font-family--domine: Domine, serif;--wp--preset--font-family--eb-garamond: 'EB Garamond', serif;--wp--preset--font-family--epilogue: Epilogue, sans-serif;--wp--preset--font-family--fahkwang: Fahkwang, sans-serif;--wp--preset--font-family--figtree: Figtree, sans-serif;--wp--preset--font-family--fira-sans: 'Fira Sans', sans-serif;--wp--preset--font-family--fjalla-one: 'Fjalla One', sans-serif;--wp--preset--font-family--fraunces: Fraunces, serif;--wp--preset--font-family--gabarito: Gabarito, system-ui;--wp--preset--font-family--ibm-plex-mono: 'IBM Plex Mono', monospace;--wp--preset--font-family--ibm-plex-sans: 'IBM Plex Sans', sans-serif;--wp--preset--font-family--ibarra-real-nova: 'Ibarra Real Nova', serif;--wp--preset--font-family--instrument-serif: 'Instrument Serif', serif;--wp--preset--font-family--inter: Inter, sans-serif;--wp--preset--font-family--josefin-sans: 'Josefin Sans', sans-serif;--wp--preset--font-family--jost: Jost, sans-serif;--wp--preset--font-family--libre-baskerville: 'Libre Baskerville', serif;--wp--preset--font-family--libre-franklin: 'Libre Franklin', sans-serif;--wp--preset--font-family--literata: Literata, serif;--wp--preset--font-family--lora: Lora, serif;--wp--preset--font-family--merriweather: Merriweather, serif;--wp--preset--font-family--montserrat: Montserrat, sans-serif;--wp--preset--font-family--newsreader: Newsreader, serif;--wp--preset--font-family--noto-sans-mono: 'Noto Sans Mono', sans-serif;--wp--preset--font-family--nunito: Nunito, sans-serif;--wp--preset--font-family--open-sans: 'Open Sans', sans-serif;--wp--preset--font-family--overpass: Overpass, sans-serif;--wp--preset--font-family--pt-serif: 'PT Serif', serif;--wp--preset--font-family--petrona: Petrona, serif;--wp--preset--font-family--piazzolla: Piazzolla, serif;--wp--preset--font-family--playfair-display: 'Playfair Display', serif;--wp--preset--font-family--plus-jakarta-sans: 'Plus Jakarta Sans', sans-serif;--wp--preset--font-family--poppins: Poppins, sans-serif;--wp--preset--font-family--raleway: Raleway, sans-serif;--wp--preset--font-family--roboto: Roboto, sans-serif;--wp--preset--font-family--roboto-slab: 'Roboto Slab', serif;--wp--preset--font-family--rubik: Rubik, sans-serif;--wp--preset--font-family--rufina: Rufina, serif;--wp--preset--font-family--sora: Sora, sans-serif;--wp--preset--font-family--source-sans-3: 'Source Sans 3', sans-serif;--wp--preset--font-family--source-serif-4: 'Source Serif 4', serif;--wp--preset--font-family--space-mono: 'Space Mono', monospace;--wp--preset--font-family--syne: Syne, sans-serif;--wp--preset--font-family--texturina: Texturina, serif;--wp--preset--font-family--urbanist: Urbanist, sans-serif;--wp--preset--font-family--work-sans: 'Work Sans', sans-serif;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}.has-albert-sans-font-family{font-family: var(--wp--preset--font-family--albert-sans) !important;}.has-alegreya-font-family{font-family: var(--wp--preset--font-family--alegreya) !important;}.has-arvo-font-family{font-family: var(--wp--preset--font-family--arvo) !important;}.has-bodoni-moda-font-family{font-family: var(--wp--preset--font-family--bodoni-moda) !important;}.has-bricolage-grotesque-font-family{font-family: var(--wp--preset--font-family--bricolage-grotesque) !important;}.has-cabin-font-family{font-family: var(--wp--preset--font-family--cabin) !important;}.has-chivo-font-family{font-family: var(--wp--preset--font-family--chivo) !important;}.has-commissioner-font-family{font-family: var(--wp--preset--font-family--commissioner) !important;}.has-cormorant-font-family{font-family: var(--wp--preset--font-family--cormorant) !important;}.has-courier-prime-font-family{font-family: var(--wp--preset--font-family--courier-prime) !important;}.has-crimson-pro-font-family{font-family: var(--wp--preset--font-family--crimson-pro) !important;}.has-dm-mono-font-family{font-family: var(--wp--preset--font-family--dm-mono) !important;}.has-dm-sans-font-family{font-family: var(--wp--preset--font-family--dm-sans) !important;}.has-dm-serif-display-font-family{font-family: var(--wp--preset--font-family--dm-serif-display) !important;}.has-domine-font-family{font-family: var(--wp--preset--font-family--domine) !important;}.has-eb-garamond-font-family{font-family: var(--wp--preset--font-family--eb-garamond) !important;}.has-epilogue-font-family{font-family: var(--wp--preset--font-family--epilogue) !important;}.has-fahkwang-font-family{font-family: var(--wp--preset--font-family--fahkwang) !important;}.has-figtree-font-family{font-family: var(--wp--preset--font-family--figtree) !important;}.has-fira-sans-font-family{font-family: var(--wp--preset--font-family--fira-sans) !important;}.has-fjalla-one-font-family{font-family: var(--wp--preset--font-family--fjalla-one) !important;}.has-fraunces-font-family{font-family: var(--wp--preset--font-family--fraunces) !important;}.has-gabarito-font-family{font-family: var(--wp--preset--font-family--gabarito) !important;}.has-ibm-plex-mono-font-family{font-family: var(--wp--preset--font-family--ibm-plex-mono) !important;}.has-ibm-plex-sans-font-family{font-family: var(--wp--preset--font-family--ibm-plex-sans) !important;}.has-ibarra-real-nova-font-family{font-family: var(--wp--preset--font-family--ibarra-real-nova) !important;}.has-instrument-serif-font-family{font-family: var(--wp--preset--font-family--instrument-serif) !important;}.has-inter-font-family{font-family: var(--wp--preset--font-family--inter) !important;}.has-josefin-sans-font-family{font-family: var(--wp--preset--font-family--josefin-sans) !important;}.has-jost-font-family{font-family: var(--wp--preset--font-family--jost) !important;}.has-libre-baskerville-font-family{font-family: var(--wp--preset--font-family--libre-baskerville) !important;}.has-libre-franklin-font-family{font-family: var(--wp--preset--font-family--libre-franklin) !important;}.has-literata-font-family{font-family: var(--wp--preset--font-family--literata) !important;}.has-lora-font-family{font-family: var(--wp--preset--font-family--lora) !important;}.has-merriweather-font-family{font-family: var(--wp--preset--font-family--merriweather) !important;}.has-montserrat-font-family{font-family: var(--wp--preset--font-family--montserrat) !important;}.has-newsreader-font-family{font-family: var(--wp--preset--font-family--newsreader) !important;}.has-noto-sans-mono-font-family{font-family: var(--wp--preset--font-family--noto-sans-mono) !important;}.has-nunito-font-family{font-family: var(--wp--preset--font-family--nunito) !important;}.has-open-sans-font-family{font-family: var(--wp--preset--font-family--open-sans) !important;}.has-overpass-font-family{font-family: var(--wp--preset--font-family--overpass) !important;}.has-pt-serif-font-family{font-family: var(--wp--preset--font-family--pt-serif) !important;}.has-petrona-font-family{font-family: var(--wp--preset--font-family--petrona) !important;}.has-piazzolla-font-family{font-family: var(--wp--preset--font-family--piazzolla) !important;}.has-playfair-display-font-family{font-family: var(--wp--preset--font-family--playfair-display) !important;}.has-plus-jakarta-sans-font-family{font-family: var(--wp--preset--font-family--plus-jakarta-sans) !important;}.has-poppins-font-family{font-family: var(--wp--preset--font-family--poppins) !important;}.has-raleway-font-family{font-family: var(--wp--preset--font-family--raleway) !important;}.has-roboto-font-family{font-family: var(--wp--preset--font-family--roboto) !important;}.has-roboto-slab-font-family{font-family: var(--wp--preset--font-family--roboto-slab) !important;}.has-rubik-font-family{font-family: var(--wp--preset--font-family--rubik) !important;}.has-rufina-font-family{font-family: var(--wp--preset--font-family--rufina) !important;}.has-sora-font-family{font-family: var(--wp--preset--font-family--sora) !important;}.has-source-sans-3-font-family{font-family: var(--wp--preset--font-family--source-sans-3) !important;}.has-source-serif-4-font-family{font-family: var(--wp--preset--font-family--source-serif-4) !important;}.has-space-mono-font-family{font-family: var(--wp--preset--font-family--space-mono) !important;}.has-syne-font-family{font-family: var(--wp--preset--font-family--syne) !important;}.has-texturina-font-family{font-family: var(--wp--preset--font-family--texturina) !important;}.has-urbanist-font-family{font-family: var(--wp--preset--font-family--urbanist) !important;}.has-work-sans-font-family{font-family: var(--wp--preset--font-family--work-sans) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<style id="jetpack-stats-inline-css">
+img#wpstats{display:none}
+/*# sourceURL=jetpack-stats-inline-css */
+</style>
+<link rel='stylesheet' id='generate-comments-css' href='https://blog.includesecurity.com/wp-content/themes/generatepress/assets/css/components/comments.min.css?ver=3.0.2' media='all' />
+<link rel='stylesheet' id='generate-style-css' href='https://blog.includesecurity.com/wp-content/themes/generatepress/assets/css/main.min.css?ver=3.0.2' media='all' />
+<style id="generate-style-inline-css">
+body{background-color:#ffffff;color:#222222;}a{color:#1e73be;}a:hover, a:focus, a:active{color:#000000;}.wp-block-group__inner-container{max-width:1200px;margin-left:auto;margin-right:auto;}.site-header .header-image{width:270px;}body, button, input, select, textarea{font-family:-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";}body{line-height:1.5;}.entry-content > [class*="wp-block-"]:not(:last-child){margin-bottom:1.5em;}.main-navigation .main-nav ul ul li a{font-size:14px;}.sidebar .widget, .footer-widgets .widget{font-size:17px;}h1{line-height:1em;}h2{line-height:1em;}h3{line-height:1em;}@media (max-width:768px){h1{font-size:31px;}h2{font-size:27px;}h3{font-size:24px;}h4{font-size:22px;}h5{font-size:19px;}}.top-bar{background-color:#636363;color:#ffffff;}.top-bar a{color:#ffffff;}.top-bar a:hover{color:#303030;}.site-header{background-color:#ffffff;}.main-title a,.main-title a:hover{color:#222222;}.site-description{color:#757575;}.mobile-menu-control-wrapper .menu-toggle,.mobile-menu-control-wrapper .menu-toggle:hover,.mobile-menu-control-wrapper .menu-toggle:focus,.has-inline-mobile-toggle #site-navigation.toggled{background-color:rgba(0, 0, 0, 0.02);}.main-navigation,.main-navigation ul ul{background-color:#ffffff;}.main-navigation .main-nav ul li a,.menu-toggle, .main-navigation .menu-bar-items{color:#515151;}.main-navigation .main-nav ul li:hover > a,.main-navigation .main-nav ul li:focus > a, .main-navigation .main-nav ul li.sfHover > a, .main-navigation .menu-bar-item:hover > a, .main-navigation .menu-bar-item.sfHover > a{color:#7a8896;background-color:#ffffff;}button.menu-toggle:hover,button.menu-toggle:focus{color:#515151;}.main-navigation .main-nav ul li[class*="current-menu-"] > a{color:#7a8896;background-color:#ffffff;}.main-navigation .main-nav ul li[class*="current-menu-"] > a:hover,.main-navigation .main-nav ul li[class*="current-menu-"].sfHover > a{color:#7a8896;background-color:#ffffff;}.navigation-search input[type="search"],.navigation-search input[type="search"]:active, .navigation-search input[type="search"]:focus, .main-navigation .main-nav ul li.search-item.active > a, .main-navigation .menu-bar-items .search-item.active > a{color:#7a8896;background-color:#ffffff;}.main-navigation ul ul{background-color:#eaeaea;}.main-navigation .main-nav ul ul li a{color:#515151;}.main-navigation .main-nav ul ul li:hover > a,.main-navigation .main-nav ul ul li:focus > a,.main-navigation .main-nav ul ul li.sfHover > a{color:#7a8896;background-color:#eaeaea;}.main-navigation .main-nav ul ul li[class*="current-menu-"] > a{color:#7a8896;background-color:#eaeaea;}.main-navigation .main-nav ul ul li[class*="current-menu-"] > a:hover,.main-navigation .main-nav ul ul li[class*="current-menu-"].sfHover > a{color:#7a8896;background-color:#eaeaea;}.separate-containers .inside-article, .separate-containers .comments-area, .separate-containers .page-header, .one-container .container, .separate-containers .paging-navigation, .inside-page-header{background-color:#ffffff;}.entry-title a{color:#1b1f35;}.entry-title a:hover{color:#55555e;}.entry-meta{color:#595959;}.sidebar .widget{background-color:#ffffff;}.footer-widgets{background-color:#ffffff;}.footer-widgets .widget-title{color:#000000;}.site-info{color:#ffffff;background-color:#55555e;}.site-info a{color:#ffffff;}.site-info a:hover{color:#d3d3d3;}.footer-bar .widget_nav_menu .current-menu-item a{color:#d3d3d3;}input[type="text"],input[type="email"],input[type="url"],input[type="password"],input[type="search"],input[type="tel"],input[type="number"],textarea,select{color:#666666;background-color:#fafafa;border-color:#cccccc;}input[type="text"]:focus,input[type="email"]:focus,input[type="url"]:focus,input[type="password"]:focus,input[type="search"]:focus,input[type="tel"]:focus,input[type="number"]:focus,textarea:focus,select:focus{color:#666666;background-color:#ffffff;border-color:#bfbfbf;}button,html input[type="button"],input[type="reset"],input[type="submit"],a.button,a.wp-block-button__link:not(.has-background){color:#ffffff;background-color:#55555e;}button:hover,html input[type="button"]:hover,input[type="reset"]:hover,input[type="submit"]:hover,a.button:hover,button:focus,html input[type="button"]:focus,input[type="reset"]:focus,input[type="submit"]:focus,a.button:focus,a.wp-block-button__link:not(.has-background):active,a.wp-block-button__link:not(.has-background):focus,a.wp-block-button__link:not(.has-background):hover{color:#ffffff;background-color:#3f4047;}a.generate-back-to-top{background-color:rgba( 0,0,0,0.4 );color:#ffffff;}a.generate-back-to-top:hover,a.generate-back-to-top:focus{background-color:rgba( 0,0,0,0.6 );color:#ffffff;}@media (max-width:768px){.main-navigation .menu-bar-item:hover > a, .main-navigation .menu-bar-item.sfHover > a{background:none;color:#515151;}}.nav-below-header .main-navigation .inside-navigation.grid-container, .nav-above-header .main-navigation .inside-navigation.grid-container{padding:0px 20px 0px 20px;}.separate-containers .paging-navigation{padding-top:20px;padding-bottom:20px;}.entry-content .alignwide, body:not(.no-sidebar) .entry-content .alignfull{margin-left:-40px;width:calc(100% + 80px);max-width:calc(100% + 80px);}.rtl .menu-item-has-children .dropdown-menu-toggle{padding-left:20px;}.rtl .main-navigation .main-nav ul li.menu-item-has-children > a{padding-right:20px;}@media (max-width:768px){.separate-containers .inside-article, .separate-containers .comments-area, .separate-containers .page-header, .separate-containers .paging-navigation, .one-container .site-content, .inside-page-header, .wp-block-group__inner-container{padding:30px;}.inside-top-bar{padding-right:30px;padding-left:30px;}.inside-header{padding-right:30px;padding-left:30px;}.widget-area .widget{padding-top:30px;padding-right:30px;padding-bottom:30px;padding-left:30px;}.footer-widgets-container{padding-top:30px;padding-right:30px;padding-bottom:30px;padding-left:30px;}.inside-site-info{padding-right:30px;padding-left:30px;}.entry-content .alignwide, body:not(.no-sidebar) .entry-content .alignfull{margin-left:-30px;width:calc(100% + 60px);max-width:calc(100% + 60px);}.one-container .site-main .paging-navigation{margin-bottom:20px;}}/* End cached CSS */.is-right-sidebar{width:30%;}.is-left-sidebar{width:30%;}.site-content .content-area{width:100%;}@media (max-width:768px){.main-navigation .menu-toggle,.sidebar-nav-mobile:not(#sticky-placeholder){display:block;}.main-navigation ul,.gen-sidebar-nav,.main-navigation:not(.slideout-navigation):not(.toggled) .main-nav > ul,.has-inline-mobile-toggle #site-navigation .inside-navigation > *:not(.navigation-search):not(.main-nav){display:none;}.nav-align-right .inside-navigation,.nav-align-center .inside-navigation{justify-content:space-between;}}
+/*# sourceURL=generate-style-inline-css */
+</style>
+<style id="jetpack_likes-inline-css">
+#jp-post-flair{padding-top:.5em}#content div.sharedaddy,#main div.sharedaddy,div.sharedaddy{clear:both}div.sharedaddy h3.sd-title{display:inline-block;font-size:9pt;font-weight:700;line-height:1.2;margin:0 0 1em}div.sharedaddy h3.sd-title:before{border-top:1px solid #dcdcde;content:"";display:block;margin-bottom:1em;min-width:30px;width:100%}div.jetpack-likes-widget-wrapper{min-height:50px;position:relative;width:100%}div.jetpack-likes-widget-wrapper .sd-link-color{font-size:12px}div.jetpack-comment-likes-widget-wrapper{min-height:31px;position:relative;width:100%}div.jetpack-comment-likes-widget-wrapper iframe{margin-bottom:0}#likes-other-gravatars{background-color:#fff;border:1px solid #dcdcde;border-radius:4px;box-shadow:none;display:none;height:auto;max-height:240px;min-width:220px;overflow:auto;padding:9px 12px 10px;position:absolute;z-index:1000}#likes-other-gravatars *{line-height:normal}#likes-other-gravatars .likes-text{color:#101517;font-size:12px;font-weight:500;padding-bottom:8px}#likes-other-gravatars :is(li,ul){list-style-type:none;margin:0;padding:0;text-indent:0}#likes-other-gravatars li:before{content:""}#likes-other-gravatars ul.wpl-avatars{display:block;max-height:190px;overflow:auto}#likes-other-gravatars ul.wpl-avatars li{float:none;height:28px;margin:0 0 4px;width:196px}#likes-other-gravatars ul.wpl-avatars li a{align-items:center;border-bottom:none!important;display:flex;gap:8px;margin:0 2px 0 0;text-decoration:none}#likes-other-gravatars ul.wpl-avatars li a span{color:#2c3338;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#likes-other-gravatars ul.wpl-avatars li a img{background:none;border:none;border-radius:50%;box-sizing:border-box;margin:0!important;padding:1px!important;position:static}div.sd-box{border-top:1px solid #00000021}.jetpack-likes-widget-loaded iframe,.jetpack-likes-widget-loading .likes-widget-placeholder,.jetpack-likes-widget-unloaded .likes-widget-placeholder{display:block}.jetpack-likes-widget-loaded .likes-widget-placeholder,.jetpack-likes-widget-loading iframe,.jetpack-likes-widget-unloaded iframe{display:none}.comment-likes-widget,.entry-content .post-likes-widget,.post-likes-widget{border-width:0;margin:0}.comment-likes-widget-placeholder,.post-likes-widget-placeholder{border-width:0;margin:0;position:relative}.comment-likes-widget-placeholder{display:flex;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif;height:18px;position:absolute}.comment-likes-widget-placeholder:before{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath fill='%232ea2cc' d='m12 2 2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:16px 16px;color:#2ea2cc;content:"";display:inline-block;height:16px;padding-right:5px;position:relative;top:3px;width:16px}.post-likes-widget-placeholder .button{display:none}:is(.comment-likes-widget-placeholder,.post-likes-widget-placeholder) .loading{color:#999;font-size:12px}.comment-likes-widget-placeholder .loading{align-self:center;color:#4e4e4e;margin-top:4px;padding-left:5px}div.sharedaddy.sd-like-enabled .sd-like h3{display:none}div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget{float:none;position:absolute;top:0;width:100%}.comment-likes-widget{width:100%}.cs-rating,.pd-rating{display:block!important}.sd-gplus .sd-title{display:none}@media print{.jetpack-likes-widget-wrapper{display:none}}
+/*# sourceURL=https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/build/likes/style.min.css */
+</style>
+<link rel='stylesheet' id='subscription-modal-css-css' href='https://blog.includesecurity.com/wp-content/plugins/jetpack/modules/comments/subscription-modal-on-comment/subscription-modal.css?ver=16.3-a.1' media='all' />
+<link rel='stylesheet' id='enlighterjs-css' href='https://blog.includesecurity.com/wp-content/plugins/enlighter/cache/enlighterjs.min.css?ver=vcFzeYSNeR1CecZ' media='all' />
+<style id="jetpack-global-styles-frontend-style-inline-css">
+:root { --font-headings: unset; --font-base: unset; --font-headings-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; --font-base-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;}
+/*# sourceURL=jetpack-global-styles-frontend-style-inline-css */
+</style>
+<link rel='stylesheet' id='sharedaddy-css' href='https://blog.includesecurity.com/wp-content/plugins/jetpack/modules/sharedaddy/sharing.css?ver=16.3-a.1' media='all' />
+<link rel='stylesheet' id='social-logos-css' href='https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/build/social-logos/social-logos.css?ver=16.3-a.1' media='all' />
+<script id="jetpack-mu-wpcom-settings-js-before">
+var JETPACK_MU_WPCOM_SETTINGS = {"assetsUrl":"https://blog.includesecurity.com/wp-content/mu-plugins/wpcomsh/jetpack_vendor/automattic/jetpack-mu-wpcom/src/build/"};
+//# sourceURL=jetpack-mu-wpcom-settings-js-before
+</script>
+<script data-wp-strategy="defer" defer id="stop-user-enumeration-js" src="https://blog.includesecurity.com/wp-content/plugins/stop-user-enumeration/frontend/js/frontend.js?ver=1.7.8"></script>
+<link rel="https://api.w.org/" href="https://blog.includesecurity.com/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://blog.includesecurity.com/wp-json/wp/v2/posts/190" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://blog.includesecurity.com/xmlrpc.php?rsd" />
+
+<link rel='shortlink' href='https://wp.me/p9RwVC-34' />
+<link rel="pingback" href="https://blog.includesecurity.com/xmlrpc.php">
+<meta name="viewport" content="width=device-width, initial-scale=1"><link rel="amphtml" href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/amp/"><link rel="icon" href="https://blog.includesecurity.com/wp-content/uploads/2021/02/favicon.ico" sizes="32x32" />
+<link rel="icon" href="https://blog.includesecurity.com/wp-content/uploads/2021/02/favicon.ico" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://blog.includesecurity.com/wp-content/uploads/2021/02/favicon.ico" />
+<meta name="msapplication-TileImage" content="https://blog.includesecurity.com/wp-content/uploads/2021/02/favicon.ico" />
+<style type="text/css" id="wp-custom-css">#page,#content,#primary,#main {
+	max-width: 960px;
+}
+.site-header {
+	background: #1b1f35;
+	color: #fff;  
+	margin-bottom: 0px;
+}
+.site-description {
+	color: #9ed54d;
+	font-variant: small-caps;
+	text-transform: lowercase;
+	font-size:2em;
+	height:100%;
+	vertical-align:bottom;
+	line-height: 0.7em;
+}
+.main-title {
+	color: #fff;
+}
+.main-navigation {
+	padding: 0px;
+	margin: 0px;
+	line-height: 10px;
+}
+.main-navigation .main-nav ul li a, 
+.main-navigation .menu-toggle {
+	color: #1b1f35;
+	font-weight: bold;
+}
+.entry-content > [class*="wp-block-"]:not(:last-child) {
+    margin-top: 1em;
+	  margin-bottom: 0.5em;
+}</style><link rel='stylesheet' id='jetpack-block-subscriptions-css' href='https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/blocks/subscriptions/view.css?minify=false&#038;ver=16.3-a.1' media='all' />
+
+</head>
+
+<body class="wp-singular post-template-default single single-post postid-190 single-format-standard wp-custom-logo wp-embed-responsive wp-theme-generatepress no-sidebar nav-below-header separate-containers header-aligned-center dropdown-hover featured-image-active" itemtype="https://schema.org/Blog" itemscope>
+	<a class="screen-reader-text skip-link" href="#content" title="Skip to content">Skip to content</a>		<header id="masthead" class="site-header" itemtype="https://schema.org/WPHeader" itemscope>
+			<div class="inside-header grid-container">
+				<div class="site-branding-container"><div class="site-logo">
+					<a href="https://blog.includesecurity.com/" title="Include Security Research Blog" rel="home">
+						<img  class="header-image is-logo-image" alt="Include Security Research Blog" src="https://blog.includesecurity.com/wp-content/uploads/2018/05/logo.svg" title="Include Security Research Blog" />
+					</a>
+				</div><div class="site-branding">
+						
+						<p class="site-description" itemprop="description">
+					Team Research blog
+				</p>
+					</div></div>			</div>
+		</header>
+				<nav id="site-navigation" class="main-navigation nav-align-center sub-menu-right" itemtype="https://schema.org/SiteNavigationElement" itemscope>
+			<div class="inside-navigation grid-container">
+								<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false">
+					<span class="gp-icon icon-menu-bars"><svg viewBox="0 0 512 512" aria-hidden="true" role="img" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em">
+						<path d="M0 96c0-13.255 10.745-24 24-24h464c13.255 0 24 10.745 24 24s-10.745 24-24 24H24c-13.255 0-24-10.745-24-24zm0 160c0-13.255 10.745-24 24-24h464c13.255 0 24 10.745 24 24s-10.745 24-24 24H24c-13.255 0-24-10.745-24-24zm0 160c0-13.255 10.745-24 24-24h464c13.255 0 24 10.745 24 24s-10.745 24-24 24H24c-13.255 0-24-10.745-24-24z" />
+					</svg><svg viewBox="0 0 512 512" aria-hidden="true" role="img" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em">
+						<path d="M71.029 71.029c9.373-9.372 24.569-9.372 33.942 0L256 222.059l151.029-151.03c9.373-9.372 24.569-9.372 33.942 0 9.372 9.373 9.372 24.569 0 33.942L289.941 256l151.03 151.029c9.372 9.373 9.372 24.569 0 33.942-9.373 9.372-24.569 9.372-33.942 0L256 289.941l-151.029 151.03c-9.373 9.372-24.569 9.372-33.942 0-9.372-9.373-9.372-24.569 0-33.942L222.059 256 71.029 104.971c-9.372-9.373-9.372-24.569 0-33.942z" />
+					</svg></span><span class="mobile-menu">Menu</span>				</button>
+				<div id="primary-menu" class="main-nav"><ul id="menu-primary" class=" menu sf-menu"><li id="menu-item-57" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-57"><a href="https://includesecurity.com/#home">Home</a></li>
+<li id="menu-item-61" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-61"><a href="https://includesecurity.com/#careers">Careers</a></li>
+<li id="menu-item-62" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-62"><a href="https://includesecurity.com/#contact">Contact Us</a></li>
+<li id="menu-item-428" class="twitterIcon menu-item menu-item-type-custom menu-item-object-custom menu-item-428"><a href="https://twitter.com/includesecurity">Twitter</a></li>
+</ul></div>			</div>
+		</nav>
+		
+	<div id="page" class="site grid-container container hfeed">
+				<div id="content" class="site-content">
+			
+	<div id="primary" class="content-area">
+		<main id="main" class="site-main">
+			
+<article id="post-190" class="post-190 post type-post status-publish format-standard has-post-thumbnail hentry category-exploit category-privacy category-tinder category-tinderfinder" itemtype="https://schema.org/CreativeWork" itemscope>
+	<div class="inside-article">
+				<div class="featured-image page-header-image-single grid-container grid-parent">
+			<img width="320" height="427" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?fit=320%2C427&amp;ssl=1" class="attachment-full size-full wp-post-image" alt="" itemprop="image" decoding="async" fetchpriority="high" srcset="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?w=320&amp;ssl=1 320w, https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?resize=225%2C300&amp;ssl=1 225w" sizes="(max-width: 320px) 100vw, 320px" data-attachment-id="225" data-permalink="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/tinder-screen-anonymized-png/#main" data-orig-file="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?fit=320%2C427&amp;ssl=1" data-orig-size="320,427" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="tinder-screen-anonymized.png" data-image-description="" data-image-caption="" data-large-file="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?fit=320%2C427&amp;ssl=1" />		</div>
+					<header class="entry-header">
+				<h1 class="entry-title" itemprop="headline">How I was able to track the location of any Tinder user.</h1>		<div class="entry-meta">
+			<span class="posted-on"><time class="updated" datetime="2021-02-18T14:17:17-05:00" itemprop="dateModified">February 18, 2021</time><time class="entry-date published" datetime="2014-02-19T11:28:00-05:00" itemprop="datePublished">February 19, 2014</time></span> <span class="byline"> — <span class="author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope><span class="author-name" itemprop="name">by Max Veytsman</span></span></span> 		</div>
+					</header>
+			
+		<div class="entry-content" itemprop="text">
+			<h5>By <a href="http://twitter.com/mveytsman">Max Veytsman</a></h5>
+<p>At IncludeSec we specialize in application security assessment for our clients, that means taking applications apart and finding really crazy vulnerabilities before other hackers do. When we have time off from client work we like to analyze popular apps to see what we find. Towards the end of 2013 we found a vulnerability that lets you get exact latitude and longitude co-ordinates for any Tinder user (<b><i>which has since been fixed</i></b>)</p>
+<p><a href="http://gotinder.com/">Tinder</a> is an incredibly popular dating app. It presents the user with photographs of strangers and allows them to &#8220;like&#8221; or &#8220;nope&#8221; them. When two people &#8220;like&#8221; each other, a chat box pops up allowing them to talk. What could be simpler?</p>
+<p>Being a dating app, it&#8217;s important that Tinder shows you attractive singles in <em>your area</em>. To that end, Tinder tells you how far away potential matches are:<br />
+<a href="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?ssl=1"><img data-recalc-dims="1" decoding="async" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/tinder-screen-anonymized.png?w=1200&#038;ssl=1" border="0"></a></p>
+<p>Before we continue, a bit of history: In July 2013, a different Privacy vulnerability was <a href="http://qz.com/106731/tinder-exposed-users-locations/">reported</a>&nbsp;in Tinder by another security researcher. At the time, Tinder was actually sending latitude and longitude co-ordinates of potential matches to the iOS client. Anyone with rudimentary programming skills could query the Tinder API directly and pull down the co-ordinates of any user.<br />
+I&#8217;m going to talk about a different vulnerability that&#8217;s related to how the one described above was fixed. In implementing their fix, Tinder introduced a new vulnerability that&#8217;s described below.</p>
+<h2>The API</h2>
+<p>By proxying iPhone requests, it&#8217;s possible to get a picture of the API the Tinder app uses. Of interest to us today is the <code>user</code> endpoint, which returns details about a user by id. This is called by the client for your potential matches as you swipe through pictures in the app.<br />
+Here&#8217;s a snippet of the response:</p>
+<div>
+<pre>{
+   "status":200,
+   "results":{
+      "bio":"",
+      "name":"Anthony",
+      "birth_date":"1981-03-16T00:00:00.000Z",
+      "gender":0,
+      "ping_time":"2013-10-18T18:31:05.695Z",
+      "photos":[
+      //cut to save space
+      ],
+      "id":"52617e698525596018001418",
+      "common_friends":[
+
+      ],
+      "common_likes":[
+
+      ],
+      "common_like_count":0,
+      "common_friend_count":0,
+      "distance_mi":4.760408451724539
+   }
+}</pre>
+</div>
+<p>Tinder is no longer returning exact GPS co-ordinates for its users, but it is leaking some location information that an attack can exploit. The <code>distance_mi</code> field is a 64-bit double. That&#8217;s a lot of precision that we&#8217;re getting, and it&#8217;s enough to do really accurate triangulation!</p>
+<h2>Triangulation</h2>
+<p>As far as high-school subjects go, trigonometry isn&#8217;t the most popular, so I won&#8217;t go into too many details here. Basically, if you have three (or more) distance measurements to a target from known locations, you can get an absolute location of the target using triangulation<sup><a href="https://www.blogger.com/blogger.g?blogID=2562550858613734061#fn1" rel="footnote">1</a></sup>. This is similar in principle to how GPS and cellphone location services work.<br />
+<a href="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/trilateration.png?ssl=1"><img data-recalc-dims="1" height="220" width="300" decoding="async" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/trilateration.png?resize=300%2C220&#038;ssl=1" border="0"></a><br />
+I can create a profile on Tinder, use the API to tell Tinder that I&#8217;m at some arbitrary location, and query the API to find a distance to a user. When I know the city my target lives in, I create 3 fake accounts on Tinder. I then tell the Tinder API that I am at three locations around where I guess my target is. Then I can plug the distances into the formula on <a href="https://en.wikipedia.org/wiki/Trilateration#Derivation">this</a> Wikipedia page.</p>
+<p>To make this a bit clearer, I built a webapp&#8230;.</p>
+<h2>TinderFinder</h2>
+<p>Before I go on, this app isn&#8217;t online and we have no plans on releasing it. This is a <strong>serious</strong> vulnerability, and we in no way want to help people invade the privacy of others. TinderFinder was built to demonstrate a vulnerability and only tested on Tinder accounts that I had control of.<br />
+TinderFinder works by having you input the user id of a target (or use your own by logging into Tinder). The assumption is that an attacker can find user ids fairly easily by sniffing the phone&#8217;s traffic to find them.<br />
+First, the user calibrates the search to a city. I&#8217;m picking a point in Toronto, because I will be finding myself. <a href="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/03_choose_city.png?ssl=1"><img data-recalc-dims="1" decoding="async" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/03_choose_city.png?w=1200&#038;ssl=1" border="0"></a><br />
+I can locate the <a href="http://rhino.projectspac.es/">office</a> I sat in while writing the app: <a href="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/04_found_max.png?ssl=1"><img data-recalc-dims="1" decoding="async" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/04_found_max.png?w=1200&#038;ssl=1" border="0"></a><br />
+I can also enter a user-id directly: <a href="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/05_find_user.png?ssl=1"><img data-recalc-dims="1" decoding="async" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/05_find_user.png?w=1200&#038;ssl=1" border="0"></a><br />
+And find a target Tinder user in NYC <a href="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/07_found_clara.png?ssl=1"><img data-recalc-dims="1" decoding="async" src="https://i0.wp.com/blog.includesecurity.com/wp-content/uploads/2014/02/07_found_clara.png?w=1200&#038;ssl=1" border="0"></a><br />
+You can find a video showing how the app works in more detail below:<br />
+<iframe src="//www.youtube.com/embed/3E2DwdS_PvQ" allowfullscreen="allowfullscreen" width="420" height="315" frameborder="0"></iframe></p>
+<h2>FAQ</h2>
+<p><strong>Q:</strong> What does this vulnerability allow one to do?<br />
+<strong>A:</strong> This vulnerability allows any Tinder user to find the exact location of another tinder user with a very high degree of accuracy (within 100ft from our experiments)<br />
+<strong>Q:</strong>&nbsp;Is this type of flaw specific to Tinder?<br />
+<strong>A:</strong>&nbsp;Absolutely not, flaws in location information handling have been common place in the mobile app space and continue to remain common if developers don&#8217;t handle location information more sensitively.<br />
+<strong>Q:</strong> Does this give you the location of a user&#8217;s last sign-in or when they signed up? or is it real-time location tracking?<br />
+<strong>A:</strong> This vulnerability finds the last location the user reported to Tinder, which usually happens when they last had the app open.<br />
+<strong>Q:</strong> Do you need Facebook for this attack to work?<br />
+<strong>A:</strong> While our Proof of concept attack uses Facebook authentication to find the user&#8217;s Tinder id, Facebook is <strong>NOT</strong> needed to exploit this vulnerability, and no action by Facebook could mitigate this vulnerability<br />
+<strong>Q:</strong> Is this related to the vulnerability found in Tinder earlier this year?<br />
+<strong>A:</strong> Yes this is related to the same area that a similar Privacy vulnerability was found in July 2013. At the time the application architecture change Tinder made to correct the privacy vulnerability was not correct, they changed the JSON data from exact lat/long to a highly precise distance. Max and Erik from Include Security were able to extract precise location data from this using triangulation.<br />
+<strong>Q:</strong> How did Include Security notify Tinder and what recommendation was given?<br />
+<strong>A:</strong> We have not done research to find out how long this flaw has existed, we believe it is possible this flaw has existed since the fix was made for the previous privacy flaw in July 2013. The team&#8217;s recommendation for remediation is to never deal with high resolution measurements of distance or location in any sense on the client-side. These calculations should be done on the server-side to avoid the possibility of the client applications intercepting the positional information. Alternatively using low-precision position/distance indicators would allow the feature and application architecture to remain intact while removing the ability to narrow down an exact position of another user.<br />
+<strong>Q:</strong> Is anybody exploiting this? How can I know if somebody has tracked me using this privacy vulnerability?<br />
+<strong>A:</strong> The API calls used in this proof of concept demonstration are not special in any way, they do not attack Tinder&#8217;s servers and they use data which the Tinder web services exports intentionally. There is no simple way to determine if this attack was used against a specific Tinder user.</p>
+<h2>Vulnerability Disclosure Timeline</h2>
+<ul>
+<li>October 23rd 2013 &#8211; We notified tinder via email to customer service.</li>
+<li>October 24th 2013 &#8211; We notified tinder via email to CEO.</li>
+<li>October 24th 2013 &#8211; Tinder&#8217;s CEO acknowledges and says thanks.</li>
+<li>November 8th 2013 &#8211; We ask for status from the CEO, no response.</li>
+<li>December 2nd 2013 &#8211; We ask for status from the CEO, we&#8217;re redirected to a tech team lead.</li>
+<li>December 2nd 2013 &#8211; Tech team lead asks for more time to implement a fix, we acknowledge and agree.</li>
+<li>January 1st 2014 &#8211; We look at the server-side traffic to see if the same issue exists and see that the high precision data is no longer being returned by the server (awesome looks like a fix!)</li>
+<li>January 2nd 2014 &#8211; We ask for fix details/status from the tech team lead, no response.</li>
+<li>February 4th 2014 &#8211; We ask for fix details/status from the tech team lead, no response.</li>
+<li>February 7th 2014 &#8211; We ask for fix details/status from the CEO, get short reply saying they&#8217;ll get back to us.</li>
+<li>February 19th 2014 &#8211; As the issue does not seem to be reproducible and we have no updates from the vendor&#8230;.blog post published.</li>
+</ul>
+<div>
+<hr>
+<ol>
+<li>Technically we&#8217;re doing trilateration. Triangulation involves finding distances when you have angle measurements, but it&#8217;s used colloquially to mean trilateration as well. If you&#8217;re so inclined, you can find out more about trilateration <a href="https://en.wikipedia.org/wiki/Trilateration">here</a>.&nbsp;<a href="https://www.blogger.com/blogger.g?blogID=2562550858613734061#fnref1" rev="footnote">↩</a></li>
+</ol>
+</div>
+<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-twitter"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-twitter-190"
+				class="share-twitter sd-button share-icon"
+				href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/?share=twitter"
+				target="_blank"
+				aria-labelledby="sharing-twitter-190"
+				>
+				<span id="sharing-twitter-190" hidden>Share on X (Opens in new window)</span>
+				<span>X</span>
+			</a></li><li class="share-facebook"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-facebook-190"
+				class="share-facebook sd-button share-icon"
+				href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/?share=facebook"
+				target="_blank"
+				aria-labelledby="sharing-facebook-190"
+				>
+				<span id="sharing-facebook-190" hidden>Share on Facebook (Opens in new window)</span>
+				<span>Facebook</span>
+			</a></li><li class="share-end"></li></ul></div></div></div><div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-post-wrapper-145744988-190-6ab26f2681c83' data-src='https://widgets.wp.com/likes/?ver=16.3-a.1#blog_id=145744988&amp;post_id=190&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-190-6ab26f2681c83' data-name='like-post-frame-145744988-190-6ab26f2681c83' data-title='Like or Reblog'><h3 class="sd-title">Like this:</h3><div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>Like</span></span> <span class="loading"><svg class="jetpack-spinner" width="18" height="18" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><circle cx="50" cy="50" r="46" fill="none" stroke="#ddd" stroke-width="8"/><path d="M 50 4 A 46 46 0 0 1 96 50" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" dur="1.4s" from="0 50 50" to="360 50 50" repeatCount="indefinite"/></path></svg><span class="screen-reader-text">Loading…</span></span></div><span class='sd-text-color'></span><a class='sd-link-color'></a></div>		</div>
+
+				<footer class="entry-meta">
+			<span class="cat-links"><span class="gp-icon icon-categories"><svg viewBox="0 0 512 512" aria-hidden="true" role="img" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1em" height="1em">
+						<path d="M0 112c0-26.51 21.49-48 48-48h110.014a48 48 0 0 1 43.592 27.907l12.349 26.791A16 16 0 0 0 228.486 128H464c26.51 0 48 21.49 48 48v224c0 26.51-21.49 48-48 48H48c-26.51 0-48-21.49-48-48V112z" fill-rule="nonzero"/>
+					</svg></span><span class="screen-reader-text">Categories </span><a href="https://blog.includesecurity.com/category/exploit/" rel="category tag">Exploit</a>, <a href="https://blog.includesecurity.com/category/privacy/" rel="category tag">Privacy</a>, <a href="https://blog.includesecurity.com/category/tinder/" rel="category tag">Tinder</a>, <a href="https://blog.includesecurity.com/category/tinderfinder/" rel="category tag">TinderFinder</a></span> 		<nav id="nav-below" class="post-navigation">
+			<span class="screen-reader-text">Post navigation</span>
+
+			<div class="nav-next"><span class="gp-icon icon-arrow-right"><svg viewBox="0 0 192 512" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="1.414">
+						<path d="M178.425 256.001c0 2.266-1.133 4.815-2.832 6.515L43.599 394.509c-1.7 1.7-4.248 2.833-6.514 2.833s-4.816-1.133-6.515-2.833l-14.163-14.162c-1.699-1.7-2.832-3.966-2.832-6.515 0-2.266 1.133-4.815 2.832-6.515l111.317-111.316L16.407 144.685c-1.699-1.7-2.832-4.249-2.832-6.515s1.133-4.815 2.832-6.515l14.163-14.162c1.7-1.7 4.249-2.833 6.515-2.833s4.815 1.133 6.514 2.833l131.994 131.993c1.7 1.7 2.832 4.249 2.832 6.515z" fill-rule="nonzero"/>
+					</svg></span><span class="next" title="Next"><a href="https://blog.includesecurity.com/2014/03/how-to-exploit-the-x32-recvmmsg-kernel-vulnerability-cve-2014-0038/" rel="next">How to exploit the x32 recvmmsg() kernel vulnerability CVE 2014-0038</a></span></div>		</nav>
+				</footer>
+			</div>
+</article>
+
+			<div class="comments-area">
+				<div id="comments">
+
+	<h3 class="comments-title">24 thoughts on &ldquo;How I was able to track the location of any Tinder user.&rdquo;</h3>
+		<ol class="comment-list">
+			
+		<li id="comment-99" class="comment even thread-even depth-1">
+			<article id="div-comment-99" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/12573667478601989818" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-99">
+								<time datetime="2014-02-19T12:53:44-05:00" itemprop="datePublished">
+									February 19, 2014 at 12:53 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>This is so simple it&#39;s scary.  Question: Could the fix be as simple as, say, rounding the API response distance (to a tenth of a mile, say) or would they need to do something a bit more clever (such as adding some arbitrary random small distance to the API response distance each time it responds)?</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-99-6ab26f2684569' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=99&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-99-6ab26f2684569' data-name='like-comment-frame-145744988-99-6ab26f2684569'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-99" data-commentid="99" data-postid="190" data-belowelement="div-comment-99" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-98" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-98" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/02704885710547866762" class="url" rel="ugc external nofollow">Include Security</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-98">
+								<time datetime="2014-02-19T13:36:07-05:00" itemprop="datePublished">
+									February 19, 2014 at 1:36 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Hey Zack, yep that&#39;s kind of what they did. They rounded to be an integer and not floating point value returned from the server-side.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-98-6ab26f2684cac' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=98&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-98-6ab26f2684cac' data-name='like-comment-frame-145744988-98-6ab26f2684cac'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-98" data-commentid="98" data-postid="190" data-belowelement="div-comment-98" data-respondelement="respond" data-replyto="Reply to Include Security" aria-label="Reply to Include Security">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-97" class="comment even thread-even depth-1">
+			<article id="div-comment-97" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/17602827978649991286" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-97">
+								<time datetime="2014-02-19T14:36:35-05:00" itemprop="datePublished">
+									February 19, 2014 at 2:36 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Nice find! Though, isn&#39;t this extremely hard to fix?</p>
+<p>By sampling the distance from additional locations you should be able to increase the precision beyond the 1 mile. Next, what keeps you from repeatedly reporting a different client location, removing the need for multiple accounts? The only &#39;drawback&#39; would be that it&#39;s much less stealthy.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-97-6ab26f2685355' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=97&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-97-6ab26f2685355' data-name='like-comment-frame-145744988-97-6ab26f2685355'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-97" data-commentid="97" data-postid="190" data-belowelement="div-comment-97" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-96" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-96" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/06207269576107385827" class="url" rel="ugc external nofollow">Brian</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-96">
+								<time datetime="2014-02-19T14:50:17-05:00" itemprop="datePublished">
+									February 19, 2014 at 2:50 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>I assumed they would add a random number in some range like [-3, 3] to the distance in each API result. 9 square miles should be sufficiently large, right?</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-96-6ab26f26859e9' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=96&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-96-6ab26f26859e9' data-name='like-comment-frame-145744988-96-6ab26f26859e9'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-96" data-commentid="96" data-postid="190" data-belowelement="div-comment-96" data-respondelement="respond" data-replyto="Reply to Brian" aria-label="Reply to Brian">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-95" class="comment even thread-even depth-1">
+			<article id="div-comment-95" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/05321338163726425220" class="url" rel="ugc external nofollow">rajneesh rana</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-95">
+								<time datetime="2014-02-19T15:11:25-05:00" itemprop="datePublished">
+									February 19, 2014 at 3:11 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>this is an issue with services which use precise location based on gps.<br />most web application should be able to get similar results for user location based on wifi locations and these are more broad and thus reduce risk of user privacy being breached.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-95-6ab26f2686072' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=95&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-95-6ab26f2686072' data-name='like-comment-frame-145744988-95-6ab26f2686072'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-95" data-commentid="95" data-postid="190" data-belowelement="div-comment-95" data-respondelement="respond" data-replyto="Reply to rajneesh rana" aria-label="Reply to rajneesh rana">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-94" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-94" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/17136369904508977053" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-94">
+								<time datetime="2014-02-19T15:37:33-05:00" itemprop="datePublished">
+									February 19, 2014 at 3:37 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Rounding the number doesn&#39;t help though, it only requires a slightly more complex solution. Instead of triangulating, you could just &quot;hectagonate&quot; to find the person. Instead of creating 3 fake profiles, create 100, all equidistant from your original starting point, spaced evenly around a circle with a radius twice that of the rounded distance Tinder first spit out. While each of these fake profiles will only give you a rounded distance, (assuming Tinder rounds consistently) those closer to the profile will round to a lower number and those farther to a higher numbes, sectioning the circle into sectors of about one mile, about 2 miles, about 3 miles&#8230; Sectors of different values meet at the rounding cutoff. Ie where the 2&#39;s switch over to 3&#39;s is likely 2.5 miles. Almost exactly. The greater the distance you are initially, the fewer profiles you&#39;d need to compensate for rounding. Conversely the more fake profiles, the more exactly you can generate those sector cutoffs and generate points that you can once again triangulate from.</p>
+<p>Have they dealt with this???</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-94-6ab26f268672f' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=94&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-94-6ab26f268672f' data-name='like-comment-frame-145744988-94-6ab26f268672f'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-94" data-commentid="94" data-postid="190" data-belowelement="div-comment-94" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-93" class="comment even thread-even depth-1">
+			<article id="div-comment-93" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/16286312946706534043" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-93">
+								<time datetime="2014-02-19T16:00:10-05:00" itemprop="datePublished">
+									February 19, 2014 at 4:00 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>NO! !!!!!!!!!!!!!!!!!</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-93-6ab26f2686dd3' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=93&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-93-6ab26f2686dd3' data-name='like-comment-frame-145744988-93-6ab26f2686dd3'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-93" data-commentid="93" data-postid="190" data-belowelement="div-comment-93" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-92" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-92" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/06244665298077265838" class="url" rel="ugc external nofollow">Two Comma Kid</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-92">
+								<time datetime="2014-02-19T23:06:22-05:00" itemprop="datePublished">
+									February 19, 2014 at 11:06 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Why doesn&#39;t tinder just encrypt outbound api data?</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-92-6ab26f268743e' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=92&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-92-6ab26f268743e' data-name='like-comment-frame-145744988-92-6ab26f268743e'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-92" data-commentid="92" data-postid="190" data-belowelement="div-comment-92" data-respondelement="respond" data-replyto="Reply to Two Comma Kid" aria-label="Reply to Two Comma Kid">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-91" class="comment even thread-even depth-1">
+			<article id="div-comment-91" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/02704885710547866762" class="url" rel="ugc external nofollow">Include Security</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-91">
+								<time datetime="2014-02-20T01:30:54-05:00" itemprop="datePublished">
+									February 20, 2014 at 1:30 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>@TwoCommaKid it&#39;s not that simple of a problem, the transport layer security (presumably HTTPS or even symmetric encryption) does not matter. This is more of a design flaw in the way they architect their data exchange.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-91-6ab26f2687ac5' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=91&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-91-6ab26f2687ac5' data-name='like-comment-frame-145744988-91-6ab26f2687ac5'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-91" data-commentid="91" data-postid="190" data-belowelement="div-comment-91" data-respondelement="respond" data-replyto="Reply to Include Security" aria-label="Reply to Include Security">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-90" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-90" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/10608420528007735444" class="url" rel="ugc external nofollow">Yoni Jah</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-90">
+								<time datetime="2014-02-20T01:51:23-05:00" itemprop="datePublished">
+									February 20, 2014 at 1:51 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Alex &#8211; even with adding random error, this will be very hard to properly fix.<br />especially if it easy to create fake accounts and brute force the api.</p>
+<p>so if you block a certain IP after 20/30 location request for the same person.<br />you might be safe but if a user can do hundreds and thousands location queries<br />I don&#39;t think there will be any solution that will leave the distance feature useful and prevent triangulation</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-90-6ab26f2688164' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=90&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-90-6ab26f2688164' data-name='like-comment-frame-145744988-90-6ab26f2688164'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-90" data-commentid="90" data-postid="190" data-belowelement="div-comment-90" data-respondelement="respond" data-replyto="Reply to Yoni Jah" aria-label="Reply to Yoni Jah">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-89" class="comment even thread-even depth-1">
+			<article id="div-comment-89" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/09566700171008456969" class="url" rel="ugc external nofollow">aaron@</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-89">
+								<time datetime="2014-02-20T03:04:13-05:00" itemprop="datePublished">
+									February 20, 2014 at 3:04 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>A possible fix would be to round each lat/long coordinate so that it basically maps to a pre-defined grid. So anyone within .5 mile of any intersection point on the grid would be shown to be at the intersection. With this method, triangulation would allow you to determine this grid point, but not precise location of the user.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-89-6ab26f2688a09' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=89&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-89-6ab26f2688a09' data-name='like-comment-frame-145744988-89-6ab26f2688a09'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-89" data-commentid="89" data-postid="190" data-belowelement="div-comment-89" data-respondelement="respond" data-replyto="Reply to aaron@" aria-label="Reply to aaron@">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-88" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-88" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn">Anonymous</cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-88">
+								<time datetime="2014-02-20T05:55:13-05:00" itemprop="datePublished">
+									February 20, 2014 at 5:55 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Dude you found Miley Cyrus&#39; location? Well done!</p>
+<p>😛</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-88-6ab26f2689087' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=88&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-88-6ab26f2689087' data-name='like-comment-frame-145744988-88-6ab26f2689087'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-88" data-commentid="88" data-postid="190" data-belowelement="div-comment-88" data-respondelement="respond" data-replyto="Reply to Anonymous" aria-label="Reply to Anonymous">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-87" class="comment even thread-even depth-1">
+			<article id="div-comment-87" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/06047112757634244878" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-87">
+								<time datetime="2014-02-20T06:14:06-05:00" itemprop="datePublished">
+									February 20, 2014 at 6:14 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Good catch! </p>
+<p>Brian: adding noise does not help if one knows noise model. Then some more location calls are required, but still the position can be exact.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-87-6ab26f2689724' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=87&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-87-6ab26f2689724' data-name='like-comment-frame-145744988-87-6ab26f2689724'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-87" data-commentid="87" data-postid="190" data-belowelement="div-comment-87" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-86" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-86" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/11573581859992998135" class="url" rel="ugc external nofollow">kyrodes</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-86">
+								<time datetime="2014-02-20T07:26:46-05:00" itemprop="datePublished">
+									February 20, 2014 at 7:26 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Why don&#39;t they just return the name of the neighborhood instead of returning a distance in miles?</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-86-6ab26f2689dc0' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=86&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-86-6ab26f2689dc0' data-name='like-comment-frame-145744988-86-6ab26f2689dc0'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-86" data-commentid="86" data-postid="190" data-belowelement="div-comment-86" data-respondelement="respond" data-replyto="Reply to kyrodes" aria-label="Reply to kyrodes">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-85" class="comment even thread-even depth-1">
+			<article id="div-comment-85" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/03537128316332587794" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-85">
+								<time datetime="2014-02-20T10:13:09-05:00" itemprop="datePublished">
+									February 20, 2014 at 10:13 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Couldn&#39;t they use the GPS location information to determine zip code that the user is in, and than just return the zip code to the client and calculate the distance based on that?</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-85-6ab26f268a504' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=85&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-85-6ab26f268a504' data-name='like-comment-frame-145744988-85-6ab26f268a504'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-85" data-commentid="85" data-postid="190" data-belowelement="div-comment-85" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-84" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-84" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/17390518922849240517" class="url" rel="ugc external nofollow">eithe</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-84">
+								<time datetime="2014-02-20T10:39:26-05:00" itemprop="datePublished">
+									February 20, 2014 at 10:39 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Bear in mind that I don&#39;t have an account on Tinder, but wouldn&#39;t &quot;no anonymous accounts + email confirmation&quot; solve this issue?</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-84-6ab26f268abfd' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=84&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-84-6ab26f268abfd' data-name='like-comment-frame-145744988-84-6ab26f268abfd'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-84" data-commentid="84" data-postid="190" data-belowelement="div-comment-84" data-respondelement="respond" data-replyto="Reply to eithe" aria-label="Reply to eithe">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-83" class="comment even thread-even depth-1">
+			<article id="div-comment-83" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/06911250025922006311" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-83">
+								<time datetime="2014-02-20T10:55:20-05:00" itemprop="datePublished">
+									February 20, 2014 at 10:55 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>I think aaron@&#39;s solution would work.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-83-6ab26f268b26c' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=83&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-83-6ab26f268b26c' data-name='like-comment-frame-145744988-83-6ab26f268b26c'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-83" data-commentid="83" data-postid="190" data-belowelement="div-comment-83" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-82" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-82" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/13910649176933879356" class="url" rel="ugc external nofollow">Romain</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-82">
+								<time datetime="2014-02-20T17:49:45-05:00" itemprop="datePublished">
+									February 20, 2014 at 5:49 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>No bounty. No answer.<br />You should charge them next time.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-82-6ab26f268b8d4' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=82&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-82-6ab26f268b8d4' data-name='like-comment-frame-145744988-82-6ab26f268b8d4'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-82" data-commentid="82" data-postid="190" data-belowelement="div-comment-82" data-respondelement="respond" data-replyto="Reply to Romain" aria-label="Reply to Romain">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-81" class="comment even thread-even depth-1">
+			<article id="div-comment-81" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/12045390154223499464" class="url" rel="ugc external nofollow">kwatts</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-81">
+								<time datetime="2014-02-20T17:57:45-05:00" itemprop="datePublished">
+									February 20, 2014 at 5:57 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Nice writeup, we had published this exact finding &#8211; found by our analysis engines &#8211; months ago (<a href="https://www.appthority.com/risky-apps/risky-apps-tinder-skout-and-flirt" rel="nofollow ugc">https://www.appthority.com/risky-apps/risky-apps-tinder-skout-and-flirt</a>). It&#39;s a common issue we found with other popular dating apps as well. When we last looked at it we found that Tinder wasn&#39;t sending the exact distance away anymore and rounding it to the mile.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-81-6ab26f268bf83' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=81&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-81-6ab26f268bf83' data-name='like-comment-frame-145744988-81-6ab26f268bf83'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-81" data-commentid="81" data-postid="190" data-belowelement="div-comment-81" data-respondelement="respond" data-replyto="Reply to kwatts" aria-label="Reply to kwatts">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-80" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-80" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/02704885710547866762" class="url" rel="ugc external nofollow">Include Security</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-80">
+								<time datetime="2014-02-20T20:39:44-05:00" itemprop="datePublished">
+									February 20, 2014 at 8:39 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>@kwatts Thanks for pointing us to your blog, this was our first time reading it. Appthority really should have written a proof-of-concept and reported it to tinder instead of just adding it as an easily missed note in the middle of a lengthy blog post!</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-80-6ab26f268c5fb' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=80&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-80-6ab26f268c5fb' data-name='like-comment-frame-145744988-80-6ab26f268c5fb'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-80" data-commentid="80" data-postid="190" data-belowelement="div-comment-80" data-respondelement="respond" data-replyto="Reply to Include Security" aria-label="Reply to Include Security">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-79" class="comment even thread-even depth-1">
+			<article id="div-comment-79" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/18398214907614978997" class="url" rel="ugc external nofollow">dre</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-79">
+								<time datetime="2014-02-21T02:49:19-05:00" itemprop="datePublished">
+									February 21, 2014 at 2:49 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>haha nice find man. Good touch with the web app. Knew that face looked familiar</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-79-6ab26f268cc7a' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=79&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-79-6ab26f268cc7a' data-name='like-comment-frame-145744988-79-6ab26f268cc7a'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-79" data-commentid="79" data-postid="190" data-belowelement="div-comment-79" data-respondelement="respond" data-replyto="Reply to dre" aria-label="Reply to dre">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-78" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-78" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/18242382838042825423" class="url" rel="ugc external nofollow">Chris</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-78">
+								<time datetime="2014-02-23T14:47:31-05:00" itemprop="datePublished">
+									February 23, 2014 at 2:47 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>Hi Include Security,</p>
+<p>really great post!<br />We&#39;ve seen as well, that they rounded the distance from double to int.<br />But finally, that means Tinder just decreased the accuracy of detection the current location.<br />By what size do you think the accuracy changed? From 100ft to &#8230; ?</p>
+<p>Best,<br />Chris</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-78-6ab26f268d314' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=78&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-78-6ab26f268d314' data-name='like-comment-frame-145744988-78-6ab26f268d314'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-78" data-commentid="78" data-postid="190" data-belowelement="div-comment-78" data-respondelement="respond" data-replyto="Reply to Chris" aria-label="Reply to Chris">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-15" class="comment even thread-even depth-1">
+			<article id="div-comment-15" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/01820503896835744756" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-15">
+								<time datetime="2016-03-26T09:10:45-04:00" itemprop="datePublished">
+									March 26, 2016 at 9:10 am								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>This is all well and good except that Tinder doesn&#39;t update location unless the app is launched at whatever location the user happens to be at during that time. If someone isn&#39;t actively swiping, their location could be several hours or even several days old.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-15-6ab26f268d9ca' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=15&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-15-6ab26f268d9ca' data-name='like-comment-frame-145744988-15-6ab26f268d9ca'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-15" data-commentid="15" data-postid="190" data-belowelement="div-comment-15" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+
+		<li id="comment-13" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-13" class="comment-body" itemtype="https://schema.org/Comment" itemscope>
+				<footer class="comment-meta">
+					<img alt='' src='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/7afe331ed18d7224b694992c6bea1ba99cfddae2f3395f423b8ee3843219b397?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy' decoding='async'/>					<div class="comment-author-info">
+						<div class="comment-author vcard" itemprop="author" itemtype="https://schema.org/Person" itemscope>
+							<cite itemprop="name" class="fn"><a href="https://www.blogger.com/profile/17500300959958864441" class="url" rel="ugc external nofollow">Unknown</a></cite>						</div>
+
+						<div class="entry-meta comment-metadata">
+							<a href="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#comment-13">
+								<time datetime="2016-08-09T15:29:55-04:00" itemprop="datePublished">
+									August 9, 2016 at 3:29 pm								</time>
+							</a>
+													</div>
+					</div>
+
+									</footer>
+
+				<div class="comment-content" itemprop="text">
+					<p>@unknown but also that location that&#39;s several days old could be their work, their house or somewhere they frequently visit, meaning it&#39;s still rather dangerous.</p>
+<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-comment-wrapper-145744988-13-6ab26f268e03c' data-src='https://widgets.wp.com/likes/#blog_id=145744988&amp;comment_id=13&amp;origin=blog.includesecurity.com&amp;obj_id=145744988-13-6ab26f268e03c' data-name='like-comment-frame-145744988-13-6ab26f268e03c'>
+<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>Loading...</span></div>
+<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+</div>
+<span class="reply"><a rel="nofollow" class="comment-reply-link" href="#comment-13" data-commentid="13" data-postid="190" data-belowelement="div-comment-13" data-respondelement="respond" data-replyto="Reply to Unknown" aria-label="Reply to Unknown">Reply</a></span>				</div>
+			</article>
+			</li><!-- #comment-## -->
+		</ol><!-- .comment-list -->
+
+		
+		<div id="respond" class="comment-respond">
+			<h3 id="reply-title" class="comment-reply-title">Leave a Reply<small><a rel="nofollow" id="cancel-comment-reply-link" href="/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/#respond" style="display:none;">Cancel reply</a></small></h3>			<form id="commentform" class="comment-form">
+				<iframe
+					title="Comment Form"
+					src="https://jetpack.wordpress.com/jetpack-comment/?blogid=145744988&#038;postid=190&#038;comment_registration=0&#038;require_name_email=1&#038;stc_enabled=1&#038;stb_enabled=1&#038;show_avatars=1&#038;avatar_default=identicon&#038;greeting=Leave+a+Reply&#038;jetpack_comments_nonce=f6785807ea&#038;greeting_reply=Leave+a+Reply+to+%25s&#038;color_scheme=light&#038;lang=en_US&#038;jetpack_version=16.3-a.1&#038;iframe_unique_id=1&#038;show_cookie_consent=10&#038;has_cookie_consent=0&#038;is_current_user_subscribed=0&#038;token_key=%3Bnormal%3B&#038;sig=dd1692587a6ed594982551e7a05ee389144df44e#parent=https%3A%2F%2Fblog.includesecurity.com%2F2014%2F02%2Fhow-i-was-able-to-track-the-location-of-any-tinder-user%2F"
+											name="jetpack_remote_comment"
+						style="width:100%; height: 430px; border:0;"
+										class="jetpack_remote_comment"
+					id="jetpack_remote_comment"
+					sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups"
+				>
+									</iframe>
+									<!--[if !IE]><!-->
+					<script>
+						document.addEventListener('DOMContentLoaded', function () {
+							var commentForms = document.getElementsByClassName('jetpack_remote_comment');
+							for (var i = 0; i < commentForms.length; i++) {
+								commentForms[i].allowTransparency = false;
+								commentForms[i].scrolling = 'no';
+							}
+						});
+					</script>
+					<!--<![endif]-->
+							</form>
+		</div>
+
+		
+		<input type="hidden" name="comment_parent" id="comment_parent" value="" />
+
+		
+</div><!-- #comments -->
+			</div>
+
+					</main>
+	</div>
+
+	
+	</div>
+</div>
+
+
+
+<!--  -->
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/generatepress/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<meta id="bilmur" property="bilmur:data" content="" data-customproperties="{&quot;woo_active&quot;:&quot;0&quot;,&quot;logged_in&quot;:&quot;0&quot;,&quot;wptheme&quot;:&quot;generatepress&quot;,&quot;wptheme_is_block&quot;:&quot;0&quot;}" data-provider="wordpress.com" data-service="atomic"  data-site-tz="America/New_York"  >
+<script defer src="https://s0.wp.com/wp-content/js/bilmur.min.js?m=202639"></script>
+					<div class="jetpack-subscription-modal">
+						<div class="jetpack-subscription-modal__modal-content">
+								
+	<div class="wp-block-group has-border-color jetpack-subscription-modal__modal-content-form" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding:32px"><div class="wp-block-group__inner-container is-layout-flow wp-block-group-is-layout-flow">
+
+		
+		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">Discover more from Include Security Research Blog</h2>
+		
+
+		
+		<p class="has-text-align-center wp-block-paragraph" style='margin-top:4px;margin-bottom:0px;font-size:15px'>Subscribe now to keep reading and get access to the full archive.</p>
+		
+
+			<div class="wp-block-jetpack-subscriptions__supports-newline is-style-compact wp-block-jetpack-subscriptions">
+		<div class="wp-block-jetpack-subscriptions__container is-not-subscriber">
+							<form
+					action="https://wordpress.com/email-subscriptions"
+					method="post"
+					accept-charset="utf-8"
+					data-blog="145744988"
+					data-post_access_level="everybody"
+					data-subscriber_email=""
+					id="subscribe-blog"
+				>
+					<div class="wp-block-jetpack-subscriptions__form-elements">
+												<p id="subscribe-email">
+							<label
+								id="subscribe-field-label"
+								for="subscribe-field"
+								class="screen-reader-text"
+							>
+								Type your email…							</label>
+							<input
+									required="required"
+									type="email"
+									name="email"
+									autocomplete="email"
+									
+									style="font-size: 16px;padding: 15px 23px 15px 23px;border-radius: 50px;border-width: 1px;"
+									placeholder="Type your email…"
+									value=""
+									id="subscribe-field"
+									title="Please fill in this field."
+								/>						</p>
+												<p id="subscribe-submit"
+													>
+							<input type="hidden" name="action" value="subscribe"/>
+							<input type="hidden" name="blog_id" value="145744988"/>
+							<input type="hidden" name="source" value="https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/"/>
+							<input type="hidden" name="sub-type" value="subscribe-block"/>
+							<input type="hidden" name="app_source" value="atomic-subscription-modal-lo"/>
+							<input type="hidden" name="redirect_fragment" value="subscribe-blog"/>
+							<input type="hidden" name="lang" value="en_US"/>
+							<input type="hidden" id="_wpnonce" name="_wpnonce" value="dce4638e66" /><input type="hidden" name="_wp_http_referer" value="/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/" /><input type="hidden" name="post_id" value="190"/>							<button type="submit"
+																	class="wp-block-button__link"
+																									style="font-size: 16px;padding: 15px 23px 15px 23px;margin: 0; margin-left: 10px;border-radius: 50px;border-width: 1px;"
+																name="jetpack_subscriptions_widget"
+							>
+								Subscribe							</button>
+						</p>
+					</div>
+				</form>
+								</div>
+	</div>
+	
+
+		
+		<p class="has-text-align-center jetpack-subscription-modal__close wp-block-paragraph" style="margin-top:20px;font-size:14px"><a href="#">Continue reading</a></p>
+		
+	</div></div>
+							</div>
+					</div>
+				<div style="display:none">
+			<div class="grofile-hash-map-41dc3e007986c35dc46763689fa93174">
+		</div>
+		</div>
+		
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https://blog.includesecurity.com/2014/02/how-i-was-able-to-track-the-location-of-any-tinder-user/":190};
+	</script>
+				<script id="generate-main-js-extra">
+var generatepressMenu = {"toggleOpenedSubMenus":"1","openSubMenuLabel":"Open Sub-Menu","closeSubMenuLabel":"Close Sub-Menu"};
+//# sourceURL=generate-main-js-extra
+</script>
+<script id="generate-main-js" src="https://blog.includesecurity.com/wp-content/themes/generatepress/assets/js/main.min.js?ver=3.0.2"></script>
+<script async data-wp-strategy="async" fetchpriority="low" id="comment-reply-js" src="https://c0.wp.com/c/7.1.1/wp-includes/js/comment-reply.min.js"></script>
+<script id="wp-dom-ready-js" src="https://c0.wp.com/c/7.1.1/wp-includes/js/dist/dom-ready.min.js"></script>
+<script id="subscription-modal-js-js-extra">
+var subscriptionData = {"homeUrl":"blog.includesecurity.com"};
+//# sourceURL=subscription-modal-js-js-extra
+</script>
+<script id="subscription-modal-js-js" src="https://blog.includesecurity.com/wp-content/plugins/jetpack/modules/comments/subscription-modal-on-comment/subscription-modal.js?ver=16.3-a.1"></script>
+<script id="grofiles-cards-js" src="https://secure.gravatar.com/js/gprofiles.js?ver=202639"></script>
+<script id="wpgroho-js-extra">
+var WPGroHo = {"my_hash":""};
+//# sourceURL=wpgroho-js-extra
+</script>
+<script id="wpgroho-js" src="https://blog.includesecurity.com/wp-content/plugins/jetpack/modules/wpgroho.js?ver=16.3-a.1"></script>
+<script id="jetpack_likes_queuehandler-js" src="https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/build/likes/queuehandler.min.js?ver=16.3-a.1"></script>
+<script id="enlighterjs-js" src="https://blog.includesecurity.com/wp-content/plugins/enlighter/cache/enlighterjs.min.js?ver=vcFzeYSNeR1CecZ"></script>
+<script id="enlighterjs-js-after">
+!function(e,n){if("undefined"!=typeof EnlighterJS){var o={"selectors":{"block":"pre.EnlighterJSRAW","inline":"code.EnlighterJSRAW"},"options":{"indent":4,"ampersandCleanup":true,"linehover":false,"rawcodeDbclick":false,"textOverflow":"break","linenumbers":false,"theme":"droide","language":"generic","retainCssClasses":false,"collapse":false,"toolbarOuter":"","toolbarTop":"{BTN_RAW}{BTN_COPY}{BTN_WINDOW}{BTN_WEBSITE}","toolbarBottom":""}};(e.EnlighterJSINIT=function(){EnlighterJS.init(o.selectors.block,o.selectors.inline,o.options)})()}else{(n&&(n.error||n.log)||function(){})("Error: EnlighterJS resources not loaded yet!")}}(window,console);
+//# sourceURL=enlighterjs-js-after
+</script>
+<script id="jetpack-stats-js-before">
+_stq = window._stq || [];
+_stq.push([ "view", {"v":"ext","blog":"145744988","post":"190","tz":"-4","srv":"blog.includesecurity.com","hp":"atomic","ac":"2","amp":"0","j":"1:16.3-a.1"} ]);
+_stq.push([ "clickTrackerInit", "145744988", "190" ]);
+//# sourceURL=jetpack-stats-js-before
+</script>
+<script data-wp-strategy="defer" defer fetchpriority="low" id="jetpack-stats-js" src="https://stats.wp.com/e-202639.js"></script>
+<script defer id="akismet-frontend-js" src="https://blog.includesecurity.com/wp-content/plugins/akismet/_inc/akismet-frontend.js?ver=1785900794"></script>
+<script id="jetpack-blocks-assets-base-url-js-before">
+var Jetpack_Block_Assets_Base_Url="https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/blocks/";
+//# sourceURL=jetpack-blocks-assets-base-url-js-before
+</script>
+<script id="wp-polyfill-js" src="https://c0.wp.com/c/7.1.1/wp-includes/js/dist/vendor/wp-polyfill.min.js"></script>
+<script data-wp-strategy="defer" defer id="jetpack-block-subscriptions-js" src="https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/blocks/subscriptions/view.js?minify=false&#038;ver=16.3-a.1"></script>
+<script id="sharing-js-js-extra">
+var sharing_js_options = {"lang":"en","counts":"1","is_stats_active":"1"};
+//# sourceURL=sharing-js-js-extra
+</script>
+<script id="sharing-js-js" src="https://blog.includesecurity.com/wp-content/plugins/jetpack/_inc/build/sharedaddy/sharing.min.js?ver=16.3-a.1"></script>
+<script id="sharing-js-js-after">
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "twitter" ] = "menubar=1,resizable=1,width=600,height=350";
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "facebook" ] = "menubar=1,resizable=1,width=600,height=400";
+//# sourceURL=sharing-js-js-after
+</script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://blog.includesecurity.com/wp-includes/js/wp-emoji-release.min.js?ver=7.1.1"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
+//# sourceURL=https://blog.includesecurity.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+	<iframe src='https://widgets.wp.com/likes/master.html?ver=20260922#ver=20260922' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
+	<div id='likes-other-gravatars' role="dialog" aria-hidden="true" tabindex="-1"><div class="likes-text"><span>%d</span></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+			<script type="text/javascript">
+			(function () {
+				const iframe = document.getElementById( 'jetpack_remote_comment' );
+								const watchReply = function() {
+					// Check addComment._Jetpack_moveForm to make sure we don't monkey-patch twice.
+					if ( 'undefined' !== typeof addComment && ! addComment._Jetpack_moveForm ) {
+						// Cache the Core function.
+						addComment._Jetpack_moveForm = addComment.moveForm;
+						const commentParent = document.getElementById( 'comment_parent' );
+						const cancel = document.getElementById( 'cancel-comment-reply-link' );
+
+						function tellFrameNewParent ( commentParentValue ) {
+							const url = new URL( iframe.src );
+							if ( commentParentValue ) {
+								url.searchParams.set( 'replytocom', commentParentValue )
+							} else {
+								url.searchParams.delete( 'replytocom' );
+							}
+							if( iframe.src !== url.href ) {
+								iframe.src = url.href;
+							}
+						};
+
+						cancel.addEventListener( 'click', function () {
+							tellFrameNewParent( false );
+						} );
+
+						addComment.moveForm = function ( _, parentId ) {
+							tellFrameNewParent( parentId );
+							return addComment._Jetpack_moveForm.apply( null, arguments );
+						};
+					}
+				}
+				document.addEventListener( 'DOMContentLoaded', watchReply );
+				// In WP 6.4+, the script is loaded asynchronously, so we need to wait for it to load before we monkey-patch the functions it introduces.
+				document.querySelector('#comment-reply-js')?.addEventListener( 'load', watchReply );
+
+								
+				const commentIframes = document.getElementsByClassName('jetpack_remote_comment');
+
+				window.addEventListener('message', function(event) {
+					if (event.origin !== 'https://jetpack.wordpress.com') {
+						return;
+					}
+
+					if (!event?.data?.iframeUniqueId && !event?.data?.height) {
+						return;
+					}
+
+					const eventDataUniqueId = event.data.iframeUniqueId;
+
+					// Change height for the matching comment iframe
+					for (let i = 0; i < commentIframes.length; i++) {
+						const iframe = commentIframes[i];
+						const url = new URL(iframe.src);
+						const iframeUniqueIdParam = url.searchParams.get('iframe_unique_id');
+						if (iframeUniqueIdParam == event.data.iframeUniqueId) {
+							iframe.style.height = event.data.height + 'px';
+							return;
+						}
+					}
+				});
+			})();
+		</script>
+		
+</body>
+</html>
