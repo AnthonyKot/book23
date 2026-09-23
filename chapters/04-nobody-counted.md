@@ -5,17 +5,16 @@
 In 2019 Laxman Muthiyah looked at how Instagram let a person back into an account they had been
 locked out of. You gave a phone number, Instagram texted a six-digit code, and you had ten minutes
 to enter it. Six digits is a million codes. Instagram knew that and had put a limit on the endpoint
-that checks the code: in one test, about a thousand tries saw around 250
-accepted before the rest were refused. Two hundred or so tries from one place, against a million
-codes, decides nothing.
+that checks the code: in one of his tests, about a thousand tries saw around 250 accepted
+before the rest were refused. A few hundred tries, against a million codes, decides nothing.
 
 The weakness Muthiyah reported was not in the code, the ten-minute window, or the size of the
-number. It was in what the limit failed to count across requests. He used both concurrent requests
-and rotating source addresses; an address is not a scarce thing. The observed limit answered too
-little about "how many times has anyone guessed *this code*, for *this account*, in these ten
-minutes?" Muthiyah showed
-Facebook a proof of concept that the number of guesses an attacker could afford, spread across
-enough addresses, was on the same order as the number of codes. Facebook paid a $30,000 bounty and
+number. It was in what the limit counted. Whatever it counted, it was not the question that
+protects the account: "how many times has anyone guessed *this code*, for *this account*, in
+these ten minutes?" Muthiyah got past it with concurrent requests and rotating source addresses,
+and an address is not a scarce thing; cloud providers rent thousands by the hour. His proof of
+concept to Facebook showed that the guesses an attacker could afford, spread across enough
+addresses, were on the same order as the number of codes. Facebook paid a $30,000 bounty and
 fixed it quickly.
 
 That is OWASP's **API4, unrestricted resource consumption**: an endpoint lets a caller spend a
@@ -57,13 +56,15 @@ Three details matter.
 
 Because a service has many scarce things, and each one needs its own counter, keyed to itself.
 
-- **The limit lands on the loud route, not the enumerating one.** Limiting `login` would not by
-  itself bound a separate lookup that confirms whether an email belongs to a user. Twitter's
-  duplicate-account check illustrates the privacy cost of such a lookup (below).
-- **A limit per IP is not a limit per target.** Instagram's observed limit was real; concurrent
-  requests from rotating IPs got around it. This can hide in a passing load test.
+- **The limit lands on the loud route, not the enumerating one.** Everyone rate-limits `login`.
+  The lookup beside it that quietly confirms whether an email belongs to a user gets no such
+  attention, and it is the one that turns into a list. Twitter's duplicate-account check is the
+  example (below).
+- **A limit per source is not a limit per target.** Instagram's limit was real; concurrent
+  requests from rotating addresses went around it. This is the mistake that hides in a passing
+  load test, because a load test comes from one place.
 - **Reads cost too.** A page size nobody caps is a resource bug: `GET /v2/invoices?limit=1000000`
-  could demand huge work as the store grows. Ledger caps `limit` at 50.
+  is a request for as much work as the store can supply. Ledger caps `limit` at 50.
 - **Forgotten routes have no budget at all.** The `/v1` invoice routes from Chapter 1 are behind
   `LoadInvoiceFor` now, so they can't leak across tenants — but no per-route budget was ever wired
   to them. A route the current team doesn't watch is a route nobody is counting.
@@ -87,13 +88,14 @@ door is step one either way. A budget, like `LoadInvoiceFor`, has to sit where e
 
 ## An aside on the enumerating route
 
-Twitter shows what repeated lookups could expose at scale. A researcher reported in January 2022 (HackerOne
-1439026, a $5,040 bounty) that submitting a phone number or email to a duplicate-account check in
+Twitter shows what a repeated lookup exposes at scale. A researcher reported in January 2022
+(HackerOne 1439026, a $5,040 bounty) that submitting a phone number or email to a duplicate-account check in
 the Android login flow returned the account's ID, even for users who had turned discoverability
 off. One such lookup is a minor leak. The reporter's own impact note is the API4 point: with basic
 scripting, a caller could enumerate a large part of the user base into a phone-and-email-to-account
-table. X later confirmed that this bug had been exploited and said the affected set reported in
-2022 contained 5.4 million accounts. The public report does not establish the lookup's rate limit.
+table. X later confirmed the bug had been exploited before the fix and put the set reported in
+2022 at 5.4 million accounts. Whether the lookup had a rate limit, and what it counted, the
+public record does not say; what it does say is that one call per number was enough.
 
 <!--mission-->
 ## Exercise: which counter protects the thing?
@@ -130,9 +132,9 @@ response changes? That is the near-identical pair.
   (work per request, not lookups per caller), and it does nothing about a caller who sends the
   50-row request thousands of times. A cap on size is not a budget on frequency.
 
-In the completed fix, both B and C have the 30/min tenant-and-route budget, so changing IP no
-longer resets either counter. If you marked B adequate just because it had a rate limit, reread
-the Instagram flow: the observed limit still allowed many guesses across addresses.
+In the completed fix, B and C share the 30-per-minute budget keyed on tenant and route, so a new
+address resets nothing. If you marked B adequate because it has a rate limit, reread the Instagram
+flow. Instagram had a rate limit too. It counted something other than the guesses.
 
 *Incident from Laxman Muthiyah, "How I Could Have Hacked Any Instagram Account" (thezerohack.com,
 2019); Twitter aside from HackerOne report 1439026 and The Record, July 2022. Method after Colin
