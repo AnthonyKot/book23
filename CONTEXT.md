@@ -64,6 +64,7 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 | Page size | `?limit=` unbounded (vulnerable) → max 50 (fixed) | ch. 4 | — |
 | Per-route budget | 30 requests/minute on lookup routes | ch. 4 | 11 |
 | Webhook URL per tenant | `https://hooks.cedar.example/ledger` | ch. 7 | 11 |
+| Tenant branding logo | tenant-configured `LogoURL` fetched during `/v1/invoices/{id}/pdf` rendering through `egress` | ch. 7 | 11 |
 | Egress allow-list | public IPs only, no redirects followed | ch. 7 | 11 |
 | Partner feed | exchange rates from `rates.partner.example` | ch. 10 | 11 |
 | Rate row Ledger trusts | `{"EUR": 0.92}` (vulnerable: written straight into invoice totals) | ch. 10 | — |

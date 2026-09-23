@@ -23,12 +23,12 @@ that store, including its template. So the researcher put one line in the templa
 browser to navigate somewhere else: `window.location` pointed at the cloud provider's metadata
 service, the address every instance can reach to read its own credentials.
 
-The screenshot server followed the redirect and photographed what it found there. On the listing
-page appeared a PNG of the instance's service-account token. The metadata service normally guards
+The screenshot browser followed that script-driven navigation and photographed what it found
+there. On the listing page appeared a PNG of the instance's service-account token. The metadata service normally guards
 itself with a required header, but an older `/v1beta1` path returned the same token without it.
-From that one image the researcher pulled the instance's Kubernetes bootstrap data, and from there
-a certificate and key that reached the cluster and, eventually, a root shell inside containers in
-that slice of Shopify's infrastructure.
+The researcher then made separate screenshot requests for the instance's `kube-env` data, including
+a certificate and key that helped reach the cluster and, eventually, a root shell inside
+containers in that slice of Shopify's infrastructure.
 
 The request went out from Shopify's network, so it carried Shopify's trust. Nothing the researcher
 could send from the outside would have reached the metadata service; the screenshot server reached
@@ -40,7 +40,8 @@ Shopify core.
 The class is **server-side request forgery**, OWASP API7: the server can be made to issue an
 outbound request to a destination the caller influences, and that request reaches somewhere the
 caller could not reach directly. Exchange's surface — a screenshot renderer driven by a page the
-seller controlled — is not Ledger's. Ledger has no browser to hijack. But the mechanism is the same
+seller controlled — is not Ledger's. Ledger has no browser to hijack, and its redirect below is an
+HTTP 302 rather than `window.location`. But the mechanism is the same
 the moment any Ledger route fetches a URL that a caller chose.
 
 ## Where the bug lives: a URL from the request, a fetch with no boundary
@@ -54,16 +55,19 @@ is that handler before this chapter's fix.
 
 Read it the way `0xacb` read Exchange. The handler does check the URL: it must parse, it must be
 `https`, and it rejects the obvious literal `http://169.254.169.254/`. Then it hands the string to
-`http.Get`, and `http.Get` does three things the check never saw. It resolves the hostname to an
-address — and DNS can answer with a private one. It opens a connection to whatever that address is.
+an HTTP client with `http.Get`'s default behavior, which does three things the check never saw.
+It resolves the hostname to an address — and DNS can answer with a private one. It opens a
+connection to whatever that address is.
 And if the response is a redirect, it follows it, to a new URL that passed no check at all. The
 value the handler inspected and the value the socket connected to are not the same value.
 
 So a caller submits `https://hooks.cedar.example/ledger`, which looks exactly like Cedar's real
-webhook, and it passes. But the name resolves to `169.254.169.254`, or the server there answers
-`302 Location: http://169.254.169.254/latest/meta-data/`. Ledger fetches the metadata service and
-puts the status — and, on the delivery path, the body — where the caller can read it. The check
-guarded the string. The attack lives in the resolve, the connect, and the redirect.
+webhook, and it passes. If the name resolves to `169.254.169.254`, the client attempts a
+link-local connection; HTTPS may fail before metadata is returned. If a public server instead
+answers `302 Location: http://169.254.169.254/latest/meta-data/`, the default client follows
+it and reaches the metadata service. The test route reports the destination's status; it does
+not return a token body. The check guarded the string. The attack lives in the resolve, the connect,
+and the redirect.
 
 The fix moves the decision to those three moments and refuses to leave them:
 
@@ -129,48 +133,52 @@ moment it stopped calling `http.Get`. That is the whole point of a boundary you 
 
 Ledger's webhook test is `POST /v2/webhooks/test` with a body `{"url": "..."}`. A teammate proposes
 this fix: "reject any URL whose host is `169.254.169.254` or `metadata.google.internal`." Below are
-five requests, each with what DNS returns and what the destination replies. For each: say what the
+five requests, each with what DNS returns and what the destination replies. The public-address
+answers are synthetic fixtures; no request is sent to those real IPs. For each: say what the
 handler validates, what the socket would actually connect to, and mark whether the teammate's
-blocklist stops the leak and whether the chapter's `egress` policy stops it. Assume vulnerable mode
+blocklist stops the internal fetch and whether the chapter's `egress` policy stops it. Assume
+vulnerable mode
 otherwise follows redirects and dials whatever DNS returns. You do not need a running service.
 
 ```text
 1. url = http://169.254.169.254/latest/meta-data/
    DNS: (literal IP)                 destination: 200, token page
 2. url = https://hooks.cedar.example/ledger
-   DNS: 203.0.113.10 (public)        destination: 200, "ok"
+   DNS: 8.8.8.8 (public)             destination: 200, "ok"
 3. url = https://hooks.cedar.example/ledger
-   DNS: 169.254.169.254              destination: 200, token page
+   DNS: 169.254.169.254              destination: HTTPS reply not guaranteed
 4. url = https://report.cedar.example/hook
-   DNS: 198.51.100.7 (public)        destination: 302 -> http://169.254.169.254/
+   DNS: 1.1.1.1 (public)             destination: 302 -> http://169.254.169.254/
 5. url = https://report.cedar.example/hook
-   DNS: 198.51.100.7 (public)        destination: 200, "ok"
+   DNS: 1.1.1.1 (public)             destination: 200, "ok"
 ```
 
 **Check your answer.**
 
 - **1 is the decoy.** It is the one the blocklist was written for: host is the literal metadata IP,
-  so the teammate's rule rejects it, and `egress` rejects it too. If this were the only test, the
-  blocklist would look like a fix. It is not; it is the case an attacker would never bother sending.
-- **2 is safe and must stay working.** The handler validates `hooks.cedar.example`; the socket
-  connects to `203.0.113.10`, a public address; the destination is Cedar's real webhook. The
-  blocklist allows it (correctly) and `egress` allows it (resolves to public, no redirect). This is
-  the baseline: a fix that also breaks this has broken the feature.
-- **3 is vulnerable, and the blocklist misses it.** The handler validates
+  so the teammate's rule rejects it; the vulnerable handler's HTTPS rule rejects it too, and
+  `egress` rejects it. If this were the only test, the blocklist would look like a fix. It is not;
+  it is the case an attacker would never bother sending.
+- **2 is safe and must stay working.** The handler validates `hooks.cedar.example`; the fixture
+  resolves it to `8.8.8.8`, a public address, and returns Cedar's webhook
+  response. The blocklist allows it (correctly) and `egress` allows it (resolves to public, no
+  redirect). This is the baseline: a fix that also breaks this has broken the feature.
+- **3 exposes the missing boundary, and the blocklist misses it.** The handler validates
   `hooks.cedar.example` — not a blocked host — so the teammate's rule passes it. But DNS answers
-  `169.254.169.254`, and the socket connects there: the metadata service, fetched. `egress` stops it
-  because it checks the *resolved* address, not the name, and pins the dial to the address it
+  `169.254.169.254`, and the client attempts a link-local dial. A real HTTPS handshake may fail,
+  so this case proves an attempted forbidden connection, not that a token leaks. `egress` stops
+  it because it checks the *resolved* address, not the name, and pins the dial to the address it
   approved. Trace: input `hooks.cedar.example` → name-based check passes → resolve to
-  `169.254.169.254` → private-range check fails → refused, no fetch.
+  `169.254.169.254` → link-local check fails → refused before dial.
 - **4 and 5 are the near-identical pair.** The two requests are byte-for-byte the same at
   submission: same URL, same public host, same DNS answer. The only difference is what the
   destination chooses to reply. In 5 it returns `200` and nothing happens. In 4 it returns a `302`
-  to the metadata IP, and vulnerable mode follows it — the handler validated a URL that was never
-  fetched, and fetched a URL that was never validated. The blocklist misses 4 completely: it looked
+  to the metadata IP, and vulnerable mode follows it — the handler validated the first URL but
+  fetched a second URL that was never validated. The blocklist misses 4 completely: it looked
   at the submitted host, which is innocent. `egress` stops 4 and allows 5 for the same reason —
   it does not follow the redirect — so under the fix both requests end at the public host and 4's
-  leak is closed. The discriminator is redirect-following, decided after the URL check, which is why
-  no amount of URL checking reaches it.
+  internal fetch is stopped. The discriminator is redirect-following, decided after the initial
+  URL check, which is why checking only that first URL cannot stop it.
 
 If you marked 3 safe because the host was Cedar's own, that is the trust the screenshot server
 extended to the seller's page: the name looked like ours, so the fetch was treated as ours.

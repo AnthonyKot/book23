@@ -51,6 +51,17 @@ The approval route follows Chapter 5's scope-then-role contract: Alice 403 on a 
 Ben 404. The refund service is still unbuilt. Next is Chapter 07: gate Shopify's report and blog,
 resolve the HTTPS/literal-IP decoy and the fake transport's dial semantics, then test and commit.
 
+Chapter 07 completed: archived HackerOne #341876 and Shopify's engineering recap, with eight
+located claims. The chapter now separates the researcher's script navigation from Ledger's HTTP
+302, and distinguishes a forbidden link-local dial attempt from a demonstrated token leak. Its
+HTTPS-only handler rejects the direct-HTTP decoy in both modes. Public-address fixture values
+replace reserved documentation ranges, with no live connections. The brief now requires a
+separate dial-callback assertion so canned HTTP responses cannot masquerade as proof of pinning,
+and the PDF route retains `LoadInvoiceFor`. Chapter 7 Go code and tests remain for Lane A.
+`go test ./...`, `./verify.sh`, and `git diff --check` passed; the verifier still exercises only
+Chapter 1/9 service code and reports 31 pending code blocks. Next: inspect the staged diff,
+commit `review: ch07`, and stop without pushing.
+
 ## Chapter 00–03 pass complete
 
 The detailed findings, edits, verdicts and deferred work are in `review/codex-2026-09-23.md`.
