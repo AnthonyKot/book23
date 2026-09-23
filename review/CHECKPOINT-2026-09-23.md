@@ -1,5 +1,27 @@
 # Review checkpoint — 2026-09-23
 
+## Active pass: Chapters 04–07
+
+Prompt: `review/IMPROVE-PROMPT-04-07.md`. At the start of this pass `git status --short` was clean
+and `HEAD` was `a47f054`; the Chapter 00–03 review is already complete. Read the authority files,
+the State of Ledger table, the Chapter 04–07 drafts and briefs, and the existing service tests.
+Chapters 04–07 have no archived incident sources, claims ledgers, Go handlers or test files yet;
+their excerpt markers are intentionally provisional. No source has been fetched in this pass yet.
+
+Initial issues to verify against primary records and the implementation briefs: Chapter 04's
+Instagram figures and Twitter aside need source gating, and its lookup-route exercise must make
+the different counter outcomes observable. Chapter 05's brief says case F is 200/403 while its
+chapter says 404/404; the route and role-check ordering also needs one consistent specification.
+Chapter 06 must retain the complaint-versus-admission distinction and show a tenant-wide refund
+allowance that cannot be bypassed with the integration key. Chapter 07's HackerOne and Shopify
+facts need archiving; the proposed fake resolver/transport must specify the dialed destination so
+its redirect and DNS contrasts can be tested without network access.
+
+Next: fetch each chapter's named primary records, register hashes, create located claims files,
+then write ranked findings before sentence-level edits. Work 04 → 07, committing each chapter as
+`review: chNN`; update this section after each. Run the service Go tests, `./verify.sh`, and
+`git diff --check`. Do not build service code, rebuild the site, push or publish in this pass.
+
 ## Chapter 00–03 pass complete
 
 The detailed findings, edits, verdicts and deferred work are in `review/codex-2026-09-23.md`.
