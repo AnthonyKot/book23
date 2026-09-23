@@ -29,7 +29,7 @@ mode behaviour needed; the exercise-case matrix (route, caller, request, expecte
 outcome, expected fixed outcome); excerpt names used; proposed additions to CONTEXT's fixed table
 (no look-alike numbers); claims needing source checks; anything unverified.
 
-Write only `chapters/NN-slug.md` and `briefs/NN.md` in `/home/diablo/book23-prose`. Do not commit.
+Write only `chapters/NN-slug.md` and `briefs/NN.md` in `/home/diablo/book23`. Do not commit. Do not edit any other file: a Codex review pass may be running in this tree at the same time on chapters 0–3 and CONTEXT.md.
 
 ## State of Ledger after chapters 0–4 (what you may rely on and must not contradict)
 
@@ -39,7 +39,7 @@ Write only `chapters/NN-slug.md` and `briefs/NN.md` in `/home/diablo/book23-pros
 | 1 | `LoadInvoiceFor(user, id)` is the only way a handler gets an invoice; 404 for missing and forbidden alike; `/v1` read and `/v1/invoices/{id}/pdf` go through it but are **not retired** (that is ch. 9); two-user test loop over every invoice route; refund quote `q-771` → confirm must use the invoice stored with the quote |
 | 2 | `currentUser` resolves a bearer token through the session store (12-hour lifetime, fake clock); the mobile app key `mk_ledger_mobile_…` alone is not an identity; `/v1`'s old `X-User` header is ignored everywhere; tenant keys `ck_cedar_…` / `bk_birch_…` identify a tenant integration, not a person |
 | 3 | Invoice 104 = £1,800.00, 205 = £640.00; stored `store.Invoice` carries customer contact fields plus Ledger-internal `CollectionsNote` and `Margin`; responses encode `ViewFor(user, inv)` (ordinary vs admin view), never the row; `store.Invoice.MarshalJSON` returns an error; PATCH decodes typed `InvoicePatch{Reference}` / `ProfilePatch{DisplayName}` with unknown fields rejected; `/v1` PDF template bound to the view |
-| 4 | OTP: 6 digits, 10-minute challenge, budget of 5 wrong attempts **per challenge** then locked; the per-IP limiter stays as a second, separate limit; `?limit=` capped at 50; 30 requests/minute per lookup route, applied at Ops's gateway; incident is Instagram 2019 (Muthiyah), X/Twitter 2022 is an aside |
+| 4 | (CONTEXT register row still says "X phone lookup 2022"; the switch to Instagram 2019 is decided and is being recorded by the review pass.) OTP: 6 digits, 10-minute challenge, budget of 5 wrong attempts **per challenge** then locked; the per-IP limiter stays as a second, separate limit; `?limit=` capped at 50; 30 requests/minute per lookup route, applied at Ops's gateway; incident is Instagram 2019 (Muthiyah), X/Twitter 2022 is an aside |
 
 Chapters 5–11 add to this table; a later chapter may not silently undo an earlier repair.
 
