@@ -97,14 +97,14 @@ else:
 print("claim archives and links verified")
 PY
 
-marker_starts=$(grep -rn '^// excerpt: ' "$repo_dir/service" -g '*.go' | wc -l)
-marker_ends=$(grep -rn '^// end excerpt$' "$repo_dir/service" -g '*.go' | wc -l)
+marker_starts=$(grep -rn '^// excerpt: ' "$repo_dir/service" --include='*.go' | wc -l)
+marker_ends=$(grep -rn '^// end excerpt$' "$repo_dir/service" --include='*.go' | wc -l)
 if [[ "$marker_starts" -eq 0 || "$marker_starts" -ne "$marker_ends" ]]; then
   echo "unbalanced excerpt markers: $marker_starts starts, $marker_ends ends" >&2
   exit 1
 fi
 
-duplicates=$(grep -rho '^// excerpt: .*' "$repo_dir/service" -g '*.go' | sort | uniq -d)
+duplicates=$(grep -rho '^// excerpt: .*' "$repo_dir/service" --include='*.go' | sort | uniq -d)
 if [[ -n "$duplicates" ]]; then
   echo "duplicate excerpt marker names:" >&2
   echo "$duplicates" >&2
