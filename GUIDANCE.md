@@ -99,8 +99,8 @@ book23/
   PLAN.md            what the book is, chapter register, decisions needed
   GUIDANCE.md        this file
   CONTEXT.md         (next) decision record, cast + fixed-number table, correction log
-  service/           the FastAPI billing service, vulnerable/ and fixed/ per chapter
-  tests/             test_chNN.py = the chapter's exercise table
+  service/           the Go billing service, vulnerable/ and fixed/ per chapter
+  service/chNN_test.go   the chapter's exercise table as httptest cases
   checks/claims/     NN.tsv, one row per incident number or quote
   resources/incidents/NN/   fetched primary sources (gitignored if licensed)
   chapters/          static HTML, one per chapter

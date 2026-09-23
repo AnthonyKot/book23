@@ -1,6 +1,6 @@
 # Book 23 — plan (2026-09-23, draft for the author's decision)
 
-Working title candidates: **Who's Asking** · *Every Door to the Table* · *The Lookup That Never Asks*.
+Working title (author, 2026-09-23): **Security Rebook**. Earlier candidates *Who's Asking* / *Every Door to the Table* stay as chapter-title material.
 
 ## 1. What this book is
 
@@ -41,7 +41,9 @@ The Book 2 lesson from today applies: bridges don't connect chapters, a running 
   profile, an API key per tenant, a webhook URL per tenant, a public price-list endpoint.
 - Surfaces: `/v2` (current), `/v1` (the zombie), a mobile client, a partner/third-party feed the
   service *consumes* (exchange rates), an API gateway in front.
-- Implementation: FastAPI-style Python, the same idiom as the essay, small enough to read.
+- Implementation: **Go** (author's decision 2026-09-23), standard library `net/http` plus
+  `net/http/httptest` for the two-user tests; no framework, so every check is visible in the
+  handler. The Book 11 essay's Python samples are ported in chapter 1.
 
 Rules of the spine (as in `~/book2-spine/docs/SPINE-BRIEF.md`): fixed names and numbers set once and
 reused; later chapters may say "the loader from chapter 1" and mean a specific function; the
@@ -54,16 +56,16 @@ so and uses the smallest honest extension.
 
 | # | Class | Real incident (candidate) | The one-line bug on the service | The twist (door you forgot) | Choke point built |
 |---|---|---|---|---|---|
-| 1 | API1 BOLA | Coinbase 2022 ($250k bounty) — already written | `db.invoices.get(id)` never asks whose | `/v1/invoices/{id}/pdf`; refund confirm trusts body | `load_invoice_for(user, id)` |
+| 1 | API1 BOLA | Coinbase 2022 ($250k bounty) — already written | `store.Invoice(id)` never asks whose | `/v1/invoices/{id}/pdf`; refund confirm trusts body | `LoadInvoiceFor(user, id)` |
 | 2 | API2 Broken authentication | BrewDog app, hard-coded bearer token (Pen Test Partners 2021; Domoney case 3) | one shared token in the mobile binary; reset flow that returns the token | rotating the token ≠ fixing the design; the reset endpoint is the second door | per-user tokens, reset that never echoes the secret |
-| 3 | API3 Object property level (excessive exposure + mass assignment) | shipping-company API returning full recipient details (Domoney case 1); Peloton 2021 profile API | handler returns the ORM row; PATCH accepts `is_admin` | filtering in the mobile client, not the server; the list endpoint leaks what the item endpoint hides | response schemas + explicit writable-field allow-list on the loader |
+| 3 | API3 Object property level (excessive exposure + mass assignment) | shipping-company API returning full recipient details (Domoney case 1); Peloton 2021 profile API | handler encodes the whole struct; PATCH decodes into it, `IsAdmin` included | filtering in the mobile client, not the server; the list endpoint leaks what the item endpoint hides | response schemas + explicit writable-field allow-list on the loader |
 | 4 | API4 Unrestricted resource consumption | X/Twitter 2022 phone-number lookup (Domoney case 7); OTP brute force cases | no rate limit on `/v2/auth/otp/verify`; unbounded `?page_size` | the limit on the login route, none on the *lookup* route that enumerates | gateway quotas + per-route budgets |
 | 5 | API5 Function level (BFLA) | campus access-control system, admin functions open to student IDs (Domoney case 2) | `DELETE /v2/invoices/{id}` shares the GET handler's check | same URL, different verb; the admin prefix that `/v1` didn't have | authorization middleware with explicit "public"/role declaration per route |
-| 6 | API6 Sensitive business flows | ticket/sneaker-bot style abuse — pick from the public record | every request valid, the *sequence* is the attack (quote → confirm ×1000) | the flow is protected on the web UI, not on the API the UI calls | flow-level controls: idempotency, step tokens, abuse detection |
-| 7 | API7 SSRF | webhook-URL SSRF from the public record (not Capital One — Book 17's) | tenant webhook URL fetched by the server, no allow-list | the "test webhook" button; redirects; the PDF renderer fetching images | outbound allow-list + resolver checks at one egress |
+| 6 | API6 Sensitive business flows | Starbucks gift-card balance race (Egor Homakov, 2015): every request valid, the sequence is the attack — verify | every request valid, the *sequence* is the attack (quote → confirm ×1000) | the flow is protected on the web UI, not on the API the UI calls | flow-level controls: idempotency, step tokens, abuse detection |
+| 7 | API7 SSRF | Shopify Exchange SSRF via a fetched URL (HackerOne 2018, $25k) — verify; not Capital One (Book 17's) | tenant webhook URL fetched by the server, no allow-list | the "test webhook" button; redirects; the PDF renderer fetching images | outbound allow-list + resolver checks at one egress |
 | 8 | API8 Misconfiguration | home-router API (Domoney case 8); All in One SEO path-case bug (case 6) | permissive CORS, verbose errors, debug route left on | case-insensitive path matching bypasses the prefix check from ch. 5 | hardened defaults recorded in the OpenAPI spec; positive model |
-| 9 | API9 Inventory (zombie APIs) | Optus 2022 (unauthenticated endpoint on a forgotten surface, 9.8M records) — verify | the door nobody listed: staging host, `/v1`, `/internal` | "deprecated" is a label; retirement means it stops answering | inventory from code + gateway + traffic; Kiterunner-style enumeration as the test |
-| 10 | API10 Unsafe consumption | Sam Curry's vehicle-telematics chain (Domoney case 9) or the smart-scale case (case 10) — verify which fits | the exchange-rate feed's JSON written straight into invoices | trusting the upstream's redirect/TLS/ schema; the partner's BOLA becomes yours | validate what you consume like input you were sent |
+| 9 | API9 Inventory (zombie APIs) | Optus 2022: unauthenticated API on a dormant domain, access control broken by a coding change years earlier (ACMA filing 2024) — verify | the door nobody listed: staging host, `/v1`, `/internal` | "deprecated" is a label; retirement means it stops answering | inventory from code + gateway + traffic; Kiterunner-style enumeration as the test |
+| 10 | API10 Unsafe consumption | Sam Curry's telematics chain (SiriusXM/Hyundai 2022, Domoney case 9): the partner's trust in a VIN/email becomes the car maker's hole — verify | the exchange-rate feed's JSON written straight into invoices | trusting the upstream's redirect/TLS/ schema; the partner's BOLA becomes yours | validate what you consume like input you were sent |
 | 11 | Where every route must pass | none — the payoff chapter | — | — | assembles the eleven choke points (loader, middleware, schema, gateway, egress, inventory, two-user test loop, monitoring) as *one* diagram of the service |
 | 0 | Opening (short) | the exchange story retold in two paragraphs | — | — | introduces the service and the cast in 400 words |
 
@@ -92,9 +94,9 @@ result in the exercise table is a test in `tests/`.
 
 ## 5. Verification (the repo's design, per the book pattern)
 
-- `service/`: the FastAPI app, with `vulnerable/` and `fixed/` variants per chapter selected by a
-  flag, so the two-user tests can be shown failing and passing.
-- `tests/test_chNN.py`: the chapter's exercise table, literally (route, caller, resource, expected).
+- `service/`: the Go module, with `vulnerable/` and `fixed/` variants per chapter selected by a
+  build tag or flag, so the two-user tests can be shown failing and passing.
+- `service/chNN_test.go`: the chapter's exercise table, literally (route, caller, resource, expected).
   `verify.sh` runs them in both modes and fails if a "vulnerable" test *passes* or a "fixed" one fails.
 - `checks/claims/NN.tsv` + `resources/incidents/NN/`: every number and quote in the incident section.
 - `CONTEXT.md`: decision record, cast and fixed numbers (the spine table), correction log.
@@ -112,10 +114,10 @@ result in the exercise table is a test in `tests/`.
 
 Estimated size: 12 chapters × ~1,900 words ≈ 23k words plus a ~1,200-line service.
 
-## 7. Decisions needed from the author
+## 7. Decisions (author, 2026-09-23)
 
-1. Title (three candidates above, or another).
-2. Incidents to confirm or swap for chapters 6, 7, 9, 10 (the ones marked *pick/verify*).
-3. Python/FastAPI as the single language for the whole book (the essay's idiom) — or Go, given
-   Book 13?
-4. Pilot pair: ch. 1 + ch. 9 as proposed?
+1. Title: **Security Rebook**.
+2. Incidents for ch. 6/7/9/10: author left the pick to the editor; candidates above, all marked
+   *verify* until their primary sources are fetched into `resources/incidents/NN/`.
+3. Language: **Go**.
+4. Pilots: ch. 1 + ch. 9, editor's call.
