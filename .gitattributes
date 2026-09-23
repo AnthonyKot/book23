@@ -1,4 +1,6 @@
 # Incident archives are preserved byte-for-byte; do not normalize or whitespace-check them.
 resources/incidents/00/* -diff
 resources/incidents/01/* -diff
+resources/incidents/02/* -diff
+resources/incidents/03/* -diff
 resources/incidents/09/* -diff
