@@ -38,6 +38,8 @@ The brief now makes tenant scope run before role middleware, agrees with the cha
 is 404 in both modes, and drops its internally contradictory vulnerable prefix guard. Chapter 8's
 planned prefix-bypass dependence must be redesigned in its later review; it was not edited here.
 `go test ./...`, `./verify.sh`, and `git diff --check` passed, with Chapter 5 still unimplemented.
+The concurrent `8dc22fe` commit included these staged review files alongside a Lane A brief edit;
+this checkpoint records that shared-worktree commit rather than rewriting its history.
 Next is Chapter 06: archive the FTC complaint, stipulated order and release, then test the
 refund-flow matrix against the fixed £1,000 tenant allowance and invoice balances.
 
