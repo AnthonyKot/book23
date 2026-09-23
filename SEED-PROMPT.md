@@ -38,6 +38,12 @@ OWASP label. Keep the real incident, fictional Ledger service, and lesson distin
    chapter structure and claim files once the prose exists. Document what the toy service cannot
    prove about a real deployment.
 
+4. **Mark and record.** Wrap every Go block the prose will quote in `// excerpt: <chNN-name>` …
+   `// end excerpt` comment markers so a script can pull it verbatim. Lane A commits on `main` in
+   `/home/diablo/book23`; Lane B works in the worktree `/home/diablo/book23-prose` on branch
+   `prose` and merges. Write the handoff below into `docs/HANDOVER.md` (section "Lane A → Lane B"),
+   not only into the final message.
+
 Hand off the sources and claim ledger, the four mechanism sentences (Coinbase plus the three
 Chapter 1 options), Optus evidence, the exact Go paths, a concise exercise-case matrix, the
 passing test command, and unresolved claims. Commit the preparation as a coherent local
