@@ -43,6 +43,14 @@ this checkpoint records that shared-worktree commit rather than rewriting its hi
 Next is Chapter 06: archive the FTC complaint, stipulated order and release, then test the
 refund-flow matrix against the fixed £1,000 tenant allowance and invoice balances.
 
+Chapter 06 completed: archived the FTC complaint and stipulated order PDFs and the FTC release,
+with nine located claims. The incident now distinguishes allegations from adjudicated facts.
+The exercise's impossible fifty-refund sequence on the £1,800 invoice is now three fresh £400
+quotes for A and one £400 integration-key request after a seeded £1,000 Cedar total for B/C.
+The approval route follows Chapter 5's scope-then-role contract: Alice 403 on a Cedar quote,
+Ben 404. The refund service is still unbuilt. Next is Chapter 07: gate Shopify's report and blog,
+resolve the HTTPS/literal-IP decoy and the fake transport's dial semantics, then test and commit.
+
 ## Chapter 00–03 pass complete
 
 The detailed findings, edits, verdicts and deferred work are in `review/codex-2026-09-23.md`.

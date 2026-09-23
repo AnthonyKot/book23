@@ -5,11 +5,11 @@
 In January 2021 the United States, on the Federal Trade Commission's behalf, filed a complaint in
 the Eastern District of New York against a Long Island ticket broker called Just In Time Tickets
 and its owner. It was the first case brought under the BOTS Act, and nothing in the complaint is a
-vulnerability. Nobody bypassed a login. Nobody read another customer's data. Every ticket was
-paid for.
+vulnerability. The alleged evasion was not a login bypass or a way to read another customer's
+data; it was a way to exceed purchase limits.
 
-What the government described was a purchase flow used exactly as designed, many thousands of
-times. From January 2017 the broker ran a program called Automatick, later one called Tixman.
+What the government described was an ordinary-looking purchase flow repeated past its posted
+limits. From January 2017 the broker allegedly ran a program called Automatick, later one called Tixman.
 The operator typed in which tickets he wanted and what he would pay; the bot searched
 Ticketmaster's sites, reserved any seats that matched, and held them while the owner decided
 which to buy, "at least until the reservation clock expired". It kept the card and account details
@@ -24,15 +24,16 @@ address, account, IP address and cookies, and, until around October 2018, the ca
 one of those keys on *who is buying*. So the broker multiplied who was buying: more than 436
 accounts, each with its own email address, opened under more than 320 names, more than 280
 addresses, more than 450 credit cards, and over 12,500 IP addresses bought from rotating proxy
-services. Each account, on its own, stayed under the limit. The defendants settled without
+services. The complaint says those identities helped evade the limits, not that every account
+individually stayed under one. The defendants settled without
 admitting or denying the allegations, under an $11.2 million judgment of which $1,642,658.96
 was payable and the rest suspended. Across the three brokers charged that week the FTC counted
 more than 150,000 tickets.
 
 The complaint never uses the word API, and the flow it describes was a website. But the shape is
 the one OWASP calls **unrestricted access to sensitive business flows**, API6: a flow the
-business meant to be used a little, exposed in a way that lets one party use it a lot. The flow is
-correct. Each request is valid. The harm is the volume, and the limit that was meant to bound the
+business meant to be used a little, exposed in a way that lets one party use it a lot. The
+individual requests could appear valid. The harm is the volume, and the limit that was meant to bound the
 volume was attached to a thing the attacker could manufacture.
 
 ## The flow the UI limits and the API does not
@@ -42,7 +43,7 @@ with an invoice ID and an amount returns a quote (Alice's first quote for invoic
 and `POST /v2/refunds/confirm` with the quote ID sends the money back to the customer. Cedar's
 terms say refunds are exceptional: a tenant may refund up to £1,000 a day on its own, and anything
 more needs Dana, the tenant admin, to approve. The web app enforces that. Once the day's refunds
-reach £1,000 the confirm button greys out and a note tells Alice to ask Dana.
+reach £1,000 for Cedar the confirm button greys out and a note tells Alice to ask Dana.
 
 Here is the confirm handler behind that button, as it stands after the earlier chapters. The quote
 was created with `LoadInvoiceFor`, so it can only exist for an invoice Alice's tenant owns, and
@@ -110,8 +111,8 @@ to multiply.
 Two more reasons this class is hard, both in the complaint.
 
 - **The flow is not the bug.** Every check that belongs to a single request is present. The rule
-  that was broken is a rule about a *sequence* of requests, and a request handler has no place to
-  put it.
+  that was broken is a rule about a *sequence* of requests, which a handler cannot infer from the
+  current request alone.
 - **The controls that exist look like security.** Ticketmaster had CAPTCHAs, IP blocks and card
   matching; the bot solved the CAPTCHAs and the proxies rotated the IPs. Ledger's per-route
   limiter, 30 requests a minute on lookup routes, would not notice three refunds in a morning.
@@ -135,8 +136,8 @@ Three things sit around that method.
    deploy, so eventually it gets removed instead.
 2. **Exceeding it opens the admin flow.** The quote is parked with `status: needs_approval`, Dana
    sees it, and `POST /v2/refunds/{quote}/approve` is an admin-only route in the sense the
-   function-level chapter established: the route declares its role, and Alice calling it gets the
-   same 404 as a missing quote.
+function-level chapter established: the route declares its role, and Alice calling it for a
+Cedar quote gets 403 after the tenant-scope check passes.
 3. **Velocity is a signal, not a limit.** Ops records quotes per tenant per hour. A refund a
    minute for an hour, all under £1,000, is not blocked, it is flagged, because a rule about
    pounds cannot see a pattern about pace. The complaint's evidence was patterns: 436 accounts,
@@ -178,20 +179,22 @@ E. POST /v2/invoices/{id}/remind -> LoadInvoiceFor(user, id); email the customer
 ```
 
 For each: name the input or event the handler is reacting to, the check that bounds the *sequence*
-(if any), and the state after a script runs it fifty times with fresh inputs each time.
+(if any), and the state after the sequence in its answer. A uses three fresh £400 quotes on invoice
+104. B and C start after Cedar has refunded £1,000 today and try one more £400 quote through
+`ck_cedar_…`. D creates fifty £400 quotes without confirming them; E sends fifty reminders.
 
 **Check your answer.**
 
 - **A is the decoy.** It looks defended: a repeated confirm of `q-771` returns the original refund
-  and moves no money. Trace the script, though. Its fiftieth request is not `q-771`; it is the
-  fiftieth fresh quote, each unconfirmed, each valid. Check that runs: "already confirmed?" (no).
-  State after fifty: fifty refunds. Idempotency bounds *one quote*; nothing bounds the flow.
-- **B and C are the pair.** They differ in one token: what the total is keyed on. Run the fifty
-  through Alice's session and both stop at £1,000. Run them through `ck_cedar_…`. In B,
-  `refundedToday(user)` looks up a caller that has refunded nothing, the check passes, and the
-  state after fifty is fifty refunds, exactly as if the limit were not there. In C,
-  `ConfirmRefund` totals Cedar's refunds regardless of who confirmed them, and the first request
-  over £1,000 comes back `needs_approval`, whoever sent it. C is fixed; B is Ticketmaster's
+  and moves no money. Trace the script, though. The third request uses a third fresh quote, each
+  unconfirmed and valid against invoice 104's remaining balance. Check that runs: "already
+  confirmed?" (no). State after three: £1,200 refunded, past Cedar's £1,000 allowance.
+  Idempotency bounds *one quote*; nothing bounds the flow.
+- **B and C are the pair.** They differ in what the total is keyed on. With Cedar already at
+  £1,000, run one £400 quote through `ck_cedar_…`. In B, `refundedToday(user)` looks up a service
+  identity that has refunded nothing, so the check passes and Cedar reaches £1,400. In C,
+  `ConfirmRefund` totals Cedar's refunds regardless of who confirmed them, so it returns
+  `refund_needs_approval` and Cedar stays at £1,000. C is fixed; B repeats Ticketmaster's
   per-account limit.
 - **D is safe for this class, and it is the one people mark vulnerable.** Fifty quotes for £400 on
   invoice 104: the check is per quote, against the invoice's remaining balance, and confirm
