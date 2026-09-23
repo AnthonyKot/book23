@@ -3,11 +3,10 @@
 <!-- claims to gate in checks/claims/01.tsv: 20 Jan 2021 private disclosure; POST /stats/workouts/details with editable ids; initially no authentication; 2 Feb 2021 silent partial fix requiring authentication; still readable by any registered member incl. private profiles; "3 million" members; journalist contact ~90 days; resolved within 7 days of CISO engagement; published 5 May 2021; data fields listed. Source: Jan Masters, Pen Test Partners, "Tour de Peloton: Exposed user data". -->
 
 In January 2021 Jan Masters, a researcher at Pen Test Partners, was looking at the API behind
-Peloton's bikes and app. One call stood out. To show the leaderboard, the web app sent
-`POST /stats/workouts/details` with a JSON list of user IDs, and the server sent back each user's
-workout statistics with their profile details attached: age, gender, location, instructor and
-group memberships, follower counts, workout totals. The app filled in the IDs. Nothing stopped a person
-from filling them in instead.
+Peloton's bikes and app. One call stood out. For live-class details, the web app sent
+`POST /stats/workouts/details` with a JSON list of IDs; the response exposed workout and personal
+data, including data from profiles set to private. The app filled in the IDs. The researcher could
+find IDs in the mobile app, change the request, and send it again.
 
 At first the call needed no login at all. Masters reported it privately on 20 January. Peloton
 acknowledged receipt and then went quiet. On 2 February a fix appeared without announcement: the
@@ -27,11 +26,10 @@ Top 10.
 ## Where the bug lives: an ID from the request, a lookup with no owner
 
 Ledger's invoice endpoint has the same shape. Here is the handler behind `GET /v2/invoices/{id}`,
-as it stands before this chapter's fix. `currentUser` is the login middleware; `store` is the data
+as it stands before this chapter's fix. `currentUser` is the login helper; `store` is the data
 layer.
 
 ```go
-// ch01-vulnerable-invoice-handler
 func vulnerableInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if _, ok := currentUser(r); !ok {
@@ -51,14 +49,13 @@ func vulnerableInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
 
 Read it the way Masters read Peloton's. `currentUser(r)` means the caller must be logged in, so the
 route looks protected; that is Peloton's second version. But `id` comes straight from the URL, and
-`store.Invoice(id)` fetches whatever row has that number. The handler loads `user` and never looks
-at it again. Alice, logged in for Cedar, can walk the numbers: 104, 105, 106, and at 205 she is
+`store.Invoice(id)` fetches whatever row has that number. The handler checks login and discards
+the returned user. Alice, logged in for Cedar, can walk the numbers: 104, 105, 106, and at 205 she is
 reading Birch's invoice.
 
 The fix adds the question the lookup forgot:
 
 ```go
-// ch01-fixed-invoice-handler
 func fixedInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, ok := currentUser(r)
@@ -85,8 +82,8 @@ Three details matter.
   the endpoint cannot be used to learn which invoice numbers exist. A 403 is also defensible, if
   you accept that leak.
 - **Unguessable IDs would not have fixed it.** A random ID only slows the walk until one leaks: in
-  a URL, a log, an email, or another endpoint's response. Peloton's app handed IDs out on every
-  leaderboard.
+  a URL, a log, an email, or another endpoint's response. Masters found IDs in Peloton's mobile
+  app.
 
 ## If the fix is one line, why is it number one?
 
@@ -96,14 +93,13 @@ built works against that.
 - **Login happens once, in middleware.** Authentication, who is calling, is wired up globally and
   feels like security handled. Authorization, whether *this* caller may touch *this* record, has to
   happen per request, because only the handler knows which record is being asked for. Peloton's
-  February fix was exactly this confusion: it added the global check and called it done.
-- **Later steps trust earlier ones.** The web app only ever sends IDs from a leaderboard the user
-  was shown, so the server assumed the IDs had been vetted. The server is the only place that
-  assumption can be enforced, and it wasn't.
+  February change added login but left the per-record check missing.
+- **Later steps trust earlier ones.** A web client may send IDs it has already displayed. If the
+  server treats those client-supplied IDs as vetted, it skips the check only the server can enforce.
 - **Ordinary tests pass.** A test where Alice reads invoice 104 passes with or without the check.
   Catching BOLA takes two users, and most test suites are written with one.
-- **The attack is cheap.** Masters changed a number in a request body. No tool, no exploit, no
-  account other than the one anyone can register.
+- **The attack is cheap.** Masters changed IDs in a request body. It required no special exploit
+  chain and, after the partial fix, no account beyond one a user could register.
 
 ## The route you fixed, and the one you forgot
 
@@ -141,7 +137,6 @@ copied handler will miss it too. Instead, the one function that loads an invoice
 out without a user:
 
 ```go
-// ch01-load-invoice-for
 func (s *Store) LoadInvoiceFor(user User, id int) (Invoice, bool) {
 	invoice, ok := s.invoices[id]
 	if !ok || invoice.Tenant != user.Tenant {
@@ -160,7 +155,7 @@ keeps store and handlers in one package, so there the rule is review's to keep.
 
 The recipe for finding BOLA is the one Masters used: fetch a record as user A, confirm A can see
 it, then ask for it as user B. Ledger turns that into a loop over every route that serves invoices.
-This table is the test file `service/ch01_test.go`, and the tests run in both modes: against the
+These rows are covered in `service/ch01_test.go`, and the tests run in both modes: against the
 vulnerable build they prove the leak happens; against the fixed build they prove it doesn't.
 
 | Route | Caller | Invoice | Vulnerable build | Fixed build |
@@ -171,10 +166,10 @@ vulnerable build they prove the leak happens; against the fixed build they prove
 | `GET /v1/invoices/{id}/pdf` | Alice | 205 (Birch) | 200, Birch's PDF | 404, no PDF |
 | `GET /v2/invoices/{id}` | Ben | 104 (Cedar) | 200, Cedar's invoice | 404, no data |
 
-The loop is a list of routes, and a v3 nobody adds to it is a v3 the loop never visits; the test
-that catches that compares the routes the code registers with the routes the loop covers. Do not
-expect monitoring to do this job. An alert on a spike in denied reads is worth having, but a route with no check never denies
-anything.
+The loop is a list of routes, and a v3 nobody adds to it is a v3 the loop never visits. A separate
+coverage assertion must compare registered invoice routes with the tested routes. Do not expect
+monitoring to do this job. An alert on a spike in denied reads is worth having, but a route with
+no check never denies anything.
 
 ### 4. Keep v1 behind the loader, and write down that it exists
 

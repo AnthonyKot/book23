@@ -15,6 +15,11 @@ which checks passed. The Tree of Alpha correction and claim rows had already bee
 another pass. Chapter 01 is next; its Peloton field attribution and executable-exercise claims
 remain to inspect.
 
+Chapter 01 reviewed in the resumed pass: source attribution and three Go excerpts corrected;
+the pilot Go tests and `verify.sh` pass. Its refund and client-filter exercise cases still lack
+handlers and both-mode tests, so the chapter remains provisional. Chapter 02 is next: create
+`checks/claims/02.tsv` from the archived BrewDog disclosure before editing its prose.
+
 Resume in `/home/diablo/book23` using `review/IMPROVE-PROMPT.md`. The active prompt covers
 chapters 00–03 only; Chapter 04 is outside this pass. Before this review, `main` was at
 `ab1450a` and both worktrees were clean. No chapter prose, service code, tests, claims ledger,
