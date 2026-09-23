@@ -30,7 +30,24 @@ Ledger's invoice endpoint has the same shape. Here is the handler behind `GET /v
 as it stands before this chapter's fix. `currentUser` is the login middleware; `store` is the data
 layer.
 
-{{excerpt:ch01-vulnerable}}
+```go
+// ch01-vulnerable-invoice-handler
+func vulnerableInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, ok := currentUser(r); !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue("id"))
+		invoice, found := store.Invoice(id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		writeInvoice(w, invoice, pdf)
+	}
+}
+```
 
 Read it the way Masters read Peloton's. `currentUser(r)` means the caller must be logged in, so the
 route looks protected; that is Peloton's second version. But `id` comes straight from the URL, and
@@ -40,7 +57,25 @@ reading Birch's invoice.
 
 The fix adds the question the lookup forgot:
 
-{{excerpt:ch01-fixed}}
+```go
+// ch01-fixed-invoice-handler
+func fixedInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue("id"))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		writeInvoice(w, invoice, pdf)
+	}
+}
+```
 
 Three details matter.
 
@@ -105,7 +140,16 @@ Patching v1 by hand repeats the original mistake: the protection lives in handle
 copied handler will miss it too. Instead, the one function that loads an invoice refuses to hand it
 out without a user:
 
-{{excerpt:ch01-loader}}
+```go
+// ch01-load-invoice-for
+func (s *Store) LoadInvoiceFor(user User, id int) (Invoice, bool) {
+	invoice, ok := s.invoices[id]
+	if !ok || invoice.Tenant != user.Tenant {
+		return Invoice{}, false
+	}
+	return invoice, true
+}
+```
 
 Every handler, in every version, calls `LoadInvoiceFor`. A bare `store.Invoice(id)` inside a route
 handler becomes something review rejects on sight. Go makes this easy to enforce: keep

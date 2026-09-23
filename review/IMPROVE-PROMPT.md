@@ -7,7 +7,7 @@ service/, checks/, resources/):
 
 ---
 
-You are reviewing and improving Book 23, "Security Rebook", in this directory. Read first:
+You are reviewing and improving Book 23, "Security Rebook", in this directory. **Scope of this run: chapters 00, 01, 02 and 03 only** (chapters/00-*.md … 03-*.md). Service code exists only for chapters 1 and 9; chapters 2 and 3 keep their `{{excerpt:...}}` placeholders and are reviewed as prose plus brief. Do not build service code in this run. Read first:
 CONTEXT.md, PLAN.md, GUIDANCE.md, docs/CH01-INCIDENT-CHOICE.md, docs/HANDOVER.md,
 briefs/DRAFTING-BRIEF.md. Then every chapter in chapters/ in numeric order, its brief in briefs/,
 the tests in service/*_test.go, the claims in checks/claims/, and the archived sources in
