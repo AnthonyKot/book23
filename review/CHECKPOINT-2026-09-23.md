@@ -20,6 +20,13 @@ the pilot Go tests and `verify.sh` pass. Its refund and client-filter exercise c
 handlers and both-mode tests, so the chapter remains provisional. Chapter 02 is next: create
 `checks/claims/02.tsv` from the archived BrewDog disclosure before editing its prose.
 
+Chapter 02 reviewed in the resumed pass: `checks/claims/02.tsv` now gates the BrewDog incident;
+prose distinguishes possession of the static app key from a verified person or app build.
+The A/C exercise pair works as a reasoning contrast, but its service handlers and tests remain
+unbuilt. The D/E identity probe is now described more honestly and needs a concrete person-scoped
+route in implementation. Chapter 03 is next: create its primary-source claim ledger, then
+correct the DPD timing and property-level overstatements.
+
 Resume in `/home/diablo/book23` using `review/IMPROVE-PROMPT.md`. The active prompt covers
 chapters 00–03 only; Chapter 04 is outside this pass. Before this review, `main` was at
 `ab1450a` and both worktrees were clean. No chapter prose, service code, tests, claims ledger,

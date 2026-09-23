@@ -1,11 +1,11 @@
 # One Key for Every Door
 
-<!-- claims to gate in checks/claims/02.tsv: Alan Monie, Pen Test Partners, published 8 Oct 2021; token found by decompiling the Android app, sent in the Authorization header; quote "Every mobile app user was given the same hard coded API Bearer Token, rendering request authorisation useless"; quote "The customer IDs aren't quite sequential, but certainly aren't random"; appending a different customer ID to the endpoint URL returned that customer's PII; exposed fields: name, date of birth, email, gender, delivery addresses, telephone, shares held, shareholder number, bar discount amount and ID, referrals; over 200,000 Equity for Punks shareholders; present ~18 months from version 2.5.5 (March 2020); 2.5.12 (13 Sept 2021) still vulnerable; 2.5.13 (27 Sept 2021) fixed; six beta builds tested; BrewDog did not notify customers. Source: https://www.pentestpartners.com/security-blog/free-brewdog-beer-with-a-side-order-of-shareholder-pii/ -->
+<!-- claims to gate in checks/claims/02.tsv: Alan Monie, Pen Test Partners, published 8 Oct 2021; token found in Android app code and associated with three API endpoints; quote "Every mobile app user was given the same hard coded API Bearer Token, rendering request authorisation useless"; quote "The customer IDs aren't quite sequential, but certainly aren't random"; appending a different customer ID to the endpoint URL returned that customer's PII; exposed fields: name, date of birth, email, gender, delivery addresses, telephone, shares held, shareholder number, bar discount amount and ID, referrals; over 200,000 Equity for Punks shareholders; present ~18 months from version 2.5.5 (March 2020); 2.5.12 (13 Sept 2021) still had a static key exposing discount codes; 2.5.13 released by 27 Sept 2021 after six test builds; at publication Monie knew of no customer notification. Source: https://www.pentestpartners.com/security-blog/free-brewdog-beer-with-a-side-order-of-shareholder-pii/ -->
 
-In September 2021 Alan Monie of Pen Test Partners decompiled the Android app of BrewDog, the
+In September 2021 Alan Monie of Pen Test Partners examined code in the Android app of BrewDog, the
 Scottish brewer whose customers include more than 200,000 "Equity for Punks" shareholders. In the
-source he found what every request to three of the brewer's API endpoints carried in its
-`Authorization` header: one bearer token, written into the app, the same for every installation.
+source he found a bearer token used with three of the brewer's API endpoints: one key written
+into the app and shared by its users.
 His write-up puts the consequence in a sentence: "Every mobile app user was given the same hard
 coded API Bearer Token, rendering request authorisation useless."
 
@@ -17,7 +17,8 @@ address previously used, shareholder number and shares held, referral count, the
 discount and the identifier behind it. The IDs, he notes, "aren't quite sequential, but certainly
 aren't random". The token had been in the app since version 2.5.5 in March 2020, about eighteen
 months. Version 2.5.12, released on 13 September, still had it; Monie tested six beta builds before
-version 2.5.13 reached the store on 27 September. BrewDog did not tell its customers.
+version 2.5.13 reached the store on 27 September. At publication, Monie said he knew of no
+customer or shareholder notification.
 
 Chapter 1's bug was a lookup that never asked whose record it was fetching. This one is a step
 earlier: the server never learned who was asking in the first place. Every caller presented the
@@ -57,11 +58,12 @@ Three details matter.
   to one person at login and maps to that person on the server. Nothing the client sends alongside
   it can change who it is. `X-User` is gone.
 - **An app key is not a login.** Ledger keeps `mk_ledger_mobile_…` for what it can honestly
-  prove: that the request came from a build of the app. It may select rate limits or feature
-  flags. It never selects a user.
-- **Tokens are the server's to revoke.** BrewDog's token could only be changed by shipping a new
-  app and waiting for people to update; that is why the fix took releases, not minutes. A session
-  token lives in Ledger's store with a twelve-hour lifetime and can be deleted there.
+  prove: that the caller possesses the shared key. It cannot prove that a real build sent the
+  request, much less select a user.
+- **Tokens are the server's to revoke.** BrewDog could revoke its shared key at the server, but
+  restoring the app's access required a changed client; the disclosure recounts several releases
+  before the fix held. A session token lives in Ledger's store with a twelve-hour lifetime and
+  can be deleted there.
 
 ## If the fix is a login, why is it number two?
 
@@ -70,8 +72,8 @@ keep the mistake alive.
 
 - **The first client was trusted.** v1 was written for one mobile app, built by the same team.
   A shared key was the simplest thing that worked, and the `X-User` header was a convenience for
-  that app. Nobody was going to lie to their own server. The design was never revisited when the
-  app went to two hundred thousand phones.
+  that app. Nobody was going to lie to their own server. The design was never revisited as the
+  app reached more customers.
 - **The credential is invisible from the outside.** Every request carries a valid bearer token, so
   logs, gateways and dashboards show authenticated traffic. Peloton's leak looked like anonymous
   reads; BrewDog's looked like customers using the app.
@@ -138,16 +140,16 @@ loader; he is telling the server who he is, and the vulnerable middleware believ
 
 ### 4. Write down which credentials exist
 
-Ledger now has three kinds: session tokens for people, the mobile app key for builds of the app,
+Ledger now has three kinds: session tokens for people, the shared mobile app key,
 and the tenant API keys `ck_cedar_…` and `bk_birch_…` that Cedar's and Birch's own systems use.
 Each is recorded with what it proves and what it may select. The tenant keys will matter again
-when Ledger starts calling out to other people's services.
+when tenant integrations call Ledger.
 
 <!--mission-->
 ## Exercise: who does the server think you are?
 
-Use Ledger as it stands after this chapter: `/v2` uses session tokens, `/v1` is being retired,
-and three kinds of credential exist. You do not need a running service. Here are five middleware
+Use Ledger as it stands after this chapter: `/v2` uses session tokens, `/v1` still serves behind
+the same session check, and three kinds of credential exist. You do not need a running service. Here are five middleware
 behaviours, written as what the server does with the request before any handler runs:
 
 ```text
@@ -175,22 +177,25 @@ For each one:
 - **A is safe.** The identity comes from the session record on the server. The client supplied a
   token, and the token was issued to one person at login. Test it anyway: Alice's token with
   `X-User: ben` still returns Alice's view.
-- **B is vulnerable.** This is v1's middleware and BrewDog's design. The key proves the request
-  came from the app; the identity comes from a header the client wrote. Test: app key,
+- **B is vulnerable.** This is Ledger's old v1 middleware, analogous to BrewDog's shared-key
+  design; BrewDog's published case selected the customer by URL ID, not an `X-User` header. The
+  key proves only its own possession, and the identity comes from a header the client wrote. Test: app key,
   `X-User: alice`, `GET /v1/invoices/104`; fixed build returns 401, not Cedar's invoice.
 - **C is vulnerable, and it looks like A.** The first line is identical. The second line lets any
   logged-in user override who they are, because someone needed it for a support tool. Test: Ben's
   token, `X-User: alice`, `GET /v2/invoices/104`; fixed build returns 404, not Cedar's invoice.
-  If support staff need to act as a customer, that is a separate, audited capability granted to
-  Dana's kind of account, not a header any session can send.
+  If support staff need to act as a customer, that requires a separate, audited platform-support
+  capability, not Dana's tenant-admin role or a header any session can send.
 - **D is safe.** The identity is the tenant's service account, decided by the key alone. Birch's
   key can read Birch's invoices and nothing else, because `LoadInvoiceFor` still runs afterwards.
+  With Birch's key and `X-User: ben`, a person-scoped identity probe would still name the Birch
+  service account.
 - **E is vulnerable, and it looks like D.** The difference is one clause: the key selects a tenant,
   and then a header selects a person inside it. The check that the account belongs to the tenant
   is real, and it is not enough: Birch's key with `X-User: ben` is Ben, with no login, no session,
-  no expiry. Anyone holding `bk_birch_…` is every Birch user at once. Test: Birch's key,
-  `X-User: ben`, `GET /v2/invoices/205`; fixed build treats the caller as Birch's service account,
-  never as Ben.
+  no expiry. Anyone holding `bk_birch_…` is every Birch user at once. Test with the same key and
+  `X-User: ben` on a person-scoped identity probe: E names Ben; the fixed D-style rule names the
+  Birch service account. An invoice-only 200 response would not distinguish them.
 
 If you marked C safe because it starts the same way as A, you have found the shape of this
 chapter's bug: the server did verify a credential. It just let the client finish the sentence.
