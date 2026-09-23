@@ -1,5 +1,24 @@
 # Review checkpoint — 2026-09-23
 
+## Chapter 00–03 pass complete
+
+The detailed findings, edits, verdicts and deferred work are in `review/codex-2026-09-23.md`.
+This resumed pass committed Chapter 00 as `6921af3`, Chapter 01 as `a281f0c`, and Chapter 02
+as `fc75425`; Chapter 03 is the final chapter in this pass. Other commits on
+`main` added the site and further exploratory material during this review; they are not part of
+the Chapter 00–03 review commits. Nothing from this pass was pushed.
+
+Chapter 03: the DPD primary article and its archived JSON screenshot now have eight located
+claim rows in `checks/claims/03.tsv`. The screenshot is registered in `SOURCES.tsv` with SHA-256
+`094599f5a3600da6d5b823b45e869f876ef2d673f3adb9c7feecfd33c29b9517`. The prose now
+uses the dated disclosure timeline, acknowledges that the example email field is null, and
+separates DPD's proven weak postcode gate from the property-policy question that Ledger models.
+The Chapter 3 Go excerpts and both-mode tests remain unbuilt by design of `IMPROVE-PROMPT.md`.
+`go test ./...` from `service/` and `./verify.sh` passed; `verify.sh` checked 11 chapter pages
+and reported 31 code blocks pending. Before publication, settle the DPD/API3 class-fit question
+and implement/test the chapter's six exercise cases. Do not infer Chapter 3 coverage from the
+existing Chapter 1/9 tests.
+
 ## Resumed state (after `9db92b4`)
 
 On resumption, `git status --short` showed only untracked `briefs/08.md`,
@@ -47,7 +66,7 @@ For a later session, paste the contents of `review/RESUME-PROMPT.md`.
 - SHA-256: Tree thread `204f3f151f592bd09e3e48dd96f36600a0c9ae1fab25d242019cb67bb88cee0a`;
   BrewDog `ce5b0f06d27cc1bbfb8357f6ecb06682649b8e644f45911e9ae2c793321e19f4`;
   DPD `cb257d55e4d71429f112aefce05d50346c4e4966c997805b1bab28804129eb5c`.
-  Add these files to `resources/incidents/SOURCES.tsv` before running `verify.sh`.
+  These archives are now registered in `resources/incidents/SOURCES.tsv`.
 
 ## Confirmed findings to act on
 

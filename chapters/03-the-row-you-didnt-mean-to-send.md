@@ -1,6 +1,6 @@
 # The Row You Didn't Mean to Send
 
-<!-- claims to gate in checks/claims/03.tsv (source: David Lodge, Pen Test Partners, "DPD package sniffing", 7 Feb 2022, https://www.pentestpartners.com/security-blog/dpd-package-sniffing/; secondary: BleepingComputer, Bill Toulas, 7 Feb 2022, https://www.bleepingcomputer.com/news/security/dpd-group-parcel-tracking-flaw-may-have-exposed-customer-data/): endpoint https://apis.track.dpdlocal.co.uk/v1/map/route takes a parcelCode and returns a PNG map with the recipient's address highlighted; postcode derived from street names on the map (Verney Road / Queen Catherine Road example); tracking page track.dpdlocal.co.uk/parcels/{code} asks for a postcode, then grants a session token; quote "the underlaying JSON, which includes a number of pieces of PII including contact and parcel details for the recipient"; BleepingComputer itemises full name, email address, mobile phone number; reported 2 Sept 2021, proof of concept 30 Sept, confirmed 1 Oct, resolved 6 Oct 2021; "fixed within three weeks"; publication delayed to 2022 at DPD's request; reCAPTCHA token, not login, on the tracking page. Do NOT claim parcel numbers were enumerated in bulk or state a count of affected people; the record gives neither. -->
+<!-- Incident claims are gated in checks/claims/03.tsv against David Lodge's Pen Test Partners disclosure and its archived JSON screenshot. The primary record proves the parcel-code map, derived postcode, tracking-page gate, session JSON and dated disclosure sequence. It does not establish the intended field policy for an authorized recipient, bulk enumeration or an affected-person count. -->
 
 In September 2021 David Lodge of Pen Test Partners was looking at how DPD, the parcel carrier,
 tells you where your delivery is. The tracking site had an API call that took a parcel code and
@@ -14,31 +14,27 @@ recipient's postcode before it would show the delivery history, and the page had
 own, only a transparent reCAPTCHA token. Parcel code plus postcode, and you were in. The page then
 showed what you would expect: where the parcel was, when it would arrive.
 
-What you did not see on the page was in the JSON the page had fetched to draw itself. In Lodge's
-words, once the postcode was accepted "a session token had been granted, which can be used to
-view the underlaying JSON, which includes a number of pieces of PII including contact and parcel
-details for the recipient". The reports on the disclosure spelled that out: full name, email
-address, mobile phone number. The tracking page rendered none of them. The server sent all of
-them.
+The tracking page showed delivery information, but the session granted after the postcode check
+also gave access to underlying JSON. Lodge found recipient contact and parcel details there. The
+archived example includes a contact name and mobile field; its email field is null. The response
+carried more than the delivery information shown on the page.
 
-Lodge reported it on 2 September 2021; DPD asked for a proof of concept, confirmed the problem on
-1 October and had it resolved by 6 October, then asked that publication wait until the new year
-while it reviewed the rest of its estate. Pen Test Partners called the process easy and clear. The
-fix took three weeks. The exposure had been there for as long as the page had been drawing itself
-from a response that carried more than the page displayed.
+Lodge reported it on 2 September 2021; DPD asked for a proof of concept, received his response on
+30 September, confirmed the problem on 1 October and confirmed resolution on 6 October. DPD then
+asked that publication wait until the new year while it reviewed the rest of its estate. Pen Test
+Partners called the disclosure process easy and clear.
 
-That is the whole class in one sentence. OWASP calls it **broken object property level
-authorization**, number three on its API Security Top 10: the caller was allowed to see the
-object, and the server sent properties of it that the caller was never meant to see. The
-postcode gate was weak, and that is a separate problem. But even a legitimate recipient at a
-legitimate tracking page was being handed their own phone number and email in a payload nobody
-had looked at, and the same payload went to anyone else who got past the gate.
+That raises the property-level question in OWASP's **broken object property level authorization**,
+number three on its API Security Top 10: once a request passes the object gate, which fields
+should the server return? DPD's report proves a weak postcode gate and an underlying JSON
+response with recipient contact details. It does not establish a separate field policy for an
+authorized recipient. Ledger lets us isolate that second decision.
 
 ## Where the bug lives: the struct is the response
 
-Chapter 1 left Ledger with one door to an invoice, `LoadInvoiceFor(user, id)`, and every route
-going through it. Alice can no longer read invoice 205. What she reads when she asks for invoice
-104 is the question this chapter opens.
+Chapter 1 left Ledger with `LoadInvoiceFor(user, id)` on invoice-by-ID routes and a tenant-filtered
+list. Alice can no longer read invoice 205. What she reads when she asks for invoice 104 is the
+question this chapter opens.
 
 Here is the handler behind `GET /v2/invoices/{id}` after the chapter 1 fix. It is correct about
 *which* invoice. Look at what it does with the invoice once it has it.
@@ -69,9 +65,10 @@ Three details matter.
   administrator, gets the customer's contact details; Alice does not. Both call the same route.
   `LoadInvoiceFor` decides *whether*; `ViewFor(user, inv)` decides *what*.
 - **Internal fields have no view at all.** The collections note and the margin are Ledger's, not
-  the tenant's. No customer-facing view carries them, so no customer-facing route can leak them
-  by accident. DPD's page needed the delivery history; the recipient's phone number had no reason
-  to be in the response, and the fix is to make it impossible rather than to remember not to.
+  the tenant's. No customer-facing view carries them, so a route bound to a view cannot leak them
+  by accident. DPD's page showed delivery information while its underlying JSON carried contact
+  details; Ledger's view makes its own field policy explicit rather than relying on what the page
+  displays.
 
 ## The same mistake, writing instead of reading
 
@@ -80,7 +77,7 @@ The read side sends the whole struct out. The write side takes the whole struct 
 
 {{excerpt:ch03-vulnerable-patch}}
 
-`json.NewDecoder(r.Body).Decode(inv)` writes every key in the request body onto the loaded
+`json.NewDecoder(r.Body).Decode(inv)` can write any matching exported field on the loaded
 struct. The web app only ever sends `reference`. Alice can send `{"reference":"PO-9","status":"paid"}`
 and mark invoice 104 paid, or `{"amount":0}`, or `{"tenant":"birch"}`. The loader checked that the
 invoice was hers. The decoder let her rewrite it. OWASP folds this into the same category, under
@@ -100,11 +97,11 @@ sending `status` is either a bug or an attacker, and both should hear about it.
 
 - **The struct is the schema, and the schema grows.** Every field the business needs ends up on
   the stored type, because that is where it is convenient. Nobody adds a field to the response
-  on purpose; they add it to the struct, and the encoder does the rest. DPD's payload had the
-  recipient's phone number because the recipient record had it.
-- **The client hides it, so nobody sees it.** The web app shows amount, status and due date, and
-  the person testing the feature sees exactly that. What the network tab shows is not what the
-  test plan checks. Lodge found DPD's fields by reading the JSON, not the page.
+  on purpose; they add it to the struct, and the encoder does the rest. DPD's example JSON
+  carried a mobile field beyond the delivery information shown on the tracking page.
+- **The client hides it, so a page-only check misses it.** The web app shows amount, status and due
+  date, and a reviewer who checks only the page sees exactly that. The network response still
+  needs a separate check. Lodge found DPD's fields by reading the JSON, not the page.
 - **Read and write are reviewed separately.** A team that has just built read views can still
   ship `Decode(inv)` on the next PATCH, because the review question "what does this return?" is
   not the same question as "what does this accept?".
@@ -114,8 +111,9 @@ sending `status` is either a bug or an attacker, and both should hear about it.
 
 ## The route you fixed, and the one you forgot
 
-Ledger ships `ViewFor` on `GET /v2/invoices/{id}`, and the response for invoice 104 loses its
-email, phone, note and margin. The test passes. Two other routes serve the same invoice.
+In the proposed fixed service, Ledger uses `ViewFor` on `GET /v2/invoices/{id}`, and the response
+for invoice 104 loses its email, phone, note and margin. That will need a test. Two other routes
+serve the same invoice.
 
 `GET /v2/me/invoices` returns Alice's list. It was written after chapter 1, goes through the store
 filter on Alice's tenants, and encodes `[]store.Invoice`, one row per invoice, margin and all. The
@@ -133,7 +131,7 @@ view?"** Ledger answers it the same way.
 ### 1. Find every encoder of the type
 
 Grep for `Encode(` and for every template that binds `store.Invoice`. Ledger finds the item
-route, the list route, the PDF template, and a CSV export nobody has mentioned yet.
+route, the list route and the PDF template.
 
 ### 2. Make the stored type refuse to be encoded
 
@@ -142,10 +140,10 @@ type gets a `MarshalJSON` that returns an error:
 
 {{excerpt:ch03-marshal-guard}}
 
-Any handler that encodes the row now fails its own test with "encode a view, not the row". The
-compiler cannot enforce this one, but the test suite can, and it fails loudly on the next copied
-handler. The PDF template gets the same treatment: it is bound to `InvoiceView`, so a field the
-view does not carry cannot be printed.
+Once built, an attempt to JSON-encode the stored row returns "encode a view, not the row". The
+compiler cannot enforce this one, but a test that checks the encoder error can catch the next
+copied handler. The PDF template gets the same treatment: it is bound to `InvoiceView`, so a field
+the view does not carry cannot be printed.
 
 ### 3. Test what comes out, not only what comes back
 
@@ -218,6 +216,5 @@ For each one:
 If you marked E safe because the loader ran first, look again at what the loader decides. It
 decides which invoice. Everything after it is a different question.
 
-*Incident from David Lodge, "DPD package sniffing", Pen Test Partners, 7 February 2022; field list
-from BleepingComputer's report of the same day. The method follows Colin Domoney, Defending APIs
-(Packt, 2024).*
+*Incident from David Lodge, "DPD package sniffing", Pen Test Partners, 7 February 2022. The method
+follows Colin Domoney, Defending APIs (Packt, 2024).*
