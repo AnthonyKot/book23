@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A limit keyed on the wrong thing is a limit on how many of that thing the attacker can afford.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Nobody Counted">
+  <meta property="og:description" content="A limit keyed on the wrong thing is a limit on how many of that thing the attacker can afford.">
+  <meta property="og:type" content="website">
+  <title>Nobody Counted · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="04-nobody-counted">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>04</span>API4 · Unrestricted resource consumption</div>
+      <h1 class="essay-title">Nobody Counted</h1>
+      <p class="essay-book">Incident: Instagram, 2019</p>
+      <p class="essay-payoff">A limit keyed on the wrong thing is a limit on how many of that thing the attacker can afford.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 3 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!-- Incident switched from the register's X/Twitter 2022 candidate to Instagram 2019 (Laxman Muthiyah): see briefs/04.md for the category-fit reasoning. Claims to gate in checks/claims/04.tsv: six-digit recovery code, 10-minute validity; endpoint /api/v1/accounts/account_recovery_code_verify/; a burst of ~1,000 attempts from one address had ~250 accepted before the rest were refused (~200 per IP); the limit was keyed per source address; Facebook paid a $30,000 bounty and fixed it quickly; disclosed July 2019. Source: Laxman Muthiyah, "How I Could Have Hacked Any Instagram Account", thezerohack.com; corroborated by Threatpost and WeLiveSecurity, July 2019. Aside: HackerOne report 1439026 (zhirinovskiy, submitted 1 Jan 2022, disclosed 11 Feb 2022, $5,040 bounty), which notes that a caller could turn one lookup into a database of the user base; 5.4M records offered for sale July 2022 (The Record, 22 Jul 2022). -->
+
+<p>In 2019 Laxman Muthiyah looked at how Instagram let a person back into an account they had been
+locked out of. You gave a phone number, Instagram texted a six-digit code, and you had ten minutes
+to enter it. Six digits is a million codes. Instagram knew that and had put a limit on the endpoint
+that checks the code: a burst of about a thousand tries from one address saw only around 250
+accepted before the rest were refused. Two hundred or so tries from one place, against a million
+codes, decides nothing.</p>
+<p>The weakness Muthiyah reported was not in the code, the ten-minute window, or the size of the
+number. It was in what the limit counted. It counted tries <em>per source address</em>, and a source
+address is not a scarce thing: cloud providers rent thousands by the hour. The limit answered
+&quot;how many times has this address guessed?&quot; when the question that protects the account is &quot;how many
+times has anyone guessed <em>this code</em>, for <em>this account</em>, in these ten minutes?&quot; Muthiyah showed
+Facebook a proof of concept that the number of guesses an attacker could afford, spread across
+enough addresses, was on the same order as the number of codes. Facebook paid a $30,000 bounty and
+fixed it quickly.</p>
+<p>That is OWASP&#39;s <strong>API4, unrestricted resource consumption</strong>: an endpoint lets a caller spend a
+scarce resource — here, guesses against a short secret — faster and more often than the business
+can afford, because nothing counts the spending against the thing that matters.</p>
+<h2 id="where-the-bug-lives-a-limiter-that-counts-the-wrong-thing">Where the bug lives: a limiter that counts the wrong thing</h2>
+<p>Ledger has the same short-secret flow. When a customer forgets their password, Ledger texts a
+six-digit one-time code and checks it at <code>POST /v2/auth/otp/verify</code>. Here is that handler before
+this chapter&#39;s fix.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch04-otp-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>There is a limiter in front of it. Read what it keys on.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch04-limiter-per-ip</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>It counts requests per client address. Ben, verifying his own login from his phone, is held to a
+sane rate, which is what the limiter was added for. But the count resets with every new address,
+and the code it is guarding is only a million wide. The limiter is busy and the account is not
+protected, because the two are measured against different things.</p>
+<p>The fix counts against the account and the code, not the caller:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch04-otp-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Three details matter.</p>
+<ul>
+<li><strong>The budget is per target, not per source.</strong> After five wrong codes for one account&#39;s active
+challenge, the challenge is locked and a new code must be requested. Ten thousand addresses share
+one counter, because the counter hangs off the account, not the connection.</li>
+<li><strong>A used challenge is spent.</strong> A correct code, or a lock, retires the challenge. Without that, an
+attacker who rents a new address also gets a fresh five tries.</li>
+<li><strong>The per-address limit stays.</strong> It is still worth having against noisy clients and cost blowups.
+It is simply not what keeps the account safe. Two limits, two jobs.</li>
+</ul>
+<h2 id="if-it-39-s-just-a-counter-why-is-it-a-whole-category">If it&#39;s just a counter, why is it a whole category?</h2>
+<p>Because a service has many scarce things, and each one needs its own counter, keyed to itself.</p>
+<ul>
+<li><strong>The limit lands on the loud route, not the enumerating one.</strong> Everyone rate-limits <code>login</code>.
+Almost nobody rate-limits the lookup that quietly confirms whether an email belongs to a user —
+which is exactly the endpoint that turned into a five-million-record list at Twitter (below).</li>
+<li><strong>A limit per IP is not a limit per target.</strong> The Instagram limiter was real; it counted the
+wrong subject. This is the mistake that hides in a passing load test.</li>
+<li><strong>Reads cost too.</strong> A page size nobody caps is a resource bug: <code>GET /v2/invoices?limit=1000000</code>
+makes the database assemble a million rows for one request. Ledger caps <code>limit</code> at 50.</li>
+<li><strong>Forgotten routes have no budget at all.</strong> The <code>/v1</code> invoice routes from Chapter 1 are behind
+<code>LoadInvoiceFor</code> now, so they can&#39;t leak across tenants — but no per-route budget was ever wired
+to them. A route the current team doesn&#39;t watch is a route nobody is counting.</li>
+</ul>
+<h2 id="the-door-you-forgot-the-same-limiter-two-keys">The door you forgot: the same limiter, two keys</h2>
+<p>Here is where it bites on Ledger. After the OTP fix, the team adds the 30-requests-per-minute
+budget to the lookup routes, and wires it through the gateway Ops runs. They test it on
+<code>GET /v2/invoices?email=…</code>, the customer-facing lookup, and it holds: the 31st request in a minute
+gets a 429.</p>
+<p>Three weeks later, support automation starts timing out. The cause is <code>GET /v1/invoices?email=…</code> —
+the v1 lookup, still serving the old mobile app, never added to the gateway&#39;s route table. It
+reaches the same data with no budget on it. The gateway can only limit routes it knows about, and
+v1 was Chapter 1&#39;s forgotten door in a new disguise: last time it skipped the <em>authorization</em>
+check; this time it skips the <em>counting</em>.</p>
+<p>So the rule for a rate limit is the rule for an authorization check, one chapter on. Finding every
+door is step one either way. A budget, like <code>LoadInvoiceFor</code>, has to sit where every route passes
+— at the gateway <em>and</em> in the shared handler — not on the one route a reporter happened to name.</p>
+<h2 id="an-aside-on-the-enumerating-route">An aside on the enumerating route</h2>
+<p>Twitter shows the loud-route mistake at scale. A researcher reported in January 2022 (HackerOne
+1439026, a $5,040 bounty) that submitting a phone number or email to a duplicate-account check in
+the Android login flow returned the account&#39;s ID, even for users who had turned discoverability
+off. One such lookup is a minor leak. The reporter&#39;s own impact note is the API4 point: with basic
+scripting, a caller could enumerate a large part of the user base into a phone-and-email-to-account
+table. In July 2022, 5.4 million such records were offered for sale. The login page was surely
+rate-limited. The lookup underneath it was the route that mattered, and it was not.</p>
+<!--mission--><section class="mission" data-mission="04-nobody-counted"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-counter-protects-the-thing">Exercise: which counter protects the thing?</h2>
+<p>Use Ledger as built so far. The OTP challenge locks after 5 wrong codes per account; <code>limit</code> caps
+at 50; lookup routes get 30 requests/minute. Here are four routes, written as route → limiter key.</p>
+<pre><code class="language-text">A. POST /v2/auth/otp/verify   -&gt; limit 5 per (account_id, challenge_id)
+B. GET  /v2/invoices?email=X  -&gt; limit 30/min per client IP
+C. GET  /v1/invoices?email=X  -&gt; (no limiter registered)
+D. GET  /v2/invoices?limit=N  -&gt; cap N at 50; no per-caller budget
+</code></pre>
+<p>For each: name the scarce thing the route spends, say what the limiter counts, and mark it
+adequate or not. Then find the pair that look almost identical and don&#39;t behave the same.</p>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A is adequate.</strong> The scarce thing is guesses against one account&#39;s active code. The key is the
+account and the challenge, so renting new addresses buys nothing; the fifth wrong code locks it.</li>
+<li><strong>B is the near-identical twin of A that gets it wrong.</strong> The scarce thing is <em>lookups that
+confirm an email belongs to a customer</em>, which is a per-target concern. Keying the limit on
+client IP counts the wrong subject: a caller rotating addresses enumerates freely, exactly the
+Twitter shape. Adequate against a noisy single client, not against enumeration. Fix: also cap
+distinct email lookups per authenticated caller, and prefer answers that don&#39;t confirm existence.</li>
+<li><strong>C is not adequate; it&#39;s the forgotten door.</strong> Same data as B, no limiter at all, because the
+gateway&#39;s route table never listed v1. Register it, or route v1 through the same shared budget as
+v2. This is Chapter 1&#39;s <code>/v1</code> again — unwatched routes escape whatever you add.</li>
+<li><strong>D is the plausible decoy.</strong> Capping <code>limit</code> at 50 looks like the same fix as B, and it is worth
+having: it stops one request from assembling a million rows. But it is a different scarce thing
+(work per request, not lookups per caller), and it does nothing about a caller who sends the
+50-row request thousands of times. A cap on size is not a budget on frequency.</li>
+</ul>
+<p>If you marked B adequate because &quot;it has a rate limit,&quot; reread the Instagram flow. Instagram had a
+rate limit too. It counted the caller when it needed to count the code.</p>
+<p><em>Incident from Laxman Muthiyah, &quot;How I Could Have Hacked Any Instagram Account&quot; (thezerohack.com,
+2019); Twitter aside from HackerOne report 1439026 and The Record, July 2022. Method after Colin
+Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="04-nobody-counted">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="04-nobody-counted">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="03-the-row-you-didnt-mean-to-send.html"><span>Previous</span>The Row You Didn't Mean to Send</a>
+    <a class="essay-pager__next" href="05-same-door-different-verb.html"><span>Next</span>Same Door, Different Verb</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

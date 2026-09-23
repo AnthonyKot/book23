@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Login says who is calling. It never says whether they may see this record.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Who's Asking">
+  <meta property="og:description" content="Login says who is calling. It never says whether they may see this record.">
+  <meta property="og:type" content="website">
+  <title>Who's Asking · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="01-whos-asking">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>01</span>API1 · Broken object-level authorization</div>
+      <h1 class="essay-title">Who's Asking</h1>
+      <p class="essay-book">Incident: Peloton, 2021</p>
+      <p class="essay-payoff">Login says who is calling. It never says whether they may see this record.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: pilot, drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- claims to gate in checks/claims/01.tsv: 20 Jan 2021 private disclosure; POST /stats/workouts/details with editable ids; initially no authentication; 2 Feb 2021 silent partial fix requiring authentication; still readable by any registered member incl. private profiles; "3 million" members; journalist contact ~90 days; resolved within 7 days of CISO engagement; published 5 May 2021; data fields listed. Source: Jan Masters, Pen Test Partners, "Tour de Peloton: Exposed user data". -->
+
+<p>In January 2021 Jan Masters, a researcher at Pen Test Partners, was looking at the API behind
+Peloton&#39;s bikes and app. One call stood out. For live-class details, the web app sent
+<code>POST /stats/workouts/details</code> with a JSON list of IDs; the response exposed workout and personal
+data, including data from profiles set to private. The app filled in the IDs. The researcher could
+find IDs in the mobile app, change the request, and send it again.</p>
+<p>At first the call needed no login at all. Masters reported it privately on 20 January. Peloton
+acknowledged receipt and then went quiet. On 2 February a fix appeared without announcement: the
+endpoint now required an authenticated session. It still returned whatever IDs you asked for.
+Any of Peloton&#39;s three million members could pull the details of any other member, including
+members who had set their profile to private. Masters&#39; write-up puts it plainly: having a private
+profile did not protect your data. Only after a journalist contacted the company, about ninety
+days in, did Peloton&#39;s security team engage; the remaining issues were largely closed within a
+week, and the report was published on 5 May.</p>
+<p>The two versions of that endpoint are the whole subject of this chapter. The first asked nobody
+who was calling. The second asked <em>who</em> was calling and never asked <em>whether that person may see
+this record</em>. Those are different questions, and the second one is the one that gets skipped. OWASP
+calls the skip <strong>broken object-level authorization</strong>, BOLA, and puts it first in its API Security
+Top 10.</p>
+<h2 id="where-the-bug-lives-an-id-from-the-request-a-lookup-with-no-owner">Where the bug lives: an ID from the request, a lookup with no owner</h2>
+<p>Ledger&#39;s invoice endpoint has the same shape. Here is the handler behind <code>GET /v2/invoices/{id}</code>,
+as it stands before this chapter&#39;s fix. <code>currentUser</code> is the login helper; <code>store</code> is the data
+layer.</p>
+<pre><code class="language-go">func vulnerableInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, ok := currentUser(r); !ok {
+			http.Error(w, &quot;unauthorized&quot;, http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue(&quot;id&quot;))
+		invoice, found := store.Invoice(id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		writeInvoice(w, invoice, pdf)
+	}
+}
+</code></pre>
+<p>Read it the way Masters read Peloton&#39;s. <code>currentUser(r)</code> means the caller must be logged in, so the
+route looks protected; that is Peloton&#39;s second version. But <code>id</code> comes straight from the URL, and
+<code>store.Invoice(id)</code> fetches whatever row has that number. The handler checks login and discards
+the returned user. Alice, logged in for Cedar, can walk the numbers: 104, 105, 106, and at 205 she is
+reading Birch&#39;s invoice.</p>
+<p>The fix adds the question the lookup forgot:</p>
+<pre><code class="language-go">func fixedInvoiceHandler(store *Store, pdf bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, &quot;unauthorized&quot;, http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue(&quot;id&quot;))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		writeInvoice(w, invoice, pdf)
+	}
+}
+</code></pre>
+<p>Three details matter.</p>
+<ul>
+<li><strong>The tenant comes from the stored invoice, not from the request.</strong> If the check compared against
+a <code>tenant</code> field the client sent, Alice would send <code>cedar</code> with invoice 205 and pass.</li>
+<li><strong>A missing invoice and a forbidden invoice get the same answer.</strong> Returning 404 for both means
+the endpoint cannot be used to learn which invoice numbers exist. A 403 is also defensible, if
+you accept that leak.</li>
+<li><strong>Unguessable IDs would not have fixed it.</strong> A random ID only slows the walk until one leaks: in
+a URL, a log, an email, or another endpoint&#39;s response. Masters found IDs in Peloton&#39;s mobile
+app.</li>
+</ul>
+<h2 id="if-the-fix-is-one-line-why-is-it-number-one">If the fix is one line, why is it number one?</h2>
+<p>Because the line has to be in <em>every</em> handler that takes an object ID, and the way services are
+built works against that.</p>
+<ul>
+<li><strong>Login happens once, in middleware.</strong> Authentication, who is calling, is wired up globally and
+feels like security handled. Authorization, whether <em>this</em> caller may touch <em>this</em> record, has to
+happen per request, because only the handler knows which record is being asked for. Peloton&#39;s
+February change added login but left the per-record check missing.</li>
+<li><strong>Later steps trust earlier ones.</strong> A web client may send IDs it has already displayed. If the
+server treats those client-supplied IDs as vetted, it skips the check only the server can enforce.</li>
+<li><strong>Ordinary tests pass.</strong> A test where Alice reads invoice 104 passes with or without the check.
+Catching BOLA takes two users, and most test suites are written with one.</li>
+<li><strong>The attack is cheap.</strong> Masters changed IDs in a request body. It required no special exploit
+chain and, after the partial fix, no account beyond one a user could register.</li>
+</ul>
+<h2 id="the-route-you-fixed-and-the-one-you-forgot">The route you fixed, and the one you forgot</h2>
+<p>Here is how the fix goes wrong at Ledger. The service is invented; the shape of the failure is not.</p>
+<p>A researcher reports that Alice can read invoice 205 at <code>/v2/invoices/205</code>. The team adds
+<code>canReadInvoice</code>, writes a test proving Alice now gets 404 for 205, and ships. The report is
+closed.</p>
+<p>Three months later Birch&#39;s invoices turn up somewhere they should not. The v2 test still passes.
+The leak came through <code>/v1/invoices/205</code>.</p>
+<p>Nobody chose to leave v1 open. It was the original handler, and v2 began as a copy of it. v1 is
+still deployed because an old version of the mobile app calls it, and the plan is to switch it off
+once usage drops. It reads the same invoice table. The fix went into the v2 handler because that is
+where the report pointed. v1 never got it.</p>
+<p>Swapping <code>v2</code> for <code>v1</code> in a URL needs no tool. Neither does asking for the PDF: <code>/v1/invoices/205/pdf</code>
+renders the same row through a route nobody on the current team knew was there. So the question
+after a BOLA fix is not &quot;is this handler fixed?&quot; but <strong>&quot;which routes can reach this data, and does
+every one of them check?&quot;</strong> Here is how Ledger answers it.</p>
+<h3 id="1-find-every-door-to-the-table">1. Find every door to the table</h3>
+<p>Three lists, compared. The routes the code registers: grep for <code>mux.Handle</code> and every path under
+<code>/invoices</code>. The routes the gateway actually forwards. And the paths in live traffic that appear in
+neither. At Ledger the first list turns up v1&#39;s read route and the PDF export. Lists and filters
+count as doors too: <code>GET /v2/invoices?tenant=birch</code> reaches the same rows, so the rule has to apply
+to the query, not only to the single-record lookup.</p>
+<h3 id="2-move-the-check-to-where-every-route-must-pass">2. Move the check to where every route must pass</h3>
+<p>Patching v1 by hand repeats the original mistake: the protection lives in handlers, so the next
+copied handler will miss it too. Instead, the one function that loads an invoice refuses to hand it
+out without a user:</p>
+<pre><code class="language-go">func (s *Store) LoadInvoiceFor(user User, id int) (Invoice, bool) {
+	invoice, ok := s.invoices[id]
+	if !ok || invoice.Tenant != user.Tenant {
+		return Invoice{}, false
+	}
+	return invoice, true
+}
+</code></pre>
+<p>Every handler, in every version, calls <code>LoadInvoiceFor</code>. A bare <code>store.Invoice(id)</code> inside a route
+handler becomes something review rejects on sight. Go can enforce it for you: move the store into
+its own package and keep <code>Invoice</code> unexported, and the compiler does the review. Ledger&#39;s pilot
+keeps store and handlers in one package, so there the rule is review&#39;s to keep.</p>
+<h3 id="3-test-every-route-with-two-users">3. Test every route with two users</h3>
+<p>The recipe for finding BOLA is the one Masters used: fetch a record as user A, confirm A can see
+it, then ask for it as user B. Ledger turns that into a loop over every route that serves invoices.
+These rows are covered in <code>service/ch01_test.go</code>, and the tests run in both modes: against the
+vulnerable build they prove the leak happens; against the fixed build they prove it doesn&#39;t.</p>
+<div class="table-scroll" role="region" aria-label="Table; scroll horizontally if needed" tabindex="0"><table>
+<thead>
+<tr>
+<th align="left">Route</th>
+<th align="left">Caller</th>
+<th align="left">Invoice</th>
+<th align="left">Vulnerable build</th>
+<th align="left">Fixed build</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>GET /v2/invoices/{id}</code></td>
+<td align="left">Alice</td>
+<td align="left">104 (Cedar)</td>
+<td align="left">200, invoice</td>
+<td align="left">200, invoice</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v2/invoices/{id}</code></td>
+<td align="left">Alice</td>
+<td align="left">205 (Birch)</td>
+<td align="left">200, Birch&#39;s invoice</td>
+<td align="left">404, no data</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v1/invoices/{id}</code></td>
+<td align="left">Alice</td>
+<td align="left">205 (Birch)</td>
+<td align="left">200, Birch&#39;s invoice</td>
+<td align="left">404, no data</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v1/invoices/{id}/pdf</code></td>
+<td align="left">Alice</td>
+<td align="left">205 (Birch)</td>
+<td align="left">200, Birch&#39;s PDF</td>
+<td align="left">404, no PDF</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v2/invoices/{id}</code></td>
+<td align="left">Ben</td>
+<td align="left">104 (Cedar)</td>
+<td align="left">200, Cedar&#39;s invoice</td>
+<td align="left">404, no data</td>
+</tr>
+</tbody></table>
+</div><p class="table-hint">Scroll the table sideways to see all columns.</p><p>The loop is a list of routes, and a v3 nobody adds to it is a v3 the loop never visits. A separate
+coverage assertion must compare registered invoice routes with the tested routes. Do not expect
+monitoring to do this job. An alert on a spike in denied reads is worth having, but a route with
+no check never denies anything.</p>
+<h3 id="4-keep-v1-behind-the-loader-and-write-down-that-it-exists">4. Keep v1 behind the loader, and write down that it exists</h3>
+<p>v1 is not retired in this chapter. The mobile app still calls it, and &quot;switch it off once usage
+drops&quot; is a plan, not a date. Until it has one, v1 goes through <code>LoadInvoiceFor</code> like everything
+else, and Ops adds it to the inventory as a route that serves customer data. What &quot;deprecated&quot;
+turns out to mean, and how a route that everyone has forgotten gets found and actually stopped, is
+the subject of the chapter on zombie APIs.</p>
+<!--mission--><section class="mission" data-mission="01-whos-asking"><div class="mission__label">Exercise</div>
+<h2 id="exercise-find-the-open-doors">Exercise: find the open doors</h2>
+<p>Use Ledger as described: Alice belongs to Cedar, Ben to Birch, invoice 104 is Cedar&#39;s and 205 is
+Birch&#39;s. You do not need a running service. Here are five handlers, written as route → what the
+handler does:</p>
+<pre><code class="language-text">A. GET  /v2/invoices/{id}        -&gt; LoadInvoiceFor(user, id)
+B. GET  /v2/me/invoices          -&gt; store.InvoicesWhere(tenant IN user.Tenants)
+C. GET  /v1/invoices/{id}/pdf    -&gt; renderPDF(store.Invoice(id))
+D. POST /v2/refunds/quote        body: {invoice_id}
+                                 -&gt; LoadInvoiceFor(user, invoice_id); save quote q-771
+   POST /v2/refunds/confirm      body: {quote_id, invoice_id}
+                                 -&gt; refund(store.Invoice(invoice_id))
+E. GET  /v2/invoices?tenant=X    -&gt; store.InvoicesWhere(tenant = X)
+</code></pre>
+<p>For each one:</p>
+<ol>
+<li>Say where the object ID comes from, and whether anything compares it to the caller.</li>
+<li>Mark it safe or vulnerable.</li>
+<li>For each vulnerable one, write one two-user test: the caller, the request, and the expected
+result in the fixed build.</li>
+</ol>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A is safe.</strong> The ID comes from the URL; <code>LoadInvoiceFor</code> compares the stored invoice&#39;s tenant to
+the caller&#39;s. Test it anyway: Alice requests 205 and gets 404 with no data.</li>
+<li><strong>B is safe, even though it queries the store directly.</strong> Nothing in the request names an object.
+The filter is built from the logged-in user&#39;s own tenants, so Alice can only ever get Cedar&#39;s
+invoices. The question that matters is whether an ID comes from the caller, not whether the
+handler touches <code>store</code>. You could still route it through a shared <code>ListInvoicesFor(user)</code> so
+review has one rule to enforce, but that is tidiness, not a fix.</li>
+<li><strong>C is vulnerable. It is the forgotten v1 route.</strong> The ID comes from the URL and goes straight to
+<code>store.Invoice</code>. Test: Alice requests <code>/v1/invoices/205/pdf</code>; fixed build returns 404, not
+Birch&#39;s PDF. Fix it with <code>LoadInvoiceFor</code>, then put it on the inventory.</li>
+<li><strong>D is vulnerable in the second step.</strong> The quote step checks the invoice; the confirm step
+trusts a fresh <code>invoice_id</code> from the body. Test: Alice gets quote <code>q-771</code> for 104, then confirms
+with <code>invoice_id: 205</code>. Fixed build: rejected, and no refund on 205. Fix: confirm loads the quote,
+checks it belongs to Alice, and refunds the invoice stored with it, ignoring the body&#39;s
+<code>invoice_id</code>. This is Coinbase&#39;s bug in miniature: the step that validated and the step that
+acted looked at different fields.</li>
+<li><strong>E is vulnerable.</strong> B and E look almost identical, but here the tenant comes from the query
+string and nothing compares it to the caller. Test: Alice requests <code>?tenant=birch</code>; fixed build
+returns an empty list or a denial, never Birch&#39;s invoices. Fix: filter on the tenants Alice may
+read, not on whatever the caller names.</li>
+</ul>
+<p>If you marked D safe because its first step checks, reread the opener. That was the check Coinbase
+assumed had already happened.</p>
+<p><em>Incident from Jan Masters, &quot;Tour de Peloton: Exposed user data&quot;, Pen Test Partners, 5 May 2021.
+The method follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="01-whos-asking">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="01-whos-asking">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="00-the-lookup-that-never-asks.html"><span>Previous</span>The Lookup That Never Asks</a>
+    <a class="essay-pager__next" href="02-one-key-for-every-door.html"><span>Next</span>One Key for Every Door</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

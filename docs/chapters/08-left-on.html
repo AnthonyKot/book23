@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The check was there, wired correctly, and switched off.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Left On">
+  <meta property="og:description" content="The check was there, wired correctly, and switched off.">
+  <meta property="og:type" content="website">
+  <title>Left On · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="08-left-on">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>08</span>API8 · Security misconfiguration</div>
+      <h1 class="essay-title">Left On</h1>
+      <p class="essay-book">Incident: Power Apps portals, 2021</p>
+      <p class="essay-payoff">The check was there, wired correctly, and switched off.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 5 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!-- claims to gate in checks/claims/08.tsv: UpGuard, "By Design: How Default Permissions on Microsoft Power Apps Exposed Millions", published 23 Aug 2021, https://www.upguard.com/breaches/power-apps. Facts used: Power Apps portals expose an OData API at /_odata; a list's data was anonymously readable when the OData feed was enabled and the list's "Enable Table Permissions" setting was not set; that setting was off by default on every list ("all lists having table permissions disabled by default"); table permissions on the table itself do block anonymous access but lists ignore them until the list setting is on; Microsoft documentation quote "To secure a list, you must configure Table Permissions ... and also set the Enable Table Permissions Boolean value on the list record to true"; discovery 24 May 2021; found portals by subdomain enumeration of powerappsportals.com / powerappsportals.us / microsoftcrmportals.com and search engines; visiting /_odata listed the lists, visiting a list either showed data or a forbidden message; report to MSRC 24 Jun 2021; case closed 29 Jun 2021 as "determined that this behavior is considered to be by design"; over a thousand anonymously accessible lists across a few hundred portals; 47 entities notified; 38 million records in total; notifications from 2 Jul 2021; Microsoft's own Global Payroll Services portal, 332,000 records (names, @microsoft.com addresses, phone numbers, employee IDs), no longer public by 16 Jul after an abuse report on 15 Jul; all but one of the remaining Microsoft portals closed by 19 Jul; Microsoft released the Portal Checker and made table permissions enabled by default on newly created portals; UpGuard agrees with Microsoft that it is "not strictly a software vulnerability". Rejected pointers: All in One SEO CVE-2021-25036 (Jetpack, Marc Montpas, Dec 2021: case-insensitive REST route bypass of validateAccess — an authorization bug, not a setting); Domoney's home-router case (command injection on an unauthenticated /cgi-bin/adm.cgi endpoint — broken authentication plus injection, Domoney's own root-cause line). -->
+
+<p>In May 2021 an analyst at UpGuard found that a Microsoft Power Apps portal was answering
+requests for its data without asking who was making them. Power Apps portals are low-code
+websites that companies and public bodies build on Microsoft&#39;s platform: a vaccination sign-up
+form, a job application page, a dealer self-service site. Behind the pages, each portal can
+expose an OData API, and every list it publishes is reachable at a URL of the form
+<code>example.powerappsportals.com/_odata/mylist</code>. Visit <code>/_odata</code> and the portal names its lists.
+Visit a list and you get either the rows or a message saying access is forbidden.</p>
+<p>Which of those two you got depended on one setting. Microsoft&#39;s documentation said it plainly:
+to secure a list, you configure table permissions for the table <em>and</em> set the list&#39;s
+&quot;Enable Table Permissions&quot; value to true. The table permissions did their job. But a list
+ignored them, and every other permission, until that one Boolean on the list was turned on, and
+it was off by default on every list. Nobody had removed a check. The check was there, wired
+correctly, and switched off.</p>
+<p>UpGuard enumerated portal subdomains, walked the <code>_odata</code> endpoints, and found over a thousand
+anonymously readable lists across a few hundred portals. On 24 June they reported it to the
+Microsoft Security Response Center with URLs for portals exposing sensitive data, among them
+COVID-19 contact-tracing and vaccination portals run by American government bodies and a
+portal with job applicants&#39; Social Security numbers. On 29 June Microsoft closed the case: the
+analyst had &quot;determined that this behavior is considered to be by design.&quot; So UpGuard spent July
+notifying the owners one by one: 47 entities, 38 million records. One of the owners was
+Microsoft. Its Global Payroll Services portal had a list of 332,000 records with names,
+<code>@microsoft.com</code> addresses, phone numbers and employee IDs; it went private the day after UpGuard
+filed an abuse report. By the time the write-up was published, on
+23 August, Microsoft had shipped a Portal Checker that flags lists open to anonymous access and
+had changed the product so that new portals have table permissions enabled by default.</p>
+<p>UpGuard&#39;s title for the piece was <em>By Design</em>, and they agree with Microsoft that what they found
+was not, strictly, a software vulnerability. That is the point. Every check the platform offered
+worked. What failed was a value whose safe state was available and whose default was the other
+one. OWASP calls this <strong>security misconfiguration</strong>, API8, and the category is wider than
+defaults: debug modes left on, error bodies carrying stack traces, CORS that reflects any origin,
+HTTP methods nobody meant to serve, optional TLS. The code is fine; the configuration is not.</p>
+<h2 id="the-check-ran-the-value-was-wrong">The check ran. The value was wrong</h2>
+<p>Ledger&#39;s version of the Power Apps list is a declaration. Since the chapter on function-level
+authorization, every route carries an <code>Access</code> level, <code>Public</code>, <code>User</code> or <code>TenantAdmin</code>, and a
+route without one refuses to register. The middleware enforces the level on every request. That
+is the machinery UpGuard found working on Power Apps: enforcement is not the problem.</p>
+<p>Ops has a liveness probe, <code>GET /v2/health</code>, which the gateway polls and which returns
+<code>{&quot;ok&quot;:true}</code>. It is <code>Public</code>, correctly: a load balancer has no session, and the body says
+nothing. Later someone needed a richer probe for the deploy dashboard and copied the entry:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-vulnerable-health-decl</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p><code>GET /v2/admin/health</code> returns the running version, the commit, the hosts the build is
+configured to serve (<code>api.ledger.example</code> and <code>ledger-staging.internal</code>), and the value of the
+<code>Debug</code> flag. The route sits under <code>/v2/admin</code>, so it reads as admin-only. It is not. The
+declaration next to it says <code>Public</code>, the middleware honours the declaration, and the test that
+walks the route table checks that every route <em>has</em> a level, which this one does. The researcher
+who reads the response learns that Ledger has a staging host, what it is called, and that the
+production build is running with <code>Debug</code> on.</p>
+<p>The fix is a value, not a check:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-fixed-health-decl</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Two details decide whether the fix is real.</p>
+<ul>
+<li><strong>The declaration moved, and the body shrank.</strong> Dana can still see that the service is up and
+which version it is. Hosts and flags are not a tenant&#39;s business at any level; they leave the
+response entirely rather than sit behind a role a later copy-paste might loosen again.</li>
+<li><strong><code>/v2/health</code> stays <code>Public</code>.</strong> The liveness probe is this route&#39;s pair: same declaration,
+opposite verdict, because its body carries nothing. A route being <code>Public</code> is not the bug. A
+<code>Public</code> route with something to say is.</li>
+</ul>
+<h2 id="why-quot-just-flip-it-quot-is-not-the-fix">Why &quot;just flip it&quot; is not the fix</h2>
+<p>The Power Apps owners each flipped one Boolean and the data went private. Microsoft&#39;s fix was
+different: it changed the default and shipped a checker. That distinction is the whole chapter.</p>
+<ul>
+<li><strong>Nobody tests a setting.</strong> Ledger&#39;s chapter 5 test asserts that every route declares a level.
+It cannot tell a correct <code>Public</code> from a wrong one, because the table is the only statement of
+intent there is. UpGuard reports that several government bodies had run security reviews of
+their portals without finding this, presumably, they say, because it had never been publicised
+as a concern. A setting nobody has named is a setting nobody checks.</li>
+<li><strong>Defaults are copied, not chosen.</strong> The admin probe was <code>Public</code> because the liveness probe
+was the nearest working example. Every Power Apps list was open because that is what a new
+list looked like. A default is a decision made thousands of times by people who did not know
+they were making it.</li>
+<li><strong>A setting can undo a check without touching it.</strong> That is the second door, below.</li>
+<li><strong>The exposure is quiet.</strong> A public route that answers 200 raises no alarm, because nothing
+was denied. UpGuard found the lists by visiting URLs, as a load balancer would.</li>
+</ul>
+<h2 id="the-setting-that-reopens-a-door-you-already-closed">The setting that reopens a door you already closed</h2>
+<p>The second path runs through a repair from the first chapter. Chapter 1 made <code>LoadInvoiceFor</code>
+return &quot;not found&quot; for an invoice the caller may not see, and the handler answers 404 for a
+missing invoice and a forbidden one alike, so the route cannot be used to learn which invoice
+numbers exist. That decision is still in force. It is also, in one build of Ledger, undone by a
+setting that never touches the loader.</p>
+<p><code>Debug</code> was added for staging. When it is on, the error writer appends the reason to every
+error body, so a developer on <code>ledger-staging.internal</code> can see why a request failed:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-debug-error-writer</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>The loader still runs. The decision is still 404. But the body now says
+<code>{&quot;error&quot;:&quot;not found&quot;,&quot;reason&quot;:&quot;invoice 205 belongs to tenant birch&quot;}</code>, and Alice, who asked for
+205 from Cedar, has just been told that it exists and whose it is. <code>Debug</code> was on in production
+because staging&#39;s configuration was copied when the two were split, and nobody tested
+production&#39;s values because nobody thought of them as code. The admin probe had been advertising it.</p>
+<p>That is UpGuard&#39;s shape. Table permissions on a Power Apps table are the loader: real, enforced,
+correct. The list&#39;s Boolean is <code>Debug</code>: a value elsewhere that decides what reaches the caller.</p>
+<h2 id="configuration-is-code-so-it-gets-a-test">Configuration is code, so it gets a test</h2>
+<p>Ledger&#39;s repair has two parts, and neither is &quot;turn it off.&quot;</p>
+<h3 id="1-write-the-production-settings-down-in-the-language-the-service-is-written-in">1. Write the production settings down, in the language the service is written in</h3>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-production-settings</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p><code>Settings</code> is a struct, constructed in one place, with <code>Debug false</code>, the CORS origin list
+holding only Ledger&#39;s own web application, and <code>PublicRoutes</code> naming the three routes that may
+serve callers without a session: the liveness probe and the two one-time-code routes from the
+chapter on resource consumption, <code>POST /v2/auth/otp/request</code> and <code>POST /v2/auth/otp/verify</code>. A
+staging build constructs its own <code>Settings</code> with <code>Debug true</code> and the staging host. Production
+cannot inherit staging&#39;s values, because there is no inheritance: there are two literals, and the
+differences between them are a diff.</p>
+<h3 id="2-assert-every-value-and-walk-the-route-table-against-the-allow-list">2. Assert every value, and walk the route table against the allow-list</h3>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-settings-test</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>This is where chapter 5&#39;s repair does new work. That chapter&#39;s test walks the route table and
+fails on a route with no <code>Access</code>. This one walks the same table and fails on a route whose
+<code>Access</code> is <code>Public</code> and whose method and pattern are not in <code>Settings.PublicRoutes</code>. The
+copy-pasted admin probe fails it at once: <code>GET /v2/admin/health</code> is <code>Public</code> in the table and
+absent from the list. The same test asserts <code>Debug</code> is false, that no CORS origin is <code>*</code>, and
+that a production error body is exactly <code>{&quot;error&quot;:&quot;not found&quot;}</code>, by sending Alice&#39;s request for
+205 and reading the bytes.</p>
+<p>It is Microsoft&#39;s Portal Checker with one difference: the checker runs on demand against a
+portal someone remembers to check; this runs on every build, against the values that build will
+ship with, and fails the build instead of producing a report.</p>
+<h3 id="3-make-the-safe-value-the-default">3. Make the safe value the default</h3>
+<p>An unset <code>Debug</code> is off, because the zero value of a <code>bool</code> is the safe one. <code>Access</code> has no
+zero value, chapter 5&#39;s rule, and <code>Public</code> now needs justifying in a second place. Microsoft&#39;s
+fix was the same idea one level up: new portals start with table permissions on, and an owner
+who wants an anonymous list has to say so. The setting still exists. The default no longer
+chooses for you.</p>
+<!--mission--><section class="mission" data-mission="08-left-on"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-value-is-the-exposure">Exercise: which value is the exposure?</h2>
+<p>Ledger as described: Alice is an ordinary Cedar user, Dana is Cedar&#39;s admin, invoice 205
+belongs to Birch. Below are five configurations, each a route declaration or a <code>Settings</code> value
+paired with one request. For each: say what the enforcement does, then what the caller
+receives, and mark it exposure or not.</p>
+<pre><code class="language-text">A.  GET /v2/health         Access: Public        caller: none
+    body: {&quot;ok&quot;:true}
+
+B.  GET /v2/admin/health   Access: Public        caller: none
+    body: {&quot;version&quot;:&quot;…&quot;,&quot;hosts&quot;:[&quot;api.ledger.example&quot;,&quot;ledger-staging.internal&quot;],&quot;debug&quot;:true}
+
+B&#39;. GET /v2/admin/health   Access: TenantAdmin   caller: Dana
+    body: {&quot;version&quot;:&quot;…&quot;}
+
+C.  Settings{Debug: true}  GET /v2/invoices/205  caller: Alice
+
+C&#39;. Settings{Debug: false} GET /v2/invoices/205  caller: Alice
+</code></pre>
+<p>This is this chapter&#39;s test, to run in both modes once the service code exists.</p>
+<div class="table-scroll" role="region" aria-label="Table; scroll horizontally if needed" tabindex="0"><table>
+<thead>
+<tr>
+<th align="left">Case</th>
+<th align="left">Route or setting</th>
+<th align="left">Caller</th>
+<th align="left">Vulnerable build</th>
+<th align="left">Fixed build</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">A</td>
+<td align="left"><code>GET /v2/health</code>, <code>Public</code></td>
+<td align="left">none</td>
+<td align="left">200, <code>{&quot;ok&quot;:true}</code></td>
+<td align="left">200, <code>{&quot;ok&quot;:true}</code></td>
+</tr>
+<tr>
+<td align="left">B</td>
+<td align="left"><code>GET /v2/admin/health</code>, <code>Public</code></td>
+<td align="left">none</td>
+<td align="left">200, version, hosts, <code>debug:true</code></td>
+<td align="left">401, no body detail (route is <code>TenantAdmin</code>)</td>
+</tr>
+<tr>
+<td align="left">B&#39;</td>
+<td align="left"><code>GET /v2/admin/health</code>, <code>TenantAdmin</code></td>
+<td align="left">Dana</td>
+<td align="left">200, version, hosts, <code>debug:true</code> (vulnerable build has no such declaration; Dana sees the public body)</td>
+<td align="left">200, <code>{&quot;version&quot;:&quot;…&quot;}</code> only</td>
+</tr>
+<tr>
+<td align="left">C</td>
+<td align="left"><code>Debug: true</code>, <code>GET /v2/invoices/205</code></td>
+<td align="left">Alice</td>
+<td align="left">404, body includes <code>reason: invoice 205 belongs to tenant birch</code></td>
+<td align="left">build fails the settings test; a production <code>Settings</code> cannot carry <code>Debug: true</code></td>
+</tr>
+<tr>
+<td align="left">C&#39;</td>
+<td align="left"><code>Debug: false</code>, <code>GET /v2/invoices/205</code></td>
+<td align="left">Alice</td>
+<td align="left">404, <code>{&quot;error&quot;:&quot;not found&quot;}</code></td>
+<td align="left">404, <code>{&quot;error&quot;:&quot;not found&quot;}</code></td>
+</tr>
+</tbody></table>
+</div><p class="table-hint">Scroll the table sideways to see all columns.</p><p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A is not an exposure, and it is the decoy.</strong> A <code>Public</code> route is the first thing to suspect
+after this chapter, and this one is <code>Public</code> on purpose. Trace it: no session, the middleware
+admits the request because the declaration says so, the handler writes <code>{&quot;ok&quot;:true}</code>. The
+caller learns that the service is up, which serving it at all already says. It is in
+<code>PublicRoutes</code>, so the settings test passes. The question is never whether a route is public;
+it is what a public route says.</li>
+<li><strong>B is the exposure, and A is its pair.</strong> Same declaration, same absence of a session, same
+path through the middleware. The difference is entirely in the body: version, two hostnames
+including an internal one, and the fact that <code>Debug</code> is on. In the fixed build the route is
+<code>TenantAdmin</code>, so a request with no session stops at <code>currentUser</code> with 401; and the settings
+test would have failed the build before that, because a <code>Public</code> route not in <code>PublicRoutes</code>
+is a failure.</li>
+<li><strong>B&#39; is B with the right caller and the right declaration.</strong> Dana&#39;s session resolves; the
+middleware finds <code>TenantAdmin</code> and she clears it; the handler answers with the version and
+nothing else. Hosts and flags are gone from the response, not hidden behind her role.</li>
+<li><strong>C is the second exposure, and it never touches the route table.</strong> Alice&#39;s request reaches
+<code>LoadInvoiceFor</code>, which finds 205, compares its tenant to hers, and returns not-found. The
+handler answers 404, exactly as chapter 1 intended. Then the error writer reads <code>Debug</code>, finds
+it true, and appends the loader&#39;s reason. The check ran and passed; the setting leaked its
+verdict. In the fixed build there is no build with this value in production: the settings test
+asserts <code>Debug == false</code> and reads the bytes of this very response.</li>
+<li><strong>C&#39; is C with one value changed.</strong> Same request, same loader, same 404, and a body of
+<code>{&quot;error&quot;:&quot;not found&quot;}</code>. Alice cannot tell 205 from an invoice number that was never issued.
+One Boolean separates C from C&#39;, and no handler, middleware or loader differs between them.</li>
+</ul>
+<p>If you marked A an exposure, you have found every <code>Public</code> route, which is the grep, not the
+judgement. The judgement is the allow-list.</p>
+<p><em>Incident from UpGuard, &quot;By Design: How Default Permissions on Microsoft Power Apps Exposed
+Millions&quot;, 23 August 2021. The method follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="08-left-on">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="08-left-on">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="07-the-server-that-fetched-for-you.html"><span>Previous</span>The Server That Fetched for You</a>
+    <a class="essay-pager__next" href="09-deprecated-is-a-label.html"><span>Next</span>Deprecated Is a Label</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

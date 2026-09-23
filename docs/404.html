@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Eleven chapters, one small Go service, ten real break-ins. Each chapter shows the check a real API skipped, rebuilds it on Ledger, fixes it, and then finds the second door.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Which check did this request skip?">
+  <meta property="og:description" content="Eleven chapters, one small Go service, ten real break-ins. Each chapter shows the check a real API skipped, rebuilds it on Ledger, fixes it, and then finds the second door.">
+  <meta property="og:type" content="website">
+  <title>Which check did this request skip? · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script defer src="assets/app.js"></script>
+</head>
+<body class="home-view" data-active-slug="">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="home-page">
+    <section class="home-hero">
+      <div class="home-hero__eyebrow">Real break-ins, one small service</div>
+      <h1>Which check did<br><em>this request skip?</em></h1>
+      <p>Eleven chapters, one small Go service, ten real break-ins. Each chapter shows the check a real API skipped, rebuilds it on Ledger, fixes it, and then finds the second door.</p>
+      <p class="home-why">The incidents are told from the original public record. The service, Ledger, is invented, written in Go with nothing but the standard library, and every fix on these pages is a test that runs in both the vulnerable and the fixed build.</p>
+      <div class="home-hero__actions">
+        <a class="button button--primary" href="chapters/00-the-lookup-that-never-asks.html">Start with the opener</a>
+        <a class="button button--quiet" href="#the-shelf">Browse 11 chapters</a>
+      </div>
+      <div class="home-proof"><span><strong>10</strong> incidents</span><span><strong>1</strong> service</span><span><strong>10</strong> OWASP API classes</span></div>
+    </section>
+    <section class="shelf-section" id="the-shelf">
+      <div class="section-heading"><div><span class="section-label">Contents</span><h2>Ten doors, in the order OWASP lists them</h2></div><p>Read them in order: each chapter's fix stays in force for the next, and each new bug is found by trying the earlier repair against a new route.</p></div>
+      <div class="shelf-grid"><article class="shelf-card" data-mission-card="00-the-lookup-that-never-asks">
+    <div class="shelf-card__top"><span>00 · Opener</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/00-the-lookup-that-never-asks.html">The Lookup That Never Asks</a></h3>
+    <p>Every request assumes a check already happened. Find which one.</p>
+    <div class="shelf-card__book"><cite>Coinbase, 2022</cite><span>The question</span></div>
+    <a class="shelf-card__action" href="chapters/00-the-lookup-that-never-asks.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card shelf-card--recommended" data-mission-card="01-whos-asking">
+    <div class="shelf-card__top"><span>01 · API1</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/01-whos-asking.html">Who's Asking</a></h3>
+    <p>Login says who is calling. It never says whether they may see this record.</p>
+    <div class="shelf-card__book"><cite>Peloton, 2021</cite><span>Broken object-level authorization</span></div>
+    <a class="shelf-card__action" href="chapters/01-whos-asking.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="02-one-key-for-every-door">
+    <div class="shelf-card__top"><span>02 · API2</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/02-one-key-for-every-door.html">One Key for Every Door</a></h3>
+    <p>A key that every copy of the app carries identifies the app, not the person.</p>
+    <div class="shelf-card__book"><cite>BrewDog, 2021</cite><span>Broken authentication</span></div>
+    <a class="shelf-card__action" href="chapters/02-one-key-for-every-door.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="03-the-row-you-didnt-mean-to-send">
+    <div class="shelf-card__top"><span>03 · API3</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/03-the-row-you-didnt-mean-to-send.html">The Row You Didn't Mean to Send</a></h3>
+    <p>The handler returned the row. The row had more in it than the page ever showed.</p>
+    <div class="shelf-card__book"><cite>DPD, 2022</cite><span>Broken object property level authorization</span></div>
+    <a class="shelf-card__action" href="chapters/03-the-row-you-didnt-mean-to-send.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="04-nobody-counted">
+    <div class="shelf-card__top"><span>04 · API4</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/04-nobody-counted.html">Nobody Counted</a></h3>
+    <p>A limit keyed on the wrong thing is a limit on how many of that thing the attacker can afford.</p>
+    <div class="shelf-card__book"><cite>Instagram, 2019</cite><span>Unrestricted resource consumption</span></div>
+    <a class="shelf-card__action" href="chapters/04-nobody-counted.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="05-same-door-different-verb">
+    <div class="shelf-card__top"><span>05 · API5</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/05-same-door-different-verb.html">Same Door, Different Verb</a></h3>
+    <p>Same URL, different verb, same check. The page was hidden; the function was not.</p>
+    <div class="shelf-card__book"><cite>Dealer portal, 2025</cite><span>Broken function level authorization</span></div>
+    <a class="shelf-card__action" href="chapters/05-same-door-different-verb.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="06-every-request-was-valid">
+    <div class="shelf-card__top"><span>06 · API6</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/06-every-request-was-valid.html">Every Request Was Valid</a></h3>
+    <p>Every request was valid. The harm was the volume, and the limit was on the wrong object.</p>
+    <div class="shelf-card__book"><cite>Ticketmaster bots, 2021 complaint</cite><span>Unrestricted access to sensitive business flows</span></div>
+    <a class="shelf-card__action" href="chapters/06-every-request-was-valid.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="07-the-server-that-fetched-for-you">
+    <div class="shelf-card__top"><span>07 · API7</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/07-the-server-that-fetched-for-you.html">The Server That Fetched for You</a></h3>
+    <p>The string was checked. The socket connected somewhere else.</p>
+    <div class="shelf-card__book"><cite>Shopify Exchange, 2018</cite><span>Server side request forgery</span></div>
+    <a class="shelf-card__action" href="chapters/07-the-server-that-fetched-for-you.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="08-left-on">
+    <div class="shelf-card__top"><span>08 · API8</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/08-left-on.html">Left On</a></h3>
+    <p>The check was there, wired correctly, and switched off.</p>
+    <div class="shelf-card__book"><cite>Power Apps portals, 2021</cite><span>Security misconfiguration</span></div>
+    <a class="shelf-card__action" href="chapters/08-left-on.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="09-deprecated-is-a-label">
+    <div class="shelf-card__top"><span>09 · API9</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/09-deprecated-is-a-label.html">Deprecated Is a Label</a></h3>
+    <p>A host that is not on your list is a host your fixes do not reach.</p>
+    <div class="shelf-card__book"><cite>Optus, 2022</cite><span>Improper inventory management</span></div>
+    <a class="shelf-card__action" href="chapters/09-deprecated-is-a-label.html">Read the chapter <span>→</span></a>
+  </article><article class="shelf-card" data-mission-card="10-what-you-swallowed">
+    <div class="shelf-card__top"><span>10 · API10</span><span class="shelf-card__status">Unread</span></div>
+    <h3><a href="chapters/10-what-you-swallowed.html">What You Swallowed</a></h3>
+    <p>The request you validated went out. The response you did not validate came back.</p>
+    <div class="shelf-card__book"><cite>Kiln and SwissBorg, 2025</cite><span>Unsafe consumption of APIs</span></div>
+    <a class="shelf-card__action" href="chapters/10-what-you-swallowed.html">Read the chapter <span>→</span></a>
+  </article></div>
+    </section>
+    <section class="how-section" id="how">
+      <div><span class="section-label">How this book works</span><h2>Incident. Bug. Fix. Second door. Exercise.</h2></div>
+      <ol><li><span>01</span><strong>A real incident</strong><p>Told from the original disclosure or filing, with every fact gated by a claims file.</p></li><li><span>02</span><strong>The bug on Ledger</strong><p>A vulnerable and a fixed handler, and the few details that decide whether the fix is real.</p></li><li><span>03</span><strong>The second door</strong><p>Why the local fix is not enough, shown on a second route that reuses an earlier repair.</p></li><li><span>04</span><strong>An exercise that is a test</strong><p>A decoy, a near-identical pair with opposite outcomes, and answers that trace input, check and response.</p></li></ol>
+    </section>
+    <footer class="home-footer"><div><strong>Security Rebook</strong><p>ten ways an API lets the wrong request through</p></div><p>Ledger is a teaching example. No real company, product or person is implied. Method after Colin Domoney, <cite>Defending APIs</cite> (Packt, 2024).</p></footer>
+  </main>
+  </div>
+</body>
+</html>

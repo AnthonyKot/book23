@@ -61,25 +61,26 @@ class Links(HTMLParser):
         if tag == "a":
             self.hrefs.extend(value for key, value in attrs if key == "href")
 
-chapter_dir = root / "chapters"
+chapter_dir = root / "docs" / "chapters"
+sources = sorted((root / "chapters").glob("*.md"))
 chapter_files = sorted(chapter_dir.glob("*.html")) if chapter_dir.is_dir() else []
 if not chapter_files:
-    print("chapter/link checks pending: no pilot prose exists yet")
+    print("chapter/link checks pending: run `node site/build.mjs` to render docs/")
 else:
-    groups = {
-        "opener": list(chapter_dir.glob("00*.html")),
-        "chapter 1": list(chapter_dir.glob("01*.html")),
-        "chapter 9": list(chapter_dir.glob("09*.html")),
-    }
-    for label, matches in groups.items():
-        if len(matches) != 1:
-            raise SystemExit(f"expected one {label} HTML file, found {len(matches)}")
-        text = matches[0].read_text(encoding="utf-8")
-        if "<h1" not in text or "<title" not in text:
-            raise SystemExit(f"missing title structure in {matches[0]}")
-        if label != "opener" and "<!--mission-->" not in text:
-            raise SystemExit(f"missing exercise marker in {matches[0]}")
+    rendered = {page.stem for page in chapter_files}
+    for source in sources:
+        if source.stem not in rendered:
+            raise SystemExit(f"chapter {source.name} has no rendered page; run node site/build.mjs")
     for page in chapter_files:
+        text = page.read_text(encoding="utf-8")
+        if "<h1" not in text or "<title" not in text:
+            raise SystemExit(f"missing title structure in {page}")
+        if not page.name.startswith("00") and "<!--mission-->" not in text:
+            raise SystemExit(f"missing exercise marker in {page}")
+        source = root / "chapters" / (page.stem + ".md")
+        if "{{excerpt:" in text:
+            raise SystemExit(f"unrendered placeholder in {page}")
+    for page in chapter_files + [root / "docs" / "index.html"]:
         parser = Links()
         parser.feed(page.read_text(encoding="utf-8"))
         for href in parser.hrefs:
@@ -93,6 +94,8 @@ else:
             target = (page.parent / parsed.path).resolve()
             if not target.exists():
                 raise SystemExit(f"broken local link in {page}: {href}")
+    pending = sum(page.read_text(encoding="utf-8").count("excerpt-pending") for page in chapter_files)
+    print(f"{len(chapter_files)} chapter pages checked; {pending} code blocks still pending")
 
 print("claim archives and links verified")
 PY

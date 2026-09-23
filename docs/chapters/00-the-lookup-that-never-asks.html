@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Every request assumes a check already happened. Find which one.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="The Lookup That Never Asks">
+  <meta property="og:description" content="Every request assumes a check already happened. Find which one.">
+  <meta property="og:type" content="website">
+  <title>The Lookup That Never Asks · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="00-the-lookup-that-never-asks">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item is-active" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>00</span>Opener · The question</div>
+      <h1 class="essay-title">The Lookup That Never Asks</h1>
+      <p class="essay-book">Incident: Coinbase, 2022</p>
+      <p class="essay-payoff">Every request assumes a check already happened. Find which one.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- claims to gate in checks/claims/00.tsv: February 2022; Tree of Alpha; ETH-EUR order from the UI, request carries product, source and target account ids; changed product_id to BTC-USD and left both account ids; "0.0243 ETH to sell 0.0243 BTC"; fills matched, live order book; later test with source account changed to a SHIB account, 50 BTC limit sell; retrospective quote "missing logic validation check ... mismatched source account"; validation checked balance, not asset; patch validated the same day (11:42 AM to 4:01 PM); $250,000 largest to date; no malicious exploitation found. Sources: Tree of Alpha's thread (Thread Reader archive); Coinbase retrospective blog. -->
+
+<p>In February 2022 a trader who posts as Tree of Alpha was trying Coinbase&#39;s new advanced trading
+interface. He placed an ETH-EUR order from the web page and looked at the request his browser sent.
+It carried three things: a product, the pair being traded, and a source and a target account. He
+changed the product to BTC-USD and left both accounts as they were, ether as the source, euros as
+the target, expecting an error, because his account was not allowed to trade that pair. The order
+went through. In his words, he had used 0.0243 ETH to sell 0.0243 BTC on a pair he did not have
+access to, without holding any BTC, and the fills on the live order book matched. Before reporting
+it he tried the same mismatch from the other side: he moved some SHIB into an account, named it as the
+source, and placed a limit order to sell 50 BTC.</p>
+<p>Coinbase&#39;s own retrospective names the cause with unusual precision: a missing logic validation
+check in one API endpoint &quot;allowed a user to submit trades to a specific order book using a
+mismatched source account&quot;. Its validation checked that the named source account had the balance
+the order needed. It did not check that the account held the asset the order book trades. The
+report arrived on 11 February; a patch was validated and released that afternoon. The bounty was
+$250,000, then the largest Coinbase had paid, and the company said it found no malicious use.</p>
+<p>Notice what the bug was not. It was not a break-in. The trader was logged in to his own account,
+spending his own money, sending a request the server was built to accept. The documented balance
+check passed. The damage came from the check that nobody wrote: it looked at the account it was
+handed, and nothing asked whether that account and that order book were talking about the same
+asset.</p>
+<p>That is the question this book asks of every request, in one form or another:</p>
+<p><strong>Which check did this request assume had already happened?</strong></p>
+<p>Sometimes the missing check is &quot;does this record belong to the caller?&quot;. Sometimes it is &quot;is this
+the same object the previous step approved?&quot;, or &quot;who counted how many times this was called?&quot;, or
+&quot;does anyone know this route still exists?&quot;. The OWASP API Security Top 10 gives those gaps names,
+and the chapters follow its order. The names are less important than the habit: find the input the
+server trusted, find the check it skipped, and then find the second route or second step where the
+same check is skipped again, because there nearly always is one.</p>
+<p>To make that habit concrete, the chapters share one small system. <strong>Ledger</strong> is an invoicing API run
+by an invented company. Two customer tenants, <strong>Cedar</strong> and <strong>Birch</strong>, use it. <strong>Alice</strong> works for
+Cedar, <strong>Ben</strong> for Birch, and <strong>Dana</strong> is Cedar&#39;s administrator. Invoice 104 belongs to Cedar and
+invoice 205 to Birch. Ledger has a current API under <code>/v2</code>, an older one under <code>/v1</code> that a mobile
+app still calls, and a small platform team, Ops, that runs the gateway in front of both. It is
+written in Go with nothing but the standard library, so every check is visible in the handler, and
+every handler you read in this book exists as a file whose tests run.</p>
+<p>Ledger is a teaching example, not a reconstruction of anyone&#39;s system. The incidents that open
+each chapter are real and are told from the original public record. What Ledger does is let you see
+the same mistake in fifteen lines, fix it, and then go looking for the door you forgot.</p>
+</article>
+    
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <span></span>
+    <a class="essay-pager__next" href="01-whos-asking.html"><span>Next</span>Who's Asking</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

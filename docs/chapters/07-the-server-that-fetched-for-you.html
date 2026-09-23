@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The string was checked. The socket connected somewhere else.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="The Server That Fetched for You">
+  <meta property="og:description" content="The string was checked. The socket connected somewhere else.">
+  <meta property="og:type" content="website">
+  <title>The Server That Fetched for You · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="07-the-server-that-fetched-for-you">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>07</span>API7 · Server side request forgery</div>
+      <h1 class="essay-title">The Server That Fetched for You</h1>
+      <p class="essay-book">Incident: Shopify Exchange, 2018</p>
+      <p class="essay-payoff">The string was checked. The socket connected somewhere else.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 4 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!--
+Claims to gate in checks/claims/07.tsv (source: HackerOne report #341876,
+https://hackerone.com/reports/341876; Shopify team summary on that report;
+Shopify blog "One Million Dollars in Bug Bounties", 3 Apr 2019,
+https://shopify.engineering/blogs/engineering/one-million-dollars-in-bug-bounties):
+- Report #341876 "SSRF in Exchange leads to ROOT access in all instances"; reporter 0xacb; submitted 22 Apr 2018; disclosed 23 May 2018; weakness SSRF; scope exchangemarketplace.com (Shopify Exchange).
+- Exchange's create-a-listing flow rendered a screenshot of the seller's store; the seller controlled the store template (password.liquid).
+- The template redirected the browser (window.location) to the Google Cloud metadata service (metadata.google.internal, /computeMetadata/v1beta1/...); the screenshot server followed it and rendered the instance service-account token into the PNG.
+- The /v1beta1 metadata path returned the token without the Metadata-Flavor: Google header.
+- The leak chained through the instance kube-env attribute (kubelet cert + key) to root command execution in containers in that infrastructure subset.
+- Shopify disabled the service within an hour; fixed it with a metadata concealment proxy and by disabling access to internal IPs on all infrastructure subsets.
+- Bounty US$25,000, paid as a Shopify Core RCE; the vulnerable subset did not include Shopify core.
+- Ledger's webhook-test surface is invented for the analogy and differs from Exchange's screenshot surface; it is never presented as Shopify's implementation.
+-->
+
+<h1 id="the-server-that-fetched-for-you">The Server That Fetched for You</h1>
+<p>In April 2018 a researcher, <code>0xacb</code>, reported a bug to Shopify that did not touch a single one of
+Shopify&#39;s own servers by name. Shopify Exchange, the marketplace where people bought and sold
+storefronts, showed a screenshot of each store on its listing page. To make the picture, a Shopify
+server loaded the seller&#39;s store in a headless browser and photographed it. The seller controlled
+that store, including its template. So the researcher put one line in the template that told the
+browser to navigate somewhere else: <code>window.location</code> pointed at the cloud provider&#39;s metadata
+service, the address every instance can reach to read its own credentials.</p>
+<p>The screenshot server followed the redirect and photographed what it found there. On the listing
+page appeared a PNG of the instance&#39;s service-account token. The metadata service normally guards
+itself with a required header, but an older <code>/v1beta1</code> path returned the same token without it.
+From that one image the researcher pulled the instance&#39;s Kubernetes bootstrap data, and from there
+a certificate and key that reached the cluster and, eventually, a root shell inside containers in
+that slice of Shopify&#39;s infrastructure.</p>
+<p>The request went out from Shopify&#39;s network, so it carried Shopify&#39;s trust. Nothing the researcher
+could send from the outside would have reached the metadata service; the screenshot server reached
+it on the researcher&#39;s behalf. Shopify disabled the service within an hour, then deployed a metadata
+concealment proxy and cut off access to internal IPs across the affected infrastructure. They paid
+$25,000, rated as a core remote-code-execution finding, though the vulnerable slice did not include
+Shopify core.</p>
+<p>The class is <strong>server-side request forgery</strong>, OWASP API7: the server can be made to issue an
+outbound request to a destination the caller influences, and that request reaches somewhere the
+caller could not reach directly. Exchange&#39;s surface — a screenshot renderer driven by a page the
+seller controlled — is not Ledger&#39;s. Ledger has no browser to hijack. But the mechanism is the same
+the moment any Ledger route fetches a URL that a caller chose.</p>
+<h2 id="where-the-bug-lives-a-url-from-the-request-a-fetch-with-no-boundary">Where the bug lives: a URL from the request, a fetch with no boundary</h2>
+<p>Ledger lets a tenant register a webhook so it hears about paid invoices. Cedar&#39;s is
+<code>https://hooks.cedar.example/ledger</code>. Because operators mistype these, there is a convenience route:
+<code>POST /v2/webhooks/test</code>, which fetches the URL in the body and reports the status it got back. Here
+is that handler before this chapter&#39;s fix.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-webhook-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Read it the way <code>0xacb</code> read Exchange. The handler does check the URL: it must parse, it must be
+<code>https</code>, and it rejects the obvious literal <code>http://169.254.169.254/</code>. Then it hands the string to
+<code>http.Get</code>, and <code>http.Get</code> does three things the check never saw. It resolves the hostname to an
+address — and DNS can answer with a private one. It opens a connection to whatever that address is.
+And if the response is a redirect, it follows it, to a new URL that passed no check at all. The
+value the handler inspected and the value the socket connected to are not the same value.</p>
+<p>So a caller submits <code>https://hooks.cedar.example/ledger</code>, which looks exactly like Cedar&#39;s real
+webhook, and it passes. But the name resolves to <code>169.254.169.254</code>, or the server there answers
+<code>302 Location: http://169.254.169.254/latest/meta-data/</code>. Ledger fetches the metadata service and
+puts the status — and, on the delivery path, the body — where the caller can read it. The check
+guarded the string. The attack lives in the resolve, the connect, and the redirect.</p>
+<p>The fix moves the decision to those three moments and refuses to leave them:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-egress-policy</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>The webhook test now goes through it, and nothing about the handler&#39;s own logic changes except the
+call it makes:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-webhook-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Three details decide whether this is real.</p>
+<ul>
+<li><strong>The address is resolved, then checked, then dialed — in that order, with the checked address
+pinned.</strong> Classifying the hostname and then letting the HTTP client resolve it again invites a
+second, different answer between the two lookups. <code>egress</code> resolves once, rejects any private,
+loopback, or link-local address, and dials the address it approved.</li>
+<li><strong>Redirects are not followed.</strong> A 200 from a public host and a 302 from that same host are
+different events; the second one is a new fetch to a place the policy never saw. The client
+returns the redirect as a result to display, and stops.</li>
+<li><strong>The allow-list is by resolved address class, not by hostname.</strong> Trusting <code>hooks.cedar.example</code>
+by name is worthless: its DNS can be pointed inward, and a redirect leaves the host entirely. The
+only durable statement is &quot;the socket connected to a public address.&quot;</li>
+</ul>
+<h2 id="if-it-is-one-wrapper-why-is-it-hard">If it is one wrapper, why is it hard?</h2>
+<p>Because the property you want — &quot;no request from Ledger reaches an internal address&quot; — is not a
+property of one handler. It is a property of every line of code that opens an outbound connection,
+and those are scattered.</p>
+<ul>
+<li><strong>The check and the connection are in different layers.</strong> The handler validates a string; the
+standard library resolves and dials it later, and follows redirects by default. Any repair that
+lives only in the handler is repairing the wrong layer.</li>
+<li><strong>Every fetch is its own door.</strong> The webhook test is not the only place Ledger calls out. It also
+<em>delivers</em> webhooks on the same tenant URL, and — the path that catches people — it fetches each
+tenant&#39;s branding logo while rendering <code>/v1/invoices/{id}/pdf</code>, the export route from the earlier
+chapters. Fix the test route alone and the logo fetch is still an open egress.</li>
+<li><strong>A blocklist is a guess about the internal network.</strong> Blocking <code>169.254.169.254</code> misses the IPv6
+metadata address, the <code>metadata.google.internal</code> name, <code>127.0.0.1</code>, <code>10.0.0.0/8</code>, and whatever
+private range the network uses next year. The safe list is short and stable — public addresses —
+and everything else is denied.</li>
+</ul>
+<p>The logo fetch is worth following, because it is where chapter 1&#39;s lesson comes back. There, the
+repair for BOLA was not a check pasted into each handler but one loader, <code>LoadInvoiceFor</code>, that
+every route had to pass through, so a new handler could not forget it. Egress needs the same shape.
+The wrong fix is to copy the URL validation into the PDF renderer. The right fix is that Ledger has
+exactly one way to make an outbound request — <code>egress</code> — and <code>http.Get</code>, <code>http.Client{}</code>, and their
+kin are banned from handler code. The PDF renderer fetches the logo through the same client:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-pdf-logo-fetch</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Now the property holds by construction. A reviewer does not have to check that each fetch validated
+its URL; they have to check that each fetch went through <code>egress</code>, which is a <code>grep</code>. When Ledger
+adds a fourth outbound call next quarter, it either uses the one client or it stands out in review
+the way a bare <code>store.Invoice(id)</code> does now. Ops owns the egress the way it owns the gateway: one
+place, one policy, and a record that these are the routes that reach outward.</p>
+<p>The single choke point also fixes the second path for free — the logo fetch never had its own URL
+check, and it does not need one, because it inherited the resolve-check-dial-no-redirect policy the
+moment it stopped calling <code>http.Get</code>. That is the whole point of a boundary you cannot go around.</p>
+<!--mission--><section class="mission" data-mission="07-the-server-that-fetched-for-you"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-of-these-reaches-the-metadata-service">Exercise: which of these reaches the metadata service?</h2>
+<p>Ledger&#39;s webhook test is <code>POST /v2/webhooks/test</code> with a body <code>{&quot;url&quot;: &quot;...&quot;}</code>. A teammate proposes
+this fix: &quot;reject any URL whose host is <code>169.254.169.254</code> or <code>metadata.google.internal</code>.&quot; Below are
+five requests, each with what DNS returns and what the destination replies. For each: say what the
+handler validates, what the socket would actually connect to, and mark whether the teammate&#39;s
+blocklist stops the leak and whether the chapter&#39;s <code>egress</code> policy stops it. Assume vulnerable mode
+otherwise follows redirects and dials whatever DNS returns. You do not need a running service.</p>
+<pre><code class="language-text">1. url = http://169.254.169.254/latest/meta-data/
+   DNS: (literal IP)                 destination: 200, token page
+2. url = https://hooks.cedar.example/ledger
+   DNS: 203.0.113.10 (public)        destination: 200, &quot;ok&quot;
+3. url = https://hooks.cedar.example/ledger
+   DNS: 169.254.169.254              destination: 200, token page
+4. url = https://report.cedar.example/hook
+   DNS: 198.51.100.7 (public)        destination: 302 -&gt; http://169.254.169.254/
+5. url = https://report.cedar.example/hook
+   DNS: 198.51.100.7 (public)        destination: 200, &quot;ok&quot;
+</code></pre>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>1 is the decoy.</strong> It is the one the blocklist was written for: host is the literal metadata IP,
+so the teammate&#39;s rule rejects it, and <code>egress</code> rejects it too. If this were the only test, the
+blocklist would look like a fix. It is not; it is the case an attacker would never bother sending.</li>
+<li><strong>2 is safe and must stay working.</strong> The handler validates <code>hooks.cedar.example</code>; the socket
+connects to <code>203.0.113.10</code>, a public address; the destination is Cedar&#39;s real webhook. The
+blocklist allows it (correctly) and <code>egress</code> allows it (resolves to public, no redirect). This is
+the baseline: a fix that also breaks this has broken the feature.</li>
+<li><strong>3 is vulnerable, and the blocklist misses it.</strong> The handler validates
+<code>hooks.cedar.example</code> — not a blocked host — so the teammate&#39;s rule passes it. But DNS answers
+<code>169.254.169.254</code>, and the socket connects there: the metadata service, fetched. <code>egress</code> stops it
+because it checks the <em>resolved</em> address, not the name, and pins the dial to the address it
+approved. Trace: input <code>hooks.cedar.example</code> → name-based check passes → resolve to
+<code>169.254.169.254</code> → private-range check fails → refused, no fetch.</li>
+<li><strong>4 and 5 are the near-identical pair.</strong> The two requests are byte-for-byte the same at
+submission: same URL, same public host, same DNS answer. The only difference is what the
+destination chooses to reply. In 5 it returns <code>200</code> and nothing happens. In 4 it returns a <code>302</code>
+to the metadata IP, and vulnerable mode follows it — the handler validated a URL that was never
+fetched, and fetched a URL that was never validated. The blocklist misses 4 completely: it looked
+at the submitted host, which is innocent. <code>egress</code> stops 4 and allows 5 for the same reason —
+it does not follow the redirect — so under the fix both requests end at the public host and 4&#39;s
+leak is closed. The discriminator is redirect-following, decided after the URL check, which is why
+no amount of URL checking reaches it.</li>
+</ul>
+<p>If you marked 3 safe because the host was Cedar&#39;s own, that is the trust the screenshot server
+extended to the seller&#39;s page: the name looked like ours, so the fetch was treated as ours.</p>
+<p><em>Incident from HackerOne report #341876, &quot;SSRF in Exchange leads to ROOT access in all instances&quot;
+(0xacb, disclosed 23 May 2018), and Shopify, &quot;One Million Dollars in Bug Bounties&quot; (3 Apr 2019). The
+method follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="07-the-server-that-fetched-for-you">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="07-the-server-that-fetched-for-you">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="06-every-request-was-valid.html"><span>Previous</span>Every Request Was Valid</a>
+    <a class="essay-pager__next" href="08-left-on.html"><span>Next</span>Left On</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A key that every copy of the app carries identifies the app, not the person.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="One Key for Every Door">
+  <meta property="og:description" content="A key that every copy of the app carries identifies the app, not the person.">
+  <meta property="og:type" content="website">
+  <title>One Key for Every Door · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="02-one-key-for-every-door">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>02</span>API2 · Broken authentication</div>
+      <h1 class="essay-title">One Key for Every Door</h1>
+      <p class="essay-book">Incident: BrewDog, 2021</p>
+      <p class="essay-payoff">A key that every copy of the app carries identifies the app, not the person.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 2 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!-- claims to gate in checks/claims/02.tsv: Alan Monie, Pen Test Partners, published 8 Oct 2021; token found in Android app code and associated with three API endpoints; quote "Every mobile app user was given the same hard coded API Bearer Token, rendering request authorisation useless"; quote "The customer IDs aren't quite sequential, but certainly aren't random"; appending a different customer ID to the endpoint URL returned that customer's PII; exposed fields: name, date of birth, email, gender, delivery addresses, telephone, shares held, shareholder number, bar discount amount and ID, referrals; over 200,000 Equity for Punks shareholders; present ~18 months from version 2.5.5 (March 2020); 2.5.12 (13 Sept 2021) still had a static key exposing discount codes; 2.5.13 released by 27 Sept 2021 after six test builds; at publication Monie knew of no customer notification. Source: https://www.pentestpartners.com/security-blog/free-brewdog-beer-with-a-side-order-of-shareholder-pii/ -->
+
+<p>In September 2021 Alan Monie of Pen Test Partners examined code in the Android app of BrewDog, the
+Scottish brewer whose customers include more than 200,000 &quot;Equity for Punks&quot; shareholders. In the
+source he found a bearer token used with three of the brewer&#39;s API endpoints: one key written
+into the app and shared by its users.
+His write-up puts the consequence in a sentence: &quot;Every mobile app user was given the same hard
+coded API Bearer Token, rendering request authorisation useless.&quot;</p>
+<p>The token was the API&#39;s only idea of who was calling. What distinguished one customer&#39;s request
+from another&#39;s was a customer ID on the end of the URL, and the app supplied it. Change the ID and,
+in Monie&#39;s words, &quot;we are able to access sensitive Personally Identifiable Information (PII) for
+that customer&quot;: name, date of birth, email address, gender, telephone number, every delivery
+address previously used, shareholder number and shares held, referral count, the customer&#39;s bar
+discount and the identifier behind it. The IDs, he notes, &quot;aren&#39;t quite sequential, but certainly
+aren&#39;t random&quot;. The token had been in the app since version 2.5.5 in March 2020, about eighteen
+months. Version 2.5.12, released on 13 September, still had it; Monie tested six beta builds before
+version 2.5.13 reached the store on 27 September. At publication, Monie said he knew of no
+customer or shareholder notification.</p>
+<p>Chapter 1&#39;s bug was a lookup that never asked whose record it was fetching. This one is a step
+earlier: the server never learned who was asking in the first place. Every caller presented the
+same credential, so &quot;the caller&quot; was the app, not a person, and any later check of the form &quot;may
+this person see this record&quot; had nothing to work with. OWASP calls this <strong>broken authentication</strong>
+and puts it second on its API Security Top 10.</p>
+<h2 id="where-the-bug-lives-a-credential-that-names-the-app-not-the-user">Where the bug lives: a credential that names the app, not the user</h2>
+<p>Ledger has a mobile app too, and it is how Ben, at Birch, reads Birch&#39;s invoices on his phone. Here
+is how the app authenticated to <code>/v1</code> when v1 was written: the login middleware from chapter 1,
+<code>currentUser</code>, as it stands before this chapter&#39;s fix.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch02-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Read the two halves separately. The first half is authentication: it takes the bearer token from
+the request and looks it up. The token it finds is <code>mk_ledger_mobile_…</code>, the key issued to the
+mobile app when v1 shipped, the same one in every copy of the app. The second half is the identity:
+because the app&#39;s key does not name a person, the middleware reads <code>X-User</code> from the request and
+trusts it. The app fills that header in. So does anyone else who has the app&#39;s key, and everyone
+who has the app has the key.</p>
+<p>Now recall what chapter 1 built. <code>LoadInvoiceFor(user, id)</code> checks that the stored invoice&#39;s
+tenant is one the user may read. It does its job. It just does it for whichever user the request
+claimed to be. Ben&#39;s phone sends <code>X-User: ben</code> and gets invoice 205. A request that sends
+<code>X-User: alice</code> with the same app key gets invoice 104. The loader is not broken. It was handed a
+user the server never verified.</p>
+<p>The fix is that the credential must identify the person, and the server must be the one that says
+so:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch02-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Three details matter.</p>
+<ul>
+<li><strong>The user comes from the credential, not from a header beside it.</strong> A session token is issued
+to one person at login and maps to that person on the server. Nothing the client sends alongside
+it can change who it is. <code>X-User</code> is gone.</li>
+<li><strong>An app key is not a login.</strong> Ledger keeps <code>mk_ledger_mobile_…</code> for what it can honestly
+prove: that the caller possesses the shared key. It cannot prove that a real build sent the
+request, much less select a user.</li>
+<li><strong>Tokens are the server&#39;s to revoke.</strong> BrewDog could revoke its shared key at the server, but
+restoring the app&#39;s access required a changed client; the disclosure recounts several releases
+before the fix held. A session token lives in Ledger&#39;s store with a twelve-hour lifetime and
+can be deleted there.</li>
+</ul>
+<h2 id="if-the-fix-is-a-login-why-is-it-number-two">If the fix is a login, why is it number two?</h2>
+<p>Because &quot;the app is logged in&quot; is easy to mistake for &quot;the user is logged in&quot;, and several things
+keep the mistake alive.</p>
+<ul>
+<li><strong>The first client was trusted.</strong> v1 was written for one mobile app, built by the same team.
+A shared key was the simplest thing that worked, and the <code>X-User</code> header was a convenience for
+that app. Nobody was going to lie to their own server. The design was never revisited as the
+app reached more customers.</li>
+<li><strong>The credential is invisible from the outside.</strong> Every request carries a valid bearer token, so
+logs, gateways and dashboards show authenticated traffic. Peloton&#39;s leak looked like anonymous
+reads; BrewDog&#39;s looked like customers using the app.</li>
+<li><strong>Authorization checks pass.</strong> This is the part that catches teams who did chapter 1&#39;s work.
+A per-record check is only as good as the identity it is given, and a test that logs in as
+Alice through the real login flow never exercises a forged identity.</li>
+<li><strong>The secret is in the binary.</strong> Anything shipped inside an app can be read out of it. A key in
+an app is a key in public; the only question is when someone looks.</li>
+</ul>
+<h2 id="the-key-you-rotated-and-the-header-you-forgot">The key you rotated, and the header you forgot</h2>
+<p>Here is how the fix goes wrong at Ledger.</p>
+<p>Ops learns, from a report much like Monie&#39;s, that the mobile app&#39;s key is on a paste site. They
+rotate it: a new <code>mk_ledger_mobile_…</code> goes into version 3.1 of the app, the old key is revoked,
+and users are told to update. Within a week the old key stops appearing in logs. The report is
+closed.</p>
+<p>The rotation changed nothing that mattered. Version 3.1 still sends the shared key plus <code>X-User</code>,
+and the new key is in the new binary. Anyone who cared has it again in an afternoon. Rotation is
+the right response to a leaked <em>secret</em>; it is no response to a <em>design</em> in which the secret was
+never the thing that identified the user.</p>
+<p>The real fix is the one above: a login flow that issues a session token to a person, and a
+middleware that derives the user from that token alone. Ledger ships it in version 3.2 of the app
+and in <code>/v2</code>. Which leaves the second door.</p>
+<p><code>/v1</code> is still serving. It has to, until the old app is gone, and chapter 1 already put its
+handlers behind <code>LoadInvoiceFor</code>. But <code>/v1</code>&#39;s middleware is the old one. It still accepts the app
+key, still reads <code>X-User</code>, and still hands the loader a user the server never checked. Chapter 1&#39;s
+two-user test loop passes on <code>/v1</code>, because that loop logs in properly and then asks for the wrong
+invoice. It never asks for the <em>right</em> invoice as the wrong person.</p>
+<h3 id="1-find-every-place-a-user-is-decided">1. Find every place a user is decided</h3>
+<p>Grep for <code>X-User</code>, for <code>currentUser</code>, for anything that turns a request into a <code>User</code>. Ledger
+finds two: the new session middleware on <code>/v2</code>, and v1&#39;s app-key middleware. There is no third,
+which is the point of looking: the answer is a list, and the list is short enough to fix.</p>
+<h3 id="2-make-one-middleware-and-make-v1-use-it">2. Make one middleware, and make v1 use it</h3>
+<p>v1 and v2 share the session middleware. The old app cannot log in, so <code>/v1</code> now answers its
+requests with 401 and a message pointing at the update. That is a visible break for users still on
+the old app, and it is the correct one: the alternative was continuing to let anyone with the key
+be anyone. Ops sets the date, warns the app&#39;s remaining users, and moves on.</p>
+<h3 id="3-test-identity-not-only-access">3. Test identity, not only access</h3>
+<p>Chapter 1&#39;s loop asked: can Alice read 205? This chapter adds the question underneath: can a
+request <em>become</em> Alice without Alice&#39;s credential? The table below is this chapter&#39;s test, to
+run in both modes once its service code exists: the vulnerable build proves the forgery works, the
+fixed build proves it does not.</p>
+<div class="table-scroll" role="region" aria-label="Table; scroll horizontally if needed" tabindex="0"><table>
+<thead>
+<tr>
+<th align="left">Route</th>
+<th align="left">Credential sent</th>
+<th align="left"><code>X-User</code> header</th>
+<th align="left">Invoice</th>
+<th align="left">Vulnerable build</th>
+<th align="left">Fixed build</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>GET /v2/invoices/{id}</code></td>
+<td align="left">Alice&#39;s session token</td>
+<td align="left">none</td>
+<td align="left">104</td>
+<td align="left">200</td>
+<td align="left">200</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v2/invoices/{id}</code></td>
+<td align="left">Ben&#39;s session token</td>
+<td align="left"><code>alice</code></td>
+<td align="left">104</td>
+<td align="left">200, Cedar&#39;s invoice</td>
+<td align="left">404, no data</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v1/invoices/{id}</code></td>
+<td align="left">app key</td>
+<td align="left"><code>alice</code></td>
+<td align="left">104</td>
+<td align="left">200, Cedar&#39;s invoice</td>
+<td align="left">401</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v1/invoices/{id}</code></td>
+<td align="left">app key</td>
+<td align="left"><code>ben</code></td>
+<td align="left">205</td>
+<td align="left">200</td>
+<td align="left">401</td>
+</tr>
+<tr>
+<td align="left"><code>GET /v2/invoices/{id}</code></td>
+<td align="left">Alice&#39;s session token, 13 hours old</td>
+<td align="left">none</td>
+<td align="left">104</td>
+<td align="left">200</td>
+<td align="left">401</td>
+</tr>
+</tbody></table>
+</div><p class="table-hint">Scroll the table sideways to see all columns.</p><p>The second row is the one to stare at. Ben is properly logged in. He is not attacking the
+loader; he is telling the server who he is, and the vulnerable middleware believes him.</p>
+<h3 id="4-write-down-which-credentials-exist">4. Write down which credentials exist</h3>
+<p>Ledger now has three kinds: session tokens for people, the shared mobile app key,
+and the tenant API keys <code>ck_cedar_…</code> and <code>bk_birch_…</code> that Cedar&#39;s and Birch&#39;s own systems use.
+Each is recorded with what it proves and what it may select. The tenant keys will matter again
+when tenant integrations call Ledger.</p>
+<!--mission--><section class="mission" data-mission="02-one-key-for-every-door"><div class="mission__label">Exercise</div>
+<h2 id="exercise-who-does-the-server-think-you-are">Exercise: who does the server think you are?</h2>
+<p>Use Ledger as it stands after this chapter: <code>/v2</code> uses session tokens, <code>/v1</code> still serves behind
+the same session check, and three kinds of credential exist. You do not need a running service. Here are five middleware
+behaviours, written as what the server does with the request before any handler runs:</p>
+<pre><code class="language-text">A. Read bearer token; look up session; user = session.User.
+   If none, 401.
+B. Read bearer token; if it is the mobile app key, user = X-User header.
+   If none, 401.
+C. Read bearer token; look up session; user = session.User.
+   If X-User is present and differs, user = X-User (support tooling).
+D. Read bearer token; if it is a tenant API key (ck_/bk_), user = that
+   tenant&#39;s service account. Ignore X-User.
+E. Read bearer token; if it is a tenant API key, user = the account named
+   in X-User, provided that account belongs to the key&#39;s tenant.
+</code></pre>
+<p>For each one:</p>
+<ol>
+<li>Say where the identity comes from, and what the server verified about it.</li>
+<li>Mark it safe or vulnerable.</li>
+<li>For each vulnerable one, write one test: the credential, the headers, the request, and the
+expected result in the fixed build.</li>
+</ol>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A is safe.</strong> The identity comes from the session record on the server. The client supplied a
+token, and the token was issued to one person at login. Test it anyway: Alice&#39;s token with
+<code>X-User: ben</code> still returns Alice&#39;s view.</li>
+<li><strong>B is vulnerable.</strong> This is Ledger&#39;s old v1 middleware, analogous to BrewDog&#39;s shared-key
+design; BrewDog&#39;s published case selected the customer by URL ID, not an <code>X-User</code> header. The
+key proves only its own possession, and the identity comes from a header the client wrote. Test: app key,
+<code>X-User: alice</code>, <code>GET /v1/invoices/104</code>; fixed build returns 401, not Cedar&#39;s invoice.</li>
+<li><strong>C is vulnerable, and it looks like A.</strong> The first line is identical. The second line lets any
+logged-in user override who they are, because someone needed it for a support tool. Test: Ben&#39;s
+token, <code>X-User: alice</code>, <code>GET /v2/invoices/104</code>; fixed build returns 404, not Cedar&#39;s invoice.
+If support staff need to act as a customer, that requires a separate, audited platform-support
+capability, not Dana&#39;s tenant-admin role or a header any session can send.</li>
+<li><strong>D is safe.</strong> The identity is the tenant&#39;s service account, decided by the key alone. Birch&#39;s
+key can read Birch&#39;s invoices and nothing else, because <code>LoadInvoiceFor</code> still runs afterwards.
+With Birch&#39;s key and <code>X-User: ben</code>, a person-scoped identity probe would still name the Birch
+service account.</li>
+<li><strong>E is vulnerable, and it looks like D.</strong> The difference is one clause: the key selects a tenant,
+and then a header selects a person inside it. The check that the account belongs to the tenant
+is real, and it is not enough: Birch&#39;s key with <code>X-User: ben</code> is Ben, with no login, no session,
+no expiry. Anyone holding <code>bk_birch_…</code> is every Birch user at once. Test with the same key and
+<code>X-User: ben</code> on a person-scoped identity probe: E names Ben; the fixed D-style rule names the
+Birch service account. An invoice-only 200 response would not distinguish them.</li>
+</ul>
+<p>If you marked C safe because it starts the same way as A, you have found the shape of this
+chapter&#39;s bug: the server did verify a credential. It just let the client finish the sentence.</p>
+<p><em>Incident from Alan Monie, &quot;Free BrewDog beer with a side order of shareholder PII?&quot;, Pen Test
+Partners, 8 October 2021. The method follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="02-one-key-for-every-door">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="02-one-key-for-every-door">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="01-whos-asking.html"><span>Previous</span>Who's Asking</a>
+    <a class="essay-pager__next" href="03-the-row-you-didnt-mean-to-send.html"><span>Next</span>The Row You Didn't Mean to Send</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

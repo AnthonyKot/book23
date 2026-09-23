@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Same URL, different verb, same check. The page was hidden; the function was not.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Same Door, Different Verb">
+  <meta property="og:description" content="Same URL, different verb, same check. The page was hidden; the function was not.">
+  <meta property="og:type" content="website">
+  <title>Same Door, Different Verb · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="05-same-door-different-verb">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>05</span>API5 · Broken function level authorization</div>
+      <h1 class="essay-title">Same Door, Different Verb</h1>
+      <p class="essay-book">Incident: Dealer portal, 2025</p>
+      <p class="essay-payoff">Same URL, different verb, same check. The page was hidden; the function was not.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 3 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!-- Incident switched from the register's CBORD 2022 candidate (API2 by its own record) to Eaton Zveare's 2025 dealer-portal disclosure: see briefs/05.md. Claims to gate in checks/claims/05.tsv. Primary: Eaton Zveare, "How API flaws led to admin access to over 1k USA dealers and control over your car", DEF CON 33 Car Hacking Village, 8 Aug 2025 (slides, media.defcon.org). Corroboration (TC): Zack Whittaker, TechCrunch, 10 Aug 2025, https://techcrunch.com/2025/08/10/security-flaws-in-a-carmakers-web-portal-let-one-hacker-remotely-unlock-cars-from-anywhere/ .
+Facts to gate: portal invite-only, two-factor auth, Java backend + Angular front end (slide 6); registration required an invite token, validated by an API the login page called; the registration form was present in the page and revealed by editing the page's own styling (7-8); the registration request carried the token but the server did not check it (9); the created account had no permissions (11); an admin user-management page was gated only in the browser, not the server (14-15); that page's create-user function accepted a role selection and produced a "national admin" account (16-18); the national admin account had access across the platform and an impersonation feature that bypassed login and two-factor (33-34); Zveare limited his actions to read-only while exploring (50); disclosure timeline 26 Jan discovered / 3 Feb reported via VDP / 6 Feb acknowledged / 11 Feb fixes confirmed and verified, 2025 (50). TC: automaker unnamed, "more than 1,000 dealerships", fixed within a week of the February disclosure, carmaker found no evidence of prior exploitation, Zveare quote "only two simple API vulnerabilities blasted the doors open, and it's always related to authentication."
+Do not name the automaker (withheld by the researcher). The API5 class label is the book's, not the researcher's. -->
+
+<p>In January 2025 Eaton Zveare spent a weekend on the web portal a large carmaker runs for its
+dealers across the United States. Dealers use it to order cars, record sales and manage customers.
+It is invite-only, guarded by two-factor authentication, and built on a Java backend with an
+Angular front end. It looked shut.</p>
+<p>Getting an account was the first flaw, and it is not this chapter&#39;s subject: registration required
+an invite token, but the server accepted the request whether the token was valid or not — a broken
+authentication check, so anyone could register. Zveare said so himself afterwards, that &quot;only two
+simple API vulnerabilities blasted the doors open, and it&#39;s always related to authentication.&quot; The
+account this gave him had no permissions at all. It could see nothing worth seeing. The interesting
+failure is what happened next.</p>
+<p>The portal had an administrative user-management page. An ordinary account was not supposed to
+reach it, and in the browser it did not: the front end checked the account&#39;s role and refused to
+render the page. But that check lived only in the browser. When Zveare made the page render anyway
+and its create-user function ran, the server took the request, read the elevated role the form
+offered, and created the account. The result was a &quot;national admin&quot; — an account with access
+across the platform and an impersonation feature that stepped past login and two-factor on the
+systems behind it. More than a thousand dealerships sat behind that one account. The carmaker,
+unnamed in the disclosure, fixed the flaws within a week of Zveare&#39;s February report and said it
+found no evidence anyone had exploited them first.</p>
+<p>The lesson is the one this chapter is about. The server authenticated the caller — it knew <em>who</em>
+was asking. It never asked <em>whether this caller may run this function</em>. Those are different
+questions, and the second is the one that gets left to the front end, where it protects nobody.
+OWASP calls the skip <strong>broken function-level authorization</strong>, and it sits fifth in the API Security
+Top 10.</p>
+<h2 id="the-check-you-already-have-answers-a-different-question">The check you already have answers a different question</h2>
+<p>Ledger has this shape too, and it is easy to miss because chapter 1 looks like it covered it. Every
+handler that touches an invoice now calls <code>LoadInvoiceFor(user, id)</code>, which refuses to return a row
+from another tenant. That answers <em>may this caller see this invoice</em>. It says nothing about <em>what
+this caller may do to it</em>. Here is the delete route as it stands before this chapter&#39;s fix:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch05-vulnerable-delete</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Read what the check proves. <code>LoadInvoiceFor</code> confirms invoice 104 belongs to Alice&#39;s tenant, Cedar,
+so Alice clears it — and then the row is deleted. The same function that keeps Alice out of Birch&#39;s
+invoice 205 waves her through to <em>destroy</em> her own tenant&#39;s 104, a thing only a tenant admin should
+do. Dana, Cedar&#39;s admin, and Alice, an ordinary Cedar user, reach this route with exactly the same
+result, because the only question asked is one they both pass.</p>
+<p><code>GET /v2/invoices/104</code> and <code>DELETE /v2/invoices/104</code> are the same URL. The verb is the whole
+difference between reading a record and removing it, and in the vulnerable build the two verbs share
+one authorization story. Add the admin routes Ledger grew — <code>GET /v2/admin/users</code> lists a tenant&#39;s
+people — and the gap widens: those routes were registered behind an <code>/admin</code> path prefix, and the
+prefix was treated as if it were the guard.</p>
+<h2 id="why-a-check-in-the-handler-is-not-enough">Why a check in the handler is not enough</h2>
+<p>The tempting fix is one line in the delete handler: <code>if user.Role != &quot;tenant-admin&quot; { 403 }</code>. It
+works for this route. It is also chapter 1&#39;s original mistake, worn a second time.</p>
+<ul>
+<li><strong>The protection lives in the handler, so the next handler misses it.</strong> The admin void route,
+<code>POST /v2/admin/invoices/{id}/void</code>, was copied from a working route and never got the line. A
+reviewer reading the delete handler sees the check and moves on; the void handler two files over
+has none, and nothing about reading either one reveals the other&#39;s gap.</li>
+<li><strong>A path prefix is not a permission.</strong> <code>/v2/admin/...</code> looks privileged, but the string in the
+URL enforces nothing on its own. Worse, the rule &quot;an admin prefix means admins only&quot; was never
+even true across Ledger: <code>/v1</code> has no admin prefix and never did, so any reasoning that keys off
+the prefix is reasoning about a convention the older routes don&#39;t share.</li>
+<li><strong>The front end&#39;s check protects nobody.</strong> This is the dealer portal exactly. Hiding the page in
+the browser stops the honest click and none of the dishonest requests. The server is the only
+place the decision can be enforced, because the server is the only place the attacker cannot edit.</li>
+</ul>
+<p>So the fix is not &quot;guard the delete route.&quot; It is &quot;make every route state, in one place, who may
+call it, so that a route with no statement fails loudly instead of defaulting open.&quot;</p>
+<h2 id="declare-the-access-every-route-needs-and-let-a-grep-prove-it">Declare the access every route needs, and let a grep prove it</h2>
+<p>Ledger already lists its routes in one table. This chapter gives each entry an access level and
+refuses to register a route without one:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch05-access-decl</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p><code>Access</code> has no usable zero value: a route that forgets to set it does not quietly become <code>Public</code>,
+it fails to register, and a test walks the table and asserts every route declares a level. The
+levels are <code>Public</code>, <code>User</code> and <code>TenantAdmin</code>. The check itself moves out of the handlers and into
+middleware that runs after <code>currentUser</code> and before the handler:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch05-require-access</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Now the delete handler does no role logic of its own; it is reached only if the route&#39;s declared
+level admits the caller. Tenant scoping stays where chapter 1 put it, inside <code>LoadInvoiceFor</code>; the
+role decision is the middleware&#39;s; neither is copied by hand into a handler where the next copy will
+drop it. The proof is greppable — <code>grep &quot;Access:&quot; service/routes.go</code> lists every route and its
+level, and the missing declaration is a compile-or-test failure, not a silent hole.</p>
+<p>One deliberate difference from chapter 1: when the middleware denies Alice the delete, it answers
+<strong>403</strong>, not the <strong>404</strong> Ledger returns for a cross-tenant read. In chapter 1 the 404 hid whether
+the invoice existed. Here it is Alice&#39;s own tenant&#39;s invoice; she can already see it through <code>GET</code>.
+There is no existence to hide, so the honest answer is &quot;you may not do this,&quot; and 403 says it.</p>
+<h2 id="the-door-you-shut-in-chapter-3-reached-through-another-route">The door you shut in chapter 3, reached through another route</h2>
+<p>Chapter 3 closed self-promotion: <code>PATCH /v2/users/me</code> stopped decoding arbitrary fields and took a
+typed <code>ProfilePatch{DisplayName}</code>, so Alice could no longer set <code>role</code> on herself. That repair holds
+for that route.</p>
+<p>But the admin surface added its own way in. <code>PATCH /v2/admin/users/{id}</code> lets a tenant admin change
+another Cedar user&#39;s role, and in the vulnerable build it is reachable by any logged-in user,
+because it lives behind the <code>/admin</code> prefix and nothing checks the caller&#39;s level. Alice sends
+<code>{&quot;role&quot;:&quot;tenant-admin&quot;}</code> for her <em>own</em> user ID and becomes an admin — the exact door chapter 3
+shut, standing open again one route over. And once Alice is an admin, chapter 3&#39;s <code>ViewFor</code> honestly
+starts handing her the admin view, customer contact details included: a function-level gap turning
+into a data-level one. The declared-access fix closes it the same way it closes the delete: the
+route is declared <code>TenantAdmin</code>, the middleware denies Alice with a 403, and her record is unchanged.</p>
+<p>The pair to hold in mind: <code>PATCH /v2/users/me</code> (typed, level <code>User</code>, safe) and
+<code>PATCH /v2/admin/users/{id}</code> (level <code>TenantAdmin</code>, denied to Alice). Same actor, almost the same
+request, opposite outcomes — and the thing that separates them is which route&#39;s declaration the
+caller had to clear.</p>
+<!--mission--><section class="mission" data-mission="05-same-door-different-verb"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-verb-which-caller-which-door">Exercise: which verb, which caller, which door</h2>
+<p>Ledger as before: Alice is an ordinary Cedar user, Dana is Cedar&#39;s tenant admin, Ben is a Birch
+user; invoice 104 is Cedar&#39;s and 205 is Birch&#39;s. Each route below is registered with a declared
+access level in the fixed build and with none in the vulnerable build. You do not need a running
+service. For each case, name the caller&#39;s role, say which route declaration (or its absence) decides
+the request, and give the response and whether any row changed.</p>
+<pre><code class="language-text">A. PATCH  /v2/invoices/104        Alice   {&quot;reference&quot;:&quot;PO-9&quot;}      (level: User)
+B. DELETE /v2/invoices/104        Alice   —                        (level: TenantAdmin)
+B&#39;. DELETE /v2/invoices/104       Dana    —                        (level: TenantAdmin)
+C. DELETE /v2/invoices/205        Dana    —                        (level: TenantAdmin)
+D. GET    /v2/admin/users         Alice   —                        (level: TenantAdmin)
+D&#39;. GET   /v2/admin/users         Dana    —                        (level: TenantAdmin)
+E. PATCH  /v2/admin/users/{alice} Alice   {&quot;role&quot;:&quot;tenant-admin&quot;}  (level: TenantAdmin)
+E&#39;. PATCH /v2/users/me            Alice   {&quot;role&quot;:&quot;tenant-admin&quot;}  (level: User)
+F. GET    /v2/Admin/users         Alice   —                        (note the capital A)
+</code></pre>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A is safe, and it is the decoy.</strong> Editing a reference is an ordinary user&#39;s job, so the route is
+declared <code>User</code>; Alice&#39;s role clears it. Vulnerable and fixed builds both return 200 and set the
+reference. A write is not the same as a privileged write — do not deny it just because it changes
+something.</li>
+<li><strong>B is the bug.</strong> Alice&#39;s role is <code>User</code>; the delete route needs <code>TenantAdmin</code>. Vulnerable build:
+<code>LoadInvoiceFor</code> passes on her own tenant&#39;s 104 and the row is deleted (204). Fixed build: the
+middleware denies her before the handler runs — 403, and 104 is still there.</li>
+<li><strong>B&#39; is the same route with the right caller.</strong> Dana is <code>TenantAdmin</code>, so she clears the
+declaration; 204 and 104 is gone, in both builds. B and B&#39; are the pair: identical request, the
+caller&#39;s role is the whole difference.</li>
+<li><strong>C never reaches the role check.</strong> Dana is a Cedar admin; 205 is Birch&#39;s. <code>LoadInvoiceFor</code> returns
+not-found first, so both builds answer 404. Tenant scope is checked before role, and being an
+admin of your own tenant is not being an admin of someone else&#39;s.</li>
+<li><strong>D is vulnerable.</strong> Alice is <code>User</code>; the user-list route needs <code>TenantAdmin</code>. Vulnerable build:
+no declaration, so any logged-in caller gets Cedar&#39;s user list (200). Fixed build: 403. This is the
+dealer portal&#39;s admin page — hidden in the front end, open at the API.</li>
+<li><strong>D&#39; is D with the right caller.</strong> Dana clears <code>TenantAdmin</code>; 200 in both builds.</li>
+<li><strong>E is the second door, and it undoes chapter 3.</strong> Alice is <code>User</code>; the admin route needs
+<code>TenantAdmin</code>. Vulnerable build: her request is honoured, <code>role</code> becomes <code>tenant-admin</code>, and from
+then on <code>GET /v2/invoices/104</code> shows her the admin view with customer email. Fixed build: 403, her
+record unchanged. Trace it: caller&#39;s role → the route&#39;s declaration → denied before the body is
+ever decoded.</li>
+<li><strong>E&#39; is the pair, and it is safe.</strong> <code>PATCH /v2/users/me</code> is level <code>User</code>, but chapter 3 made it
+decode a typed <code>ProfilePatch{DisplayName}</code>, so <code>role</code> is not a field it can set. Rejected as an
+unknown field in both builds. E and E&#39; show that shutting one route does not shut the function:
+the admin route needed its own declaration.</li>
+<li><strong>F is the trap.</strong> <code>/v2/Admin/users</code> with a capital A is not the route that was registered. In the
+vulnerable build the prefix guard <code>strings.HasPrefix(path, &quot;/v2/admin&quot;)</code> does not match, so it
+does nothing; the request is then 404 only because Go&#39;s mux compares patterns exactly. On a router
+that folds case or collapses doubled slashes, the same request is served, and the guard never
+ran. In the fixed build there is no prefix rule to fool: the route table has no such entry, so 404,
+and a request for the real path is decided by its declaration. If you reasoned &quot;it has admin in
+the path, so it&#39;s guarded,&quot; reread the middle of this chapter. The path is not the permission;
+the declaration is.</li>
+</ul>
+<p><em>Incident from Eaton Zveare, &quot;How API flaws led to admin access to over 1k USA dealers and control
+over your car,&quot; DEF CON 33 Car Hacking Village, 8 August 2025, corroborated by Zack Whittaker,
+TechCrunch, 10 August 2025. The method follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="05-same-door-different-verb">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="05-same-door-different-verb">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="04-nobody-counted.html"><span>Previous</span>Nobody Counted</a>
+    <a class="essay-pager__next" href="06-every-request-was-valid.html"><span>Next</span>Every Request Was Valid</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

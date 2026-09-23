@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The request you validated went out. The response you did not validate came back.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="What You Swallowed">
+  <meta property="og:description" content="The request you validated went out. The response you did not validate came back.">
+  <meta property="og:type" content="website">
+  <title>What You Swallowed · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="10-what-you-swallowed">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>10</span>API10 · Unsafe consumption of APIs</div>
+      <h1 class="essay-title">What You Swallowed</h1>
+      <p class="essay-book">Incident: Kiln and SwissBorg, 2025</p>
+      <p class="essay-payoff">The request you validated went out. The response you did not validate came back.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 5 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!--
+Claims to gate in checks/claims/10.tsv.
+Sources: Kiln, "Re-enablement of Kiln services and security incident information", 7 Oct 2025,
+https://www.kiln.fi/post/re-enablement-of-kiln-services-and-security-incident-information (vendor
+post-mortem); SwissBorg, "Kiln Breach (Sep 2025): Security Impact on SwissBorg", 17 Nov 2025,
+https://swissborg.com/blog/swissborg-security-update-kiln-breach (consumer's account); joint
+statement, 8 Sep 2025, https://swissborg.com/blog/joint-statement-kiln-x-swissborg-regarding-sol-incident;
+Kiln announcement, 8 Sep 2025, https://www.kiln.fi/post/sol-incident-swissborg---announcement.
+- Entry point: a GitHub access token of a Kiln infrastructure engineer; the actor created and immediately
+  deleted branches to trigger CI/CD workflows and harvested stored secrets and cloud credentials (Kiln).
+- The actor injected a payload into a running Kubernetes pod hosting the Kiln Connect API, modifying the
+  logic of one API endpoint (Kiln).
+- The endpoint returned a malicious transaction in addition to the expected "deactivate stake" transaction;
+  it changed the withdrawal authority of the Solana stakes only if the existing withdrawal authority of the
+  stake account in the POST call held balances above 150k SOL (Kiln).
+- One customer used Kiln Dashboard to unstake SOL on 31 Aug 2025; the transaction was forwarded from the
+  Dashboard to their custody solution and approved by a quorum of signatories (Kiln).
+- Incident detected 8 Sep 2025; unauthorized access to a wallet used for staking operations; Solana funds
+  improperly removed; SwissBorg paused Solana staking (joint statement).
+- 192,000 SOL unstaked by the attacker (SwissBorg). No dollar figure: neither primary account gives one.
+- Kiln "consistently recommended" customers decode transactions to verify integrity before signing and
+  provides a decoding tool (Kiln); SwissBorg chose not to rely on it because it was not integrated in the
+  dashboard, not open-sourced or verifiable, and did not meet basic security standards (SwissBorg).
+- SwissBorg: the actor did not breach SwissBorg's wallet infrastructure; the incident occurred entirely
+  within Kiln's systems (SwissBorg).
+- No evidence of any other malicious transaction or other customer affected (Kiln).
+- Ledger's rate feed is invented for the analogy and is never presented as Kiln's or SwissBorg's system.
+-->
+
+<h1 id="what-you-swallowed">What You Swallowed</h1>
+<p>On 31 August 2025 an operations team at SwissBorg, a Swiss crypto wealth platform, did a routine
+thing. They used the dashboard of Kiln, the company that ran their Solana staking, to unstake some
+SOL. Behind the dashboard sat Kiln&#39;s Connect API: you POST the stake account and what you want
+done, and it returns a transaction for you to sign. The dashboard forwarded the transaction to
+SwissBorg&#39;s custody system, a quorum of their signers approved it, and it went on-chain.</p>
+<p>The transaction was not what they had asked for. Some time before, an attacker had obtained a GitHub
+access token belonging to a Kiln infrastructure engineer. With it, by Kiln&#39;s own account, they
+created and immediately deleted branches to trigger CI workflows, harvested the secrets and cloud
+credentials those workflows held, and used those to inject a payload into the running pod that
+served the Connect API. The payload changed the logic of one endpoint. It still returned the
+&quot;deactivate stake&quot; transaction a caller expected. Alongside it, it returned a second transaction
+that reassigned the <em>withdrawal authority</em> of the caller&#39;s stake accounts to an address the
+attacker controlled, and only when the stake account named in the POST held more than 150,000
+SOL. Smaller customers got exactly what they asked for. SwissBorg got that, and one thing more.</p>
+<p>On 8 September the attacker used the authority they now held to unstake and remove about 192,000
+SOL. Kiln and SwissBorg published a joint
+statement the same day; Kiln&#39;s post-mortem followed in October and SwissBorg&#39;s own account in
+November. Two lines from those accounts are the whole lesson. Kiln: it had &quot;consistently
+recommended&quot; that customers decode transactions to verify their integrity before signing, and
+offered a tool for it. SwissBorg: it had chosen not to rely on that tool, because it was not
+integrated into the dashboard, not open-source or verifiable; and, separately, that the attacker
+&quot;did not breach SwissBorg&#39;s wallet infrastructure&quot; and the incident &quot;occurred entirely within
+Kiln&#39;s systems&quot;.</p>
+<p>Both statements are true, and together they describe the class. Nothing of SwissBorg&#39;s was broken
+into. Their own systems did what they were built to do: take what the partner&#39;s API returned and
+act on it. OWASP calls this <strong>unsafe consumption of APIs</strong>, API10: a service gives data from a
+third-party API more trust than it would give a request body, so a partner that is compromised,
+buggy, or simply different from what you assumed writes straight into your state. The request you
+validated went out. The response you did not validate came back, and you signed it.</p>
+<h2 id="where-the-bug-lives-a-row-from-the-partner-written-into-the-total">Where the bug lives: a row from the partner, written into the total</h2>
+<p>Ledger bills in pounds, but Cedar has customers who pay in euros, so an invoice carries a
+<code>Currency</code> field. To record a euro invoice in pence, Ledger
+needs a rate, and it gets one from a partner feed at <code>rates.partner.example</code>, which answers
+<code>GET /latest</code> with a row like <code>{&quot;EUR&quot;: 0.92}</code>: pounds per euro. A poller fetches the row every hour
+and the store keeps it. Here is the poller and the invoice creation that uses it, before this
+chapter&#39;s fix.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-rates-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Read it the way you now read a request handler. The fetch is a bare <code>http.Get</code>, the call the SSRF
+chapter banned from handlers; the poller predates <code>egress</code> and nobody moved it. The body is
+decoded into a <code>map[string]float64</code> and the whole map becomes the store&#39;s rate table, every key,
+whatever it is. Then <code>CreateInvoice</code> looks up <code>rates[inv.Currency]</code> and, if a rate exists for the
+invoice&#39;s currency, multiplies. For Cedar&#39;s invoice 412, €300.00, the row <code>{&quot;EUR&quot;: 0.92}</code> gives
+£276.00 and 27600 pence go into the row. Nothing checks that 0.92 is a plausible number of pounds
+per euro. Nothing checks that the only key is <code>EUR</code>. Nothing keeps the rate: the invoice stores
+27600 and forgets where the number came from.</p>
+<p>So the partner&#39;s response is the input, and four responses show four ways to swallow it. A row of
+<code>{&quot;EUR&quot;: 92}</code> bills the customer £27,600.00. A row of <code>{&quot;EUR&quot;: -0.92}</code> stores a negative total,
+which the refund flow will read as money owed. A row of <code>{&quot;EUR&quot;: 0.92, &quot;GBP&quot;: 0.5}</code> carries the
+rate you asked for, correct to the penny, and beside it a key you never asked for, and
+<code>CreateInvoice</code> applies it: from that hour every new Cedar invoice in pounds is halved, because &quot;if
+a rate exists for the currency&quot; was the only condition. And a <code>302</code> sends the poller to whatever
+address the <code>Location</code> header names, from which a row comes back with the same shape and no way to
+tell. The third case is Kiln&#39;s in miniature: the expected thing arrived, the extra thing arrived
+beside it, and the code applied everything that arrived.</p>
+<p>The fix treats the feed like a request body from a stranger:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-rate-row</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-rates-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Three details decide whether this is real.</p>
+<ul>
+<li><strong>The response is decoded into a declared type, with unknown fields rejected.</strong> <code>rateRow</code> has one
+field, <code>EUR</code>. <code>DisallowUnknownFields</code> is the call the property chapter used on <code>InvoicePatch</code>;
+here it is pointed the other way, at what comes in from a partner rather than a client. A row
+with a <code>GBP</code> key is refused whole, not trimmed.</li>
+<li><strong>The value is bounded by a range Ledger declares, not by what the partner sent last time.</strong>
+The fixed poller accepts a euro rate only inside <code>0.70</code> to <code>1.10</code>: wide enough never to reject a
+real move, narrow enough to always reject a decimal slip, a negative, or a sabotage. Outside it,
+the poller keeps the last good rate and pages Ops. It does not bill at the new one.</li>
+<li><strong>The invoice records the rate it used.</strong> <code>FXRate</code> and the original <code>AmountEUR</code> are stored next
+to the pence. A bad rate that gets through anyway is then a query, not an archaeology. This is
+the step SwissBorg&#39;s signers did not have: a readable record of what was actually applied, before
+the consequence.</li>
+</ul>
+<h2 id="if-it-is-one-range-check-why-is-it-a-whole-class">If it is one range check, why is it a whole class?</h2>
+<p>Because the range check guards one value on one path, and the trust that caused the bug is not
+about a value. It is the assumption that a partner&#39;s response is already what you meant.</p>
+<ul>
+<li><strong>The partner&#39;s shape is not your schema.</strong> <code>{&quot;EUR&quot;: 0.92}</code> is what the feed usually sends, not
+a contract, and a map that accepts anything makes every future key a silent feature. The only
+schema that protects you is the one you declared.</li>
+<li><strong>A correct partner can still be the wrong input.</strong> Kiln&#39;s endpoint was compromised, but the same
+consumer code would have swallowed a Kiln bug, a schema change, or a provider&#39;s decimal-point
+mistake. The check is for <em>your</em> invariants, whatever the partner&#39;s reason for violating them.</li>
+<li><strong>The partner&#39;s verification tool is not your check.</strong> Kiln offered a decoder; SwissBorg declined
+it as unverifiable. Both wanted a check and neither had one on the consumer&#39;s side, in code the
+consumer could read. Validation you cannot inspect is trust with extra steps.</li>
+<li><strong>A response is an outbound request&#39;s other half.</strong> The SSRF chapter fixed where Ledger&#39;s
+requests go and said nothing about what comes back. <code>egress</code> refuses the <code>302</code>, and that is the
+right first line, but a partner that answers <code>200</code> with a hostile body is beyond anything a
+destination policy can see.</li>
+</ul>
+<h2 id="the-second-time-the-rate-is-read">The second time the rate is read</h2>
+<p>The rate feed is Ledger&#39;s fourth outbound call, the one the SSRF chapter said would arrive &quot;next
+quarter&quot; and either use the one client or stand out in review. In the fixed build it uses <code>egress</code>,
+so the resolve, the private-address check, and the no-redirect rule are inherited. That closes the
+<code>302</code> case without a line of URL code in the poller, the way the PDF logo fetch was closed.</p>
+<p>The path that catches people is the refund. The quote from the business-flows chapter,
+<code>POST /v2/refunds/quote</code> with <code>{invoice_id, amount}</code>, loads the invoice with <code>LoadInvoiceFor</code> and
+checks the amount against what remains. A euro invoice is refunded in euros, so the handler has to
+convert. Here is how the vulnerable build did it:</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-refund-quote-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>It converts at <code>store.rates[&quot;EUR&quot;]</code>: today&#39;s rate, whatever the poller last stored. Fix the poller
+and this is still wrong, in two ways. A bad rate that reached the store before the fix is still
+used by every quote on an affected invoice. And even with a perfect feed, a customer billed
+€300.00 at 0.92 and refunded months later at 0.95 gets back a different number of pounds than they
+paid, and the remaining-balance check in pence, the one that stops over-refunding, is comparing
+two amounts converted at two rates. The repair is the one the refund chapter made for the quote,
+applied to the rate: confirm uses the invoice stored with the quote; quote uses the rate stored
+with the invoice.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-refund-quote-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>The invoice&#39;s <code>FXRate</code> is now the only rate a later step may read, and <code>store.rates</code> is consulted
+in one place: when an invoice is created. That is the shape of <code>LoadInvoiceFor</code> and <code>egress</code>: one
+door, one check, and every other path reads the checked result rather than the raw source.
+Recording what passed the boundary, and reading only the record afterward, is what makes the
+boundary hold for the paths you have not thought of yet.</p>
+<!--mission--><section class="mission" data-mission="10-what-you-swallowed"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-of-these-changes-what-cedar-39-s-customers-are-billed">Exercise: which of these changes what Cedar&#39;s customers are billed?</h2>
+<p>Ledger&#39;s poller fetches <code>GET https://rates.partner.example/latest</code> every hour and, in the
+vulnerable build, stores whatever map comes back; invoices are created at the stored rate.
+Invoice 412 is Cedar&#39;s, €300.00, created after the fetch; invoice 104 is Cedar&#39;s, £1,800.00,
+created after it too. A teammate proposes this fix: &quot;reject any rate greater than 10.&quot; Below are
+five partner responses. For each: say what the poller stores, what invoice 412 and invoice 104
+are recorded as, and mark whether the teammate&#39;s cap stops the damage and whether the chapter&#39;s
+fixed build does. You do not need a running service.</p>
+<pre><code class="language-text">1. 200  {&quot;EUR&quot;: 92}
+2. 200  {&quot;EUR&quot;: 0.92}
+3. 200  {&quot;EUR&quot;: -0.92}
+4. 200  {&quot;EUR&quot;: 0.92, &quot;GBP&quot;: 0.5}
+5. 302  Location: https://rates.partner.example/v2/latest
+        (the redirected page answers 200 {&quot;EUR&quot;: 0.92})
+</code></pre>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>1 is the decoy.</strong> It is the response the cap was written for: 92 is greater than 10, so the
+teammate&#39;s rule drops it, and the fixed build drops it too, because 92 is outside <code>0.70</code>–<code>1.10</code>.
+Vulnerable build: row <code>{&quot;EUR&quot;: 92}</code> → no check → <code>rates[&quot;EUR&quot;] = 92</code> → invoice 412 stored as
+2760000 pence, £27,600.00; 104 untouched. It is the case a compromised feed would never send,
+because a human notices it on the first invoice.</li>
+<li><strong>2 is the baseline, and must keep working.</strong> Row → decoded into <code>rateRow{EUR: 0.92}</code>, no
+unknown fields → inside the band → stored with <code>AsOf</code> → invoice 412 recorded as 27600 pence with
+<code>FXRate 0.92</code>; 104 at 180000 pence. Both builds and the cap produce this. A fix that breaks it has
+broken invoicing.</li>
+<li><strong>3 is vulnerable, and the cap misses it.</strong> −0.92 is not greater than 10. Vulnerable build:
+<code>rates[&quot;EUR&quot;] = -0.92</code> → invoice 412 stored as −27600 pence, and the refund flow&#39;s
+remaining-balance check reads a debt as headroom. Fixed build: −0.92 is below <code>0.70</code> → row
+refused, last good rate kept, Ops paged; 412 is created at 0.92. The cap guarded the end of the
+range someone had imagined.</li>
+<li><strong>4 and 2 are the near-identical pair.</strong> The euro rate is byte-for-byte the same, and the cap
+passes 4: every value is under 10. Vulnerable build: the whole map is stored, <code>CreateInvoice</code>
+finds a rate for <code>GBP</code>, and invoice 104, a pound invoice that should never be converted, is
+stored as 90000 pence, £900.00; 412 is correct. Fixed build: <code>DisallowUnknownFields</code> rejects the
+row at <code>GBP</code> before any value is read; the last row stands and both invoices are correct. The
+discriminator is not a number. It is whether the code accepted a field it never declared, which
+is why no check on the <em>value</em> of <code>EUR</code> can reach it. This is Kiln&#39;s shape: the thing you asked
+for was correct, and the thing beside it was the attack.</li>
+<li><strong>5 is closed by the earlier chapter, not this one.</strong> Vulnerable build: <code>http.Get</code> follows the
+redirect and stores a row from a location the poller never chose; honest this time, not
+necessarily next time. The cap never sees a redirect; it checks values, not fetches. Fixed build:
+<code>egress</code> returns the <code>302</code> as a result and does not follow it; no row is stored. If you marked 5
+as this chapter&#39;s bug, notice that its fix lives in a different function from the fix for 3 and
+4: where the request goes is egress policy; what the response may say is this chapter.</li>
+</ul>
+<p>If you marked 4 safe because the euro rate was right, that is the transaction SwissBorg&#39;s signers
+approved: the deactivate they had asked for was in it.</p>
+<p><em>Incident from Kiln, &quot;Re-enablement of Kiln services and security incident information&quot; (7 Oct
+2025), and SwissBorg, &quot;Kiln Breach (Sep 2025): Security Impact on SwissBorg&quot; (17 Nov 2025). The
+method follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="10-what-you-swallowed">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="10-what-you-swallowed">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="09-deprecated-is-a-label.html"><span>Previous</span>Deprecated Is a Label</a>
+    <a class="essay-pager__next" href="../index.html"><span>Return</span>Contents</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>

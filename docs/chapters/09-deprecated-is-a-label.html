@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A host that is not on your list is a host your fixes do not reach.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Deprecated Is a Label">
+  <meta property="og:description" content="A host that is not on your list is a host your fixes do not reach.">
+  <meta property="og:type" content="website">
+  <title>Deprecated Is a Label · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="09-deprecated-is-a-label">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 10 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>11 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>09</span>API9 · Improper inventory management</div>
+      <h1 class="essay-title">Deprecated Is a Label</h1>
+      <p class="essay-book">Incident: Optus, 2022</p>
+      <p class="essay-payoff">A host that is not on your list is a host your fixes do not reach.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: pilot, drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- claims to gate in checks/claims/09.tsv (all are ACMA's allegations in the redacted concise statement annexed to the Federal Court order of 19 June 2024, VID429/2024; none is an adjudicated finding; redacted system names stay unfilled): 17–20 September 2022 relevant period; around 3.6 million active customers vs more than 9.5 million former and current customers (keep distinct); data fields listed in ¶2; Main Domain www.optus.com.au and Target Domain api.www.optus.com.au; Target Domain internet-facing from 20 April 2017, intended to segregate API traffic from static content; dormant and not in use since 2017, not decommissioned until after the attack; three Target APIs meant to return information only after authentication; September 2018 coding error in one access control, ineffective for both domains; both internet-facing with the error from June 2020; August 2021 Main fixed, Target not; "not highly sophisticated", "trial and error"; attacker bypassed access controls and sent requests to the Target APIs; first detected 17 September, aware ~8pm 19 September, internet traffic blocked ~3:45am 20 September, decommissioned 21 September 2022. Source: resources/incidents/09/optus-filed-order-and-concise-statement.pdf. -->
+
+<p>Between 17 and 20 September 2022 someone pulled the personal records of more than 9.5 million
+current and former customers out of Optus, Australia&#39;s second-largest telecommunications company:
+names, dates of birth, phone numbers, addresses, and for a subset the driver&#39;s licence, passport
+and Medicare numbers that Australians use to prove who they are. What follows is the account the
+regulator gave a court two years later. The Australian Communications and Media Authority, ACMA,
+sued Optus in the Federal Court in May 2024, and the redacted concise statement it filed is public.
+Everything below is what ACMA alleges. Optus&#39;s systems are named in the filing only as black bars,
+and this chapter leaves the bars where they are.</p>
+<p>ACMA&#39;s account is about two domains. Customers could reach their information through APIs on
+<code>www.optus.com.au</code>, which the filing calls the Main Domain, and on <code>api.www.optus.com.au</code>, the
+Target Domain. The Target Domain had been put on the internet in April 2017 to take API traffic
+away from the static content on the main site. It had three APIs that were meant to return a
+customer&#39;s information only after that customer had authenticated. And, ACMA alleges, it had been
+dormant and not in use since 2017. Nobody needed it. It was not decommissioned.</p>
+<p>In September 2018 a coding error was made in one of the access controls, and the error made that
+control ineffective for both domains. In June 2020 both domains became internet-facing with the
+error in them. In August 2021 Optus detected that the Main Domain was vulnerable because of the
+error and fixed it there. It did not detect, and did not fix, the same issue on the Target
+Domain. The filing says the Target Domain &quot;was permitted to sit dormant and vulnerable to attack
+for two years and was not decommissioned despite the lack of any need for it.&quot;</p>
+<p>The attack, in ACMA&#39;s words, &quot;was not highly sophisticated&quot; and &quot;was carried out through a simple
+process of trial and error&quot;: the attacker bypassed the access controls and sent requests to the
+Target APIs, which returned customers&#39; personal information. Optus first detected it on 17
+September, understood at about 8pm on 19 September that an attack was under way, blocked internet
+traffic to the Target Domain at about 3:45am on 20 September, and decommissioned it on 21
+September. ACMA is seeking penalties in respect of at least 3.6 million of those customers, the
+ones who were active subscribers at the time.</p>
+<p>Set aside the coding error for a moment; it was fixed, in the place people were looking. The
+subject of this chapter is the place they were not. OWASP calls it <strong>improper inventory
+management</strong>, ninth in its API Security Top 10, and the class is easy to misread as
+housekeeping. It is not. A host that is not on your list is a host your fixes do not reach.</p>
+<h2 id="the-route-you-kept-and-the-host-you-never-listed">The route you kept, and the host you never listed</h2>
+<p>Ledger&#39;s version of this begins where the BOLA chapter ended. <code>/v1/invoices/{id}</code> and its PDF
+route were found, put behind <code>LoadInvoiceFor</code> like everything else, and left running because an
+old version of the mobile app still calls them. Ops wrote &quot;deprecated&quot; next to both in the
+inventory and the plan was to switch them off once usage dropped. The build tested in this chapter
+starts from that state: Alice already gets 404 for Birch&#39;s invoice 205 on every route. That
+repair is not in question here.</p>
+<p>Ops&#39;s inventory has one host on it, <code>api.ledger.example</code>. The gateway in front of the service
+knows two:</p>
+<pre><code class="language-go">// ch09-gateway-host-filter
+func chapter09Gateway(mode Mode, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		host := r.Host
+		if host == PublicHost {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if mode == Vulnerable &amp;&amp; host == StagingHost &amp;&amp; strings.HasPrefix(r.URL.Path, &quot;/v1/&quot;) {
+			next.ServeHTTP(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
+}
+</code></pre>
+<p><code>StagingHost</code> is <code>ledger-staging.internal</code>. It was set up when v1 was the only API, so the mobile
+team could test against a name that would not change, and the rule forwards anything under <code>/v1/</code>
+to the same service. The name says internal; the gateway does not check where the request came
+from. Nobody on the current team knows the rule exists, because the two places a person would
+look do not show it. The code&#39;s route table lists paths, not hosts:</p>
+<pre><code class="language-go">// ch09-code-route-fixture
+var vulnerableCodeRoutes = []Route{
+	{Method: &quot;GET&quot;, Pattern: &quot;/v2/invoices/{id}&quot;},
+	{Method: &quot;GET&quot;, Pattern: &quot;/v2/me/invoices&quot;},
+	{Method: &quot;GET&quot;, Pattern: &quot;/v1/invoices/{id}&quot;},
+	{Method: &quot;GET&quot;, Pattern: &quot;/v1/invoices/{id}/pdf&quot;},
+}
+
+var fixedCodeRoutes = vulnerableCodeRoutes[:2]
+</code></pre>
+<p>And the inventory document lists what Ops wrote down. Grepping for <code>mux.Handle</code>, the recipe from
+the BOLA chapter, finds every route the code registers and says nothing about which names the
+gateway answers to. The staging host is in the third list, gateway configuration, and in a fourth,
+live traffic, and in neither of the two anyone reads.</p>
+<p>That is the shape of ACMA&#39;s allegation. The Target Domain was not a secret. It had a name, a
+purpose and a date it went live. It had simply stopped being anywhere that a fix would be applied.
+When the access control was repaired on the Main Domain, the repair went where the report pointed,
+and the domain nobody used did not get it.</p>
+<h2 id="why-quot-deprecated-quot-protects-nothing">Why &quot;deprecated&quot; protects nothing</h2>
+<p>Deprecated is a word in a document. The gateway does not read the document. Until the route
+stops answering, deprecated means exactly what it meant the day before: the route serves whatever
+it served, through whatever hosts forward to it, with whatever controls happen to have reached it.</p>
+<p>Here is how that goes wrong at Ledger after the next repair, not this one. The chapter on resource
+consumption puts a budget of thirty requests a minute on the lookup routes, and it puts it at the
+gateway, keyed by host and route, because that is where every request passes. Every request on
+the host Ops listed. <code>ledger-staging.internal/v1/invoices/104</code> is forwarded by a rule that never
+saw the budget, so the walk that Peloton&#39;s researcher did by hand, and that the limiter was added
+to stop, runs at full speed against the one host nobody metered. The handler behind it still calls
+<code>LoadInvoiceFor</code>, so Alice still cannot read Birch&#39;s invoice that way. The point is not that this
+route leaks today. The point is that the next control, and the one after that, will be applied to
+the inventory, and this route is not in it. Optus&#39;s Target Domain did not need to be exploitable
+in 2017 to be the way in five years later.</p>
+<p>So the question the BOLA chapter asked, &quot;which routes can reach this data?&quot;, was one list short.
+Here it is with the missing one, as code rather than a checklist:</p>
+<pre><code class="language-go">// ch09-reconcile-inventory
+func ReconcileInventory(f InventoryFixture) []string {
+	findings := make([]string, 0)
+	findings = append(findings, unlistedHostFindings(f)...)
+	findings = append(findings, deprecatedSurfaceFindings(f)...)
+	findings = append(findings, configurationFindings(f)...)
+	sort.Strings(findings)
+	return findings
+}
+</code></pre>
+<p>The fixture holds four lists: the hosts Ops declared, the routes the code registers, the surfaces
+the gateway forwards (host, method, route), and the surfaces seen in traffic. Three comparisons
+fall out. A host in gateway configuration or traffic that is not declared is an unlisted host. A
+surface marked deprecated that still appears in the gateway or in traffic is still serving. A
+gateway surface with no code behind it, traffic with no gateway rule, or a code route no host
+exposes is configuration drift. Run against Ledger before this chapter&#39;s fix, it prints four
+lines:</p>
+<pre><code class="language-text">deprecated-still-serving:GET api.ledger.example/v1/invoices/{id}
+deprecated-still-serving:GET api.ledger.example/v1/invoices/{id}/pdf
+deprecated-still-serving:GET ledger-staging.internal/v1/invoices/{id}
+unlisted-host:ledger-staging.internal
+</code></pre>
+<p>The first two are the deprecation everyone knew about, stated as a fact about the gateway rather
+than a note in a document. The third and fourth are the host nobody knew about. Notice that the
+deprecated list did not need to mention the staging host to catch it: the unlisted-host check
+catches any name that forwards, and the deprecated check then catches every surface on it that
+matches a retired route. Ops only had to write down the hosts it meant to have.</p>
+<h2 id="retired-means-it-stops-answering">Retired means it stops answering</h2>
+<p>The fix has two halves, and the second is the one that gets skipped.</p>
+<p>The first half is a date. &quot;Once usage drops&quot; is not one. Ops reads the traffic list, finds the
+callers still on <code>/v1</code>, and tells the mobile team which app versions they are. The last of them
+gets a cut-off. On that date the gateway stops forwarding the routes, the code stops registering
+them, and a probe from outside gets 404 on both hosts. The fixed build of Ledger is that state:
+<code>fixedCodeRoutes</code> is the first two entries of the vulnerable list, the gateway forwards the
+public host only, and <code>ReconcileInventory</code> prints nothing.</p>
+<p>The second half is the inventory itself. It has to be produced from the gateway and the traffic,
+not typed by hand, and it has to be re-run: in the build, or on a schedule, or both. The
+reconciliation above is a test in <code>service/ch09_test.go</code>, and it asserts the four findings against
+the vulnerable build and none against the fixed one. A host that appears in the gateway config
+next year will fail it. That is the property Optus lacked, on ACMA&#39;s account: a domain could be
+put on the internet in 2017, fall out of use the same year, and still be nowhere that the 2021
+fix would look.</p>
+<p>Two limits, so the fixture is not mistaken for more than it is. Ledger&#39;s gateway is a function in
+the same process, and its traffic list is a slice; a real service gets those from the gateway&#39;s
+configuration repository and its access logs, and the test proves only that the comparison is
+done, not that the logs are complete. And the reconciliation cannot find a host that neither the
+gateway nor the logs mention. For that there is no substitute for probing your own names from
+outside: DNS records you own, certificates issued for them, and a request to each one.</p>
+<!--mission--><section class="mission" data-mission="09-deprecated-is-a-label"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-list-is-it-on">Exercise: which list is it on?</h2>
+<p>Use Ledger before this chapter&#39;s fix: the public host is <code>api.ledger.example</code>, the gateway also
+forwards <code>/v1/</code> paths on <code>ledger-staging.internal</code>, <code>/v1</code> is marked deprecated, and every invoice
+route already goes through <code>LoadInvoiceFor</code>. Alice, Cedar, is the caller throughout; invoice 104
+is Cedar&#39;s and 205 is Birch&#39;s. Six requests:</p>
+<pre><code class="language-text">A. api.ledger.example       GET /v2/invoices/104
+B. api.ledger.example       GET /v2/invoices/205
+C. api.ledger.example       GET /v1/invoices/104
+D. ledger-staging.internal  GET /v1/invoices/104
+E. ledger-staging.internal  GET /v2/invoices/104
+F. ledger-preview.internal  GET /v1/invoices/104
+</code></pre>
+<p>For each request: which of the four lists is its surface on (declared hosts, code routes, gateway,
+traffic), what does the gateway do with it, and what status comes back before the fix and after?
+Then say which finding, if any, <code>ReconcileInventory</code> prints for it.</p>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A: 200 before and after.</strong> The host is declared, the gateway forwards it, the route is in the
+code, the loader finds invoice 104 with Alice&#39;s tenant. No finding: this is the current API and it
+is in every list. It is the decoy only if you thought this chapter retires everything old.</li>
+<li><strong>B: 404 before and after.</strong> Same surface as A; the difference is in the loader, not the gateway.
+<code>LoadInvoiceFor</code> sees Birch on the stored invoice and Cedar on Alice and returns not-found. The
+BOLA repair is unchanged by retiring v1; the two chapters fix different lists.</li>
+<li><strong>C: 200 before, 404 after.</strong> Declared host, gateway forwards, code registers the route, and
+the loader returns Cedar&#39;s own invoice. Before the fix this is the deprecation everyone knew
+about, and the reconciliation prints <code>deprecated-still-serving</code> for it. After the fix the route is
+gone from the code and from the gateway, so the answer is 404 with no invoice.</li>
+<li><strong>D: 200 before, 404 after.</strong> The host is on no declared list, but the gateway rule forwards
+<code>/v1/</code> on it to the same mux, and the mux has the route. Alice gets her own invoice through a
+name Ops has never heard of. Two findings: <code>unlisted-host</code> for the name, and
+<code>deprecated-still-serving</code> for the surface. After the fix the gateway answers 404 for the host
+regardless of path.</li>
+<li><strong>E: 404 before and after.</strong> This is D with one character changed, and the outcome flips. The
+gateway&#39;s staging rule matches the path prefix <code>/v1/</code>, so <code>/v2/invoices/104</code> on the staging host
+is refused at the gateway before any route or loader runs. If you gave E a 200 because the
+staging host is open, you inferred the rule from its name. It forwards a prefix, not a host, and
+the reconciliation reports the surfaces it actually forwards, not the host in general.</li>
+<li><strong>F: 404 before and after.</strong> The host looks like D and is on none of the four lists, including
+the gateway&#39;s. The gateway falls through to not-found. No finding, because the reconciliation
+works from what forwards and what is seen; a name that does nothing is invisible to it. That is
+the limit above, and the reason outside probing still has a job.</li>
+</ul>
+<p>If you marked E a 200, the lesson is the one the chapter is about: you cannot tell what a host
+serves from what it is called. Read the rule.</p>
+<p><em>Incident from the Australian Communications and Media Authority&#39;s redacted concise statement
+annexed to the Federal Court of Australia&#39;s order of 19 June 2024 in ACMA v Optus Mobile Pty
+Limited, VID429/2024, as filed allegations. The method follows Colin Domoney, Defending APIs
+(Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="09-deprecated-is-a-label">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="09-deprecated-is-a-label">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="08-left-on.html"><span>Previous</span>Left On</a>
+    <a class="essay-pager__next" href="10-what-you-swallowed.html"><span>Next</span>What You Swallowed</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>
