@@ -167,6 +167,7 @@ func writeJSON(w http.ResponseWriter, value any) {
 	_ = json.NewEncoder(w).Encode(value)
 }
 
+// excerpt: ch09-gateway-host-filter
 func chapter09Gateway(mode Mode, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		host := r.Host
@@ -181,3 +182,5 @@ func chapter09Gateway(mode Mode, next http.Handler) http.Handler {
 		http.NotFound(w, r)
 	})
 }
+
+// end excerpt
