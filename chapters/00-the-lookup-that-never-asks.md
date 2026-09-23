@@ -20,10 +20,10 @@ report arrived on 11 February; a patch was validated and released that afternoon
 $250,000, then the largest Coinbase had paid, and the company said it found no malicious use.
 
 Notice what the bug was not. It was not a break-in. The trader was logged in to his own account,
-spending his own money, sending a request the server was built to accept. Every check that ran,
-passed. The damage came from the check that nobody wrote: the balance check looked at the account
-it was handed, and nothing asked whether that account and that order book were talking about the
-same asset.
+spending his own money, sending a request the server was built to accept. The documented balance
+check passed. The damage came from the check that nobody wrote: it looked at the account it was
+handed, and nothing asked whether that account and that order book were talking about the same
+asset.
 
 That is the question this book asks of every request, in one form or another:
 

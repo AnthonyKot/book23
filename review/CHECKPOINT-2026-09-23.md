@@ -1,5 +1,20 @@
 # Review checkpoint — 2026-09-23
 
+## Resumed state (after `9db92b4`)
+
+On resumption, `git status --short` showed only untracked `briefs/08.md`,
+`chapters/08-left-on.md`, and `chapters/10-what-you-swallowed.md`, which belong to other work and
+must be left alone. The intervening commits already corrected Chapter 00's Tree of Alpha sequence,
+added claims 00-08/00-09, and registered the three archived sources in `SOURCES.tsv`. Chapter 1's
+compiler and v3 sentences, the Chapter 2/3 premature test-file claims, CONTEXT's fixed values,
+and the Go fixture amounts were also updated. The historical findings below record what this
+checkpoint originally found; check this resumed-state section before acting on them.
+
+Chapter 00 reviewed in the resumed pass: the only new prose edit narrows an absolute claim about
+which checks passed. The Tree of Alpha correction and claim rows had already been committed by
+another pass. Chapter 01 is next; its Peloton field attribution and executable-exercise claims
+remain to inspect.
+
 Resume in `/home/diablo/book23` using `review/IMPROVE-PROMPT.md`. The active prompt covers
 chapters 00–03 only; Chapter 04 is outside this pass. Before this review, `main` was at
 `ab1450a` and both worktrees were clean. No chapter prose, service code, tests, claims ledger,
