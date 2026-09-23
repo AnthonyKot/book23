@@ -1,0 +1,44 @@
+# The Lookup That Never Asks
+
+<!-- claims to gate in checks/claims/00.tsv: February 2022; Tree of Alpha; edited request, source account; "0.0243 ETH to sell 0.0243 BTC"; retrospective quote "missing logic validation check ... mismatched source account"; fixed in hours; $250,000 largest to date; never maliciously exploited. Sources: Coinbase retrospective blog; The Block 2022-02-19. -->
+
+In February 2022 a trader who posts as Tree of Alpha was trying Coinbase's new advanced trading
+interface. He placed a market order, then edited the request his browser was about to send. The
+order said: sell bitcoin on the BTC-USD order book. The edited field said: take the funds from my
+ether account. He held no bitcoin. The trade went through on the live exchange. In his words, he had
+used 0.0243 ETH to sell 0.0243 BTC on a pair he did not have access to.
+
+Coinbase's own retrospective names the cause with unusual precision: a missing logic validation
+check in one API endpoint "allowed a user to submit trades to a specific order book using a
+mismatched source account". The endpoint checked the account it was given. It did not check that
+the account held the asset the order book trades. The fix took hours. The bounty was $250,000, then the largest Coinbase had paid, and the
+company said the bug had never been used maliciously.
+
+Notice what the bug was not. It was not a break-in. The trader was logged in to his own account,
+spending his own money, sending a request the server was built to accept. Every check that ran,
+passed. The damage came from the check that nobody wrote, because each step assumed another step
+had done it: the order form had already matched account to asset, so the endpoint did not; the
+endpoint had validated the account, so the matching engine did not.
+
+That is the question this book asks of every request, in one form or another:
+
+**Which check did this request assume had already happened?**
+
+Sometimes the missing check is "does this record belong to the caller?". Sometimes it is "is this
+the same object the previous step approved?", or "who counted how many times this was called?", or
+"does anyone know this route still exists?". The OWASP API Security Top 10 gives those gaps names,
+and the chapters follow its order. The names are less important than the habit: find the input the
+server trusted, find the check it skipped, and then find the second route or second step where the
+same check is skipped again, because there nearly always is one.
+
+To make that habit concrete, the chapters share one small system. **Ledger** is an invoicing API run
+by an invented company. Two customer tenants, **Cedar** and **Birch**, use it. **Alice** works for
+Cedar, **Ben** for Birch, and **Dana** is Cedar's administrator. Invoice 104 belongs to Cedar and
+invoice 205 to Birch. Ledger has a current API under `/v2`, an older one under `/v1` that a mobile
+app still calls, and a small platform team, Ops, that runs the gateway in front of both. It is
+written in Go with nothing but the standard library, so every check is visible in the handler, and
+every handler you read in this book exists as a file whose tests run.
+
+Ledger is a teaching example, not a reconstruction of anyone's system. The incidents that open
+each chapter are real and are told from the original public record. What Ledger does is let you see
+the same mistake in fifteen lines, fix it, and then go looking for the door you forgot.
