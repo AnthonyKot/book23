@@ -14,8 +14,8 @@ Authority order: this file → PLAN.md → GUIDANCE.md → chapter briefs. Start
 | 2026-09-23 | Incidents come from primary disclosures, quote-gated; Domoney is the pointer | GUIDANCE L10; Book 17 method |
 | 2026-09-23 | Pilots: ch. 1 (BOLA) and ch. 9 (zombie APIs); the author reads both before any other chapter is drafted | GUIDANCE L7 |
 | 2026-09-23 | Book 17's incidents (Capital One, MongoDB 2017, xz, Adobe 2013, MOVEit, Strava, Colonial, NotPetya, Target, Equifax, goto fail, CrowdStrike) are off limits | no overlap between the two security books |
-| 2026-09-23 | Editorial correction: Coinbase remains the opening incident, while ch. 1 needs a genuine cross-user BOLA case; Peloton 2021 is the current candidate | Coinbase's own retrospective describes a source-account/asset mismatch within one user's accounts, not another user's object |
-| 2026-09-23 | Editorial correction: ch. 6 and ch. 10 incident choices remain open pending source-and-class fit | the proposed Starbucks race is not the same mechanism as API6's excessive access; the named SiriusXM/Hyundai cases do not establish the proposed API10 partner-to-consumer chain |
+| 2026-09-23 | Editorial correction: Coinbase remains the opening incident; Peloton 2021 is selected for ch. 1 after comparing three original accounts in `docs/CH01-INCIDENT-CHOICE.md` | Coinbase's retrospective describes a source-account/asset mismatch within one user's accounts; Peloton's researcher shows manually editable workout IDs exposing other members' data even after login was required |
+| 2026-09-23 | Editorial correction: ch. 6 and ch. 10 incident choices remain open pending source-and-class fit; if a distinct API10 source fails the hunt, fold response consumption into ch. 7 and revise the register | the proposed Starbucks race is not the same mechanism as API6's excessive access; the named SiriusXM/Hyundai cases do not establish the proposed API10 partner-to-consumer chain |
 
 ## 2. The service (the spine)
 
@@ -91,8 +91,10 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
   rest is in `service/`.
 - Every exercise verdict traces the relevant untrusted input or event, the check that runs (or
   does not), the request or sequence, and the observed response or state change (GUIDANCE L5).
-- The exercise includes a plausible decoy and, where the mechanism supports it, a near-identical
-  pair with opposite verdicts. Vary the exercise form to fit the class (GUIDANCE L8).
+- Every exercise includes a plausible decoy and a near-identical pair with opposite outcomes;
+  the worked answer identifies the check or state change that separates them. Vary the form to
+  fit the class. An exception must be argued in the pre-draft brief and checked by the panel
+  (GUIDANCE L8).
 - 1,600–2,100 words; the pilot sets the number; ±15% after that.
 - Real incidents: nothing that is not in a fetched primary source. If the record does not say
   how long the fix took, the chapter does not say either.
@@ -102,7 +104,7 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
 | # | Title (working) | Class | Incident | Status |
 |---|---|---|---|---|
 | 0 | The Lookup That Never Asks | opener | Coinbase 2022 (source-account/asset mismatch) | planned |
-| 1 | Who's Asking | API1 BOLA | Peloton 2021, candidate pending chapter source gate | **pilot** |
+| 1 | Who's Asking | API1 BOLA | Peloton 2021, selected; claim gate still required before prose | **pilot** |
 | 2 | One Key for Every Door | API2 authentication | BrewDog 2021 | planned |
 | 3 | The Row You Didn't Mean to Send | API3 property level | shipping-company API (Domoney case 1), primary source to find | planned |
 | 4 | Nobody Counted | API4 resource consumption | X phone lookup 2022 | planned |
@@ -111,7 +113,7 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
 | 7 | The Server That Fetched for You | API7 SSRF | Shopify Exchange 2018 | planned |
 | 8 | Left On | API8 misconfiguration | home router (Domoney case 8) / AIOSEO | planned |
 | 9 | Deprecated Is a Label | API9 inventory | Optus 2022 | **pilot** |
-| 10 | What You Swallowed | API10 unsafe consumption | open: find a primary downstream-consumption case | planned |
+| 10 | What You Swallowed | API10 unsafe consumption | open: find a primary downstream-consumption case or fold lesson into ch. 7 | conditional |
 | 11 | Where Every Route Must Pass | payoff | — | planned last |
 
 ## 5. Correction log
@@ -120,8 +122,9 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
   confirms a mismatch between the source account's asset and the trade's order book; it does
   not document cross-user invoice-style BOLA. The Book 11 essay is a model for form, not a
   source-accurate BOLA incident. [Jan Masters' Peloton disclosure](https://www.pentestpartners.com/security-blog/tour-de-peloton-exposed-user-data/)
-  is a candidate because requiring login still let members see others' information; chapter 1
-  must verify the exact endpoint and claim before using it.
+  is selected because the `POST /stats/workouts/details` request carried editable IDs and requiring
+  login still let members see others' information. The three-source comparison is in
+  `docs/CH01-INCIDENT-CHOICE.md`; chapter 1 must still archive the source and gate each claim.
 - 2026-09-23: [OWASP's API6 definition](https://api-security.owasp.org/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/)
   concerns excessive access to a sensitive flow; a race in gift-card transfers is a different
   failure. [Sam Curry's automotive write-up](https://samcurry.net/web-hackers-vs-the-auto-industry/)

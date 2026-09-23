@@ -57,9 +57,12 @@ reads the two pilots before any further chapter is drafted** (Book 1's gate; it 
 decoys (B looks unsafe and is safe; E looks like B and is not), and a closing trap sentence. That
 is the useful pattern: the reader must distinguish the check from a lookalike that omits it.
 Book 23 exercises may use handlers, request sequences, gateway rules, or partner responses as
-the mechanism requires. Include a plausible decoy, and a near-identical pair with opposite
-outcomes where it reveals the hinge; do not force five handlers or the same final sentence into
-every chapter. The Book 11 critique (2026-09-22) asked for a safe-looking decoy handler.
+the mechanism requires. **Every chapter includes one plausible decoy and one near-identical pair
+with opposite outcomes.** The answer explains the exact check or state change that separates
+them. If a chapter cannot build that pair, its brief must explain why before drafting, and the
+panel must explicitly check that claim; otherwise the chapter fails this gate. Do not force five
+handlers or the same final sentence into every chapter. The Book 11 critique (2026-09-22) asked
+for a safe-looking decoy handler.
 
 **L9. Verification is the design.** Book 2's `check_calculations.py` recomputes every printed
 number; Book 13 runs its labs against real toolchains. Book 23's equivalent: the service is real
@@ -96,7 +99,9 @@ commit per chapter, never push from an agent.
    every number and consequence supported? (L10)
 3. Read the exercise answers: does each trace the untrusted input or event, the check, and the
    response or state change? (L5)
-4. Is there a plausible decoy and a meaningful contrasting pair where the mechanism allows? (L8)
+4. Is there a plausible decoy and a near-identical pair with opposite outcomes? Does the answer
+   identify the check or state change that separates them? If absent, does the pre-draft brief
+   explain why, and did the panel explicitly validate that exception? (L8)
 5. Does the chapter reuse a named earlier object in its worked example? (L1)
 6. Does `verify.sh` pass while proving both the vulnerable outcome and fixed outcome? (L9)
 7. Is the chapter near the pilot's length without compressing its hinge? (L11)
@@ -109,8 +114,9 @@ book23/
   PLAN.md            what the book is, chapter register, decisions needed
   GUIDANCE.md        this file
   SEED-PROMPT.md     bounded instructions for the two pilots
-  CONTEXT.md         (next) decision record, cast + fixed-number table, correction log
-  service/           the Go billing service, vulnerable/ and fixed/ per chapter
+  CONTEXT.md         decision record, cast + fixed-number table, correction log
+  service/           one Go billing service selected by Vulnerable or Fixed mode
+  docs/CH01-INCIDENT-CHOICE.md   primary-source comparison for the first pilot
   service/chNN_test.go   the chapter's exercise table as httptest cases
   checks/claims/     NN.tsv, one row per incident number or quote
   resources/incidents/NN/   fetched primary sources (gitignored if licensed)

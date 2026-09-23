@@ -28,8 +28,9 @@ The essay worked for five reasons, and each becomes a rule:
 4. **A worked example with a twist**: the route you fixed and the one you forgot (v1, the PDF
    export, the list filter). The reader learns the *question* ("which routes reach this data?"),
    not the patch.
-5. **An exercise with decoys and an answer key**, doable without a running system, ending on the
-   trap sentence ("If you marked D safe... that's the mistake that paid out $250,000").
+5. **An exercise with a plausible decoy and a contrasting pair**, doable without a running
+   system, with a worked answer that explains the different outcomes. The essay's five-handler
+   count and closing trap sentence are examples, not requirements.
 
 What is different from the siblings: Book 17 (*Ten Ways In*) is the web OWASP Top 10 told through
 big public incidents with a folk-vs-record ledger; Book 21 is the AppSec career. Book 23 is
@@ -50,7 +51,8 @@ The Book 2 lesson from today applies: bridges don't connect chapters, a running 
   service *consumes* (exchange rates), an API gateway in front.
 - Implementation: **Go** (author's decision 2026-09-23), standard library `net/http` plus
   `net/http/httptest` for the two-user tests; no framework, so every check is visible in the
-  handler. The Book 11 essay's Python samples are ported in chapter 1.
+  handler. Chapter 1 carries over the Book 11 essay's request → missing check → shared loader
+  method and code shape in real Go handlers; its real incident is selected separately.
 
 Rules of the spine (as in `~/book2-spine/docs/SPINE-BRIEF.md`): fixed names and numbers set once and
 reused; later chapters may say "the loader from chapter 1" and mean a specific function. The
@@ -64,7 +66,7 @@ uses the smallest honest extension.
 
 | # | Class | Real incident (candidate) | The one-line bug on the service | The twist (door you forgot) | Choke point built |
 |---|---|---|---|---|---|
-| 1 | API1 BOLA | Peloton 2021 — candidate; the researcher documented access to other members' data after login was required | `store.Invoice(id)` never asks whose | `/v1/invoices/{id}/pdf`; refund confirm trusts body | `LoadInvoiceFor(user, id)` |
+| 1 | API1 BOLA | Peloton 2021 — selected after [comparing Peloton, USPS and Tinder](docs/CH01-INCIDENT-CHOICE.md); the researcher documents editable IDs in a request that exposed other members' information after login was required | `store.Invoice(id)` never asks whose | `/v1/invoices/{id}/pdf`; refund confirm trusts body | `LoadInvoiceFor(user, id)` |
 | 2 | API2 Broken authentication | BrewDog app, hard-coded bearer token (Pen Test Partners 2021; Domoney case 3) | one shared token in the mobile binary; reset flow that returns the token | rotating the token ≠ fixing the design; the reset endpoint is the second door | per-user tokens, reset that never echoes the secret |
 | 3 | API3 Object property level (excessive exposure + mass assignment) | shipping-company API returning full recipient details (Domoney case 1) — primary source to find | handler encodes the whole struct; PATCH decodes into it, `IsAdmin` included | filtering in the mobile client, not the server; the list endpoint leaks what the item endpoint hides | response schemas + explicit writable-field allow-list after authorization |
 | 4 | API4 Unrestricted resource consumption | X/Twitter 2022 phone-number lookup (Domoney case 7); OTP brute force cases | no rate limit on `/v2/auth/otp/verify`; unbounded `?page_size` | the limit on the login route, none on the *lookup* route that enumerates | gateway quotas + per-route budgets |
@@ -73,8 +75,8 @@ uses the smallest honest extension.
 | 7 | API7 SSRF | Shopify Exchange screenshot-service SSRF (HackerOne 2018, $25k) — verify from the disclosed report; its surface differs from Ledger's webhook | tenant webhook test fetches a caller-controlled URL | redirects and resolved addresses can cross the boundary after an initial URL check | one outbound policy, demonstrated with a fake resolver and transport |
 | 8 | API8 Misconfiguration | home-router API (Domoney case 8); All in One SEO path-case bug (case 6) | permissive CORS, verbose errors, debug route left on | case-insensitive path matching bypasses the prefix check from ch. 5 | hardened defaults recorded in the OpenAPI spec; positive model |
 | 9 | API9 Inventory (zombie APIs) | Optus 2022: a dormant internet-facing domain remained vulnerable after an earlier access-control error (ACMA court filing 2024) — verify the filing before prose | the unlisted staging host and still-serving `/v1` | "deprecated" is a label; retirement means it stops answering | inventory from code + gateway + traffic; route/host comparison as the test |
-| 10 | API10 Unsafe consumption | **Open:** find a primary case where a consumer API mishandles data or redirects from an integrated service. The currently named SiriusXM/Hyundai cases do not establish one partner-to-consumer chain. | the exchange-rate feed's JSON is trusted when updating invoice totals | the response schema, size, redirect or destination is trusted because the source is a partner | validate and bound the consumed response at the integration boundary |
-| 11 | Where every route must pass | none — the payoff chapter | — | — | assembles the eleven choke points (loader, middleware, schema, gateway, egress, inventory, two-user test loop, monitoring) as *one* diagram of the service |
+| 10 | API10 Unsafe consumption | **Open:** find a primary case where a consumer API mishandles data or redirects from an integrated service. The currently named SiriusXM/Hyundai cases do not establish one partner-to-consumer chain. If no distinct source survives the search, fold the response-consumption lesson into ch. 7 and revise the register rather than invent an incident. | the exchange-rate feed's JSON is trusted when updating invoice totals | the response schema, size, redirect or destination is trusted because the source is a partner | validate and bound the consumed response at the integration boundary |
+| 11 | Where every route must pass | none — the payoff chapter | — | — | assembles the controls (loader, middleware, schema, gateway, egress, inventory, two-user test loop, monitoring) as *one* diagram of the service |
 | 0 | Opening (short) | Coinbase 2022: a trade's source account did not match its order-book asset; both accounts belonged to the same user | — | — | introduces the question "which check did this request assume had already happened?" and the invented service in about 400 words |
 
 Incident rule: each chapter's incident comes from the **original public disclosure** (researcher
@@ -90,15 +92,19 @@ incident's implementation.
 1. **The incident** (2–4 paragraphs): who, what request or sequence, which check failed, and the
    documented consequence. Include a number only when it earns its place and has a primary source.
 2. **The class in one sentence**, with its OWASP name.
-3. **Where the bug lives**: vulnerable handler, fixed handler, "three details that matter".
-4. **If the fix is that small, why is it on the list?** 3–4 structural reasons, each one sentence
-   the reader can test against their own codebase.
-5. **The route you fixed and the one you forgot**: the worked example on the service, with the
-   twist; then the numbered steps (find every door → move the check to the choke point → test with
-   two users / two tenants → retire or record).
+3. **Where the bug lives**: the vulnerable and fixed handler, configuration, or request flow,
+   with the few details that make the difference real.
+4. **Why the local fix is insufficient**: the structural reasons this check gets missed or
+   bypassed, each tied to a concrete path in Ledger.
+5. **The second path or step**: the worked Ledger example and its twist. Follow that class's
+   actual repair sequence: trace the input, put the check at the right boundary, exercise the
+   bypass, and verify coverage. Chapter 1's shared loader and two-user loop are one instance,
+   not a template imposed on SSRF, resource consumption, or partner responses.
 6. `<!--mission-->` **Exercise**: a short set of requests, handlers, configurations or traces
-   suited to that chapter's mechanism; include a plausible decoy and a near-identical pair with
-   opposite outcomes where they sharpen the question. Show expected results and a worked answer.
+   suited to that chapter's mechanism. **Every exercise has one plausible decoy and one
+   near-identical pair with opposite outcomes.** Show expected results and a worked answer;
+   vary the form and length, not the discriminating test. If a chapter cannot construct the pair,
+   its brief must say why before drafting and the panel must explicitly test that exception.
 7. One-line source credit.
 
 No first-person scenes, no "the book says", no chapter numbers of the source in the body (Book 11's
@@ -129,6 +135,9 @@ checks.
    drafts ch. 1; ch. 9 pitched by codex,
    drafted by the main session. Panel: `agy` gemini-3.8-flash-high + gemini-3.1-pro-high,
    codex sol consolidates. **The author reads both pilots before anything else is drafted.**
+   The author's reading gate asks where attention dropped, whether the Chapter 9 reveal added a
+   new idea, and whether the exercise made the missing check predictable. Model review does not
+   answer those reader-experience questions.
 2. Then chapters in batches of three: incident fetch + pitch by codex, draft by the main session
    (one at a time) or codex sol for well-specified ones, panel, revision by codex, read-through.
 3. Ch. 11 last, written from the finished service.
