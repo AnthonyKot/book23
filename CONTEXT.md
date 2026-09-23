@@ -16,6 +16,7 @@ Authority order: this file → PLAN.md → GUIDANCE.md → chapter briefs. Start
 | 2026-09-23 | Book 17's incidents (Capital One, MongoDB 2017, xz, Adobe 2013, MOVEit, Strava, Colonial, NotPetya, Target, Equifax, goto fail, CrowdStrike) are off limits | no overlap between the two security books |
 | 2026-09-23 | Editorial correction: Coinbase remains the opening incident; Peloton 2021 is selected for ch. 1 after comparing three original accounts in `docs/CH01-INCIDENT-CHOICE.md` | Coinbase's retrospective describes a source-account/asset mismatch within one user's accounts; Peloton's researcher shows manually editable workout IDs exposing other members' data even after login was required |
 | 2026-09-23 | Ch. 4 → Instagram 2019 (Muthiyah); ch. 5 → Zveare 2025 dealer portal (CBORD carries API2, not API5); ch. 6 → US v. Just In Time Tickets (every purchase valid, limits keyed on multipliable identities); invoice amounts fixed at £1,800.00/£640.00 (fixture was 7300/9100) | source-and-class gate results from the drafting agents, 2026-09-23 evening; editor's call under the author's "feel free" |
+| 2026-09-23 | Ch. 8 → UpGuard Power Apps (a default, not a check); ch. 10 → Kiln/SwissBorg 2025 (consumer signed a partner API's response undecoded), so ch. 10 stays a chapter and is not folded into ch. 7 | drafting agents' gate results; editor's call |
 | 2026-09-23 | Prose may name a test file only once the marked excerpts exist; until then the exercise table says it is the chapter's test "to run once the service code exists" | Codex review checkpoint: chapters claimed tests that did not exist |
 | 2026-09-23 | Editorial correction: ch. 6 and ch. 10 incident choices remain open pending source-and-class fit; if a distinct API10 source fails the hunt, fold response consumption into ch. 7 and revise the register | the proposed Starbucks race is not the same mechanism as API6's excessive access; the named SiriusXM/Hyundai cases do not establish the proposed API10 partner-to-consumer chain |
 
@@ -47,6 +48,8 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 | Ledger-internal invoice fields | `CollectionsNote`, `Margin` (never in a response; `ViewFor(user, inv)` encodes) | ch. 3 | 5 |
 | Refund allowance | £1,000 per tenant per day, held on the tenant record; over it → `refund_needs_approval`, admin route `POST /v2/refunds/{quote}/approve` | ch. 6 | — |
 | Route access levels | `Public`, `User`, `TenantAdmin`, declared per route; missing declaration fails registration; denial is 403 (existence not hidden) | ch. 5 | 6, 8, 11 |
+| Production settings | `Settings{Debug:false, CORSOrigins, PublicRoutes}` as one literal per environment; `PublicRoutes` = `GET /v2/health`, `POST /v2/auth/otp/request`, `POST /v2/auth/otp/verify`; production error body exactly `{"error":"not found"}` | ch. 8 | 11 |
+| Euro invoice | 412 (Cedar), €300.00 → £276.00 at 0.92 (27600 pence); invoice records `FXRate` and `AmountEUR`; euro band accepted from the feed 0.70–1.10; `store.rates` read only in `CreateInvoice` | ch. 10 | — |
 | Webhook test route | `POST /v2/webhooks/test` body `{"url"}`; all outbound fetches through one `egress` client | ch. 7 | 10, 11 |
 | Refund quote | quote `q-771` for invoice 104 | ch. 1 | 6 |
 | Current API | `/v2` | ch. 0 | all |
@@ -119,9 +122,9 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
 | 5 | Same Door, Different Verb | API5 function level | automaker dealer portal 2025 (Zveare, DEF CON 33); CBORD 2022 rejected as API2 | drafted |
 | 6 | Every Request Was Valid | API6 business flows | US v. Just In Time Tickets 2021 (FTC, BOTS Act; Ticketmaster bots) | drafted |
 | 7 | The Server That Fetched for You | API7 SSRF | Shopify Exchange 2018 (HackerOne #341876) | drafted |
-| 8 | Left On | API8 misconfiguration | home router (Domoney case 8) / AIOSEO | planned |
+| 8 | Left On | API8 misconfiguration | Power Apps portals default (UpGuard, Aug 2021); router and AIOSEO rejected (auth/injection, authorization) | drafted |
 | 9 | Deprecated Is a Label | API9 inventory | Optus 2022 (ACMA concise statement, VID429/2024) | **pilot, drafted** |
-| 10 | What You Swallowed | API10 unsafe consumption | open: find a primary downstream-consumption case or fold lesson into ch. 7 | conditional |
+| 10 | What You Swallowed | API10 unsafe consumption | Kiln/SwissBorg Sep 2025 (Kiln post-mortem + SwissBorg statement) | drafted |
 | 11 | Where Every Route Must Pass | payoff | — | planned last |
 
 ## 5. Correction log

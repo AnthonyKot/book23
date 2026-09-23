@@ -46,9 +46,12 @@ Write only `chapters/NN-slug.md` and `briefs/NN.md` in `/home/diablo/book23`. Do
 | 5 | Every route declares an access level (`Public`, `User`, `TenantAdmin`); registration fails without one; middleware after `currentUser` denies with **403** (existence not hidden, unlike ch. 1's 404); `DELETE /v2/invoices/{id}` and `/v2/admin/*` are `TenantAdmin`; `PATCH /v2/admin/users/{id}` exists and is admin-only; tenant scope (`LoadInvoiceFor`) still checked first; the vulnerable-only `/v2/admin` prefix check is gone |
 | 6 | Refund flow: `POST /v2/refunds/quote` (`LoadInvoiceFor`, amount ≤ remaining) and `POST /v2/refunds/confirm` (refunds the invoice stored with the quote; confirming a quote twice returns the original refund); `store.ConfirmRefund` enforces a **£1,000 per tenant per day** allowance keyed on the tenant, not the caller; over it → `refund_needs_approval`, quote parked for Dana at `POST /v2/refunds/{quote}/approve` (`TenantAdmin`); Ops records quotes per tenant per hour as a signal; per-user counters are the rejected local fix |
 | 7 | One outbound client, `egress`: resolve once → reject private/loopback/link-local → dial the pinned address → never follow redirects; `http.Get`/bare `http.Client` banned from handlers; `POST /v2/webhooks/test` and the `/v1` PDF logo fetch both go through it; Cedar's webhook is `https://hooks.cedar.example/ledger` |
+| 8 | `Settings` struct, one literal per environment; `Debug` false in production (error bodies opaque: `{"error":"not found"}`); CORS origins listed, never `*`; `PublicRoutes` allow-list and a test that walks the ch. 5 route table and fails on any `Public` route not in it; `GET /v2/admin/health` is `TenantAdmin` and returns version only; `GET /v2/health` stays `Public` |
 | 9 | `/v1` retired: routes removed from code and gateway, `ledger-staging.internal` no longer forwarded, `ReconcileInventory` (declared hosts × code × gateway × traffic) prints nothing and runs as a test |
 
-Chapters 8, 10 and 11 add to this table; a later chapter may not silently undo an earlier repair.
+| 10 | Partner rate feed `rates.partner.example` fetched hourly through `egress`; decoded into `rateRow{EUR}` with unknown fields rejected; accepted only inside 0.70–1.10, else last good rate kept and Ops paged; invoice 412 (Cedar, €300.00) stores `FXRate` 0.92 and `AmountEUR`; refund quote converts at the invoice's stored `FXRate`, never at today's rate |
+
+Chapter 11 adds to this table; a later chapter may not silently undo an earlier repair.
 
 ## Register for the next chapters (from PLAN §3; incidents still need the source-and-class gate)
 
