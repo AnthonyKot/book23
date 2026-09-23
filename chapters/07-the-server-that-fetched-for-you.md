@@ -1,17 +1,4 @@
-<!--
-Claims to gate in checks/claims/07.tsv (source: HackerOne report #341876,
-https://hackerone.com/reports/341876; Shopify team summary on that report;
-Shopify blog "One Million Dollars in Bug Bounties", 3 Apr 2019,
-https://shopify.engineering/blogs/engineering/one-million-dollars-in-bug-bounties):
-- Report #341876 "SSRF in Exchange leads to ROOT access in all instances"; reporter 0xacb; submitted 22 Apr 2018; disclosed 23 May 2018; weakness SSRF; scope exchangemarketplace.com (Shopify Exchange).
-- Exchange's create-a-listing flow rendered a screenshot of the seller's store; the seller controlled the store template (password.liquid).
-- The template redirected the browser (window.location) to the Google Cloud metadata service (metadata.google.internal, /computeMetadata/v1beta1/...); the screenshot server followed it and rendered the instance service-account token into the PNG.
-- The /v1beta1 metadata path returned the token without the Metadata-Flavor: Google header.
-- The leak chained through the instance kube-env attribute (kubelet cert + key) to root command execution in containers in that infrastructure subset.
-- Shopify disabled the service within an hour; fixed it with a metadata concealment proxy and by disabling access to internal IPs on all infrastructure subsets.
-- Bounty US$25,000, paid as a Shopify Core RCE; the vulnerable subset did not include Shopify core.
-- Ledger's webhook-test surface is invented for the analogy and differs from Exchange's screenshot surface; it is never presented as Shopify's implementation.
--->
+<!-- Incident claims are gated in checks/claims/07.tsv against HackerOne report #341876 and Shopify's engineering recap (resources/incidents/07/). Ledger's webhook test is invented for the analogy and differs from Exchange's screenshot surface. -->
 
 # The Server That Fetched for You
 
@@ -62,12 +49,15 @@ And if the response is a redirect, it follows it, to a new URL that passed no ch
 value the handler inspected and the value the socket connected to are not the same value.
 
 So a caller submits `https://hooks.cedar.example/ledger`, which looks exactly like Cedar's real
-webhook, and it passes. If the name resolves to `169.254.169.254`, the client attempts a
-link-local connection; HTTPS may fail before metadata is returned. If a public server instead
-answers `302 Location: http://169.254.169.254/latest/meta-data/`, the default client follows
-it and reaches the metadata service. The test route reports the destination's status; it does
-not return a token body. The check guarded the string. The attack lives in the resolve, the connect,
-and the redirect.
+webhook, and it passes. If the name resolves to `169.254.169.254`, the client opens a connection
+to the metadata service on the caller's say-so; the metadata service does not speak TLS, so the
+handshake fails, but the boundary has already been crossed, and an internal service that does
+speak TLS would answer. If instead a public server answers
+`302 Location: http://169.254.169.254/latest/meta-data/`, the default client follows it, plain
+HTTP now, and reaches the metadata service. The test route reports only the status it got back,
+so what leaks here is the fact of the fetch, not a token; the delivery path, which forwards the
+body, is the same client. The check guarded the string. The attack lives in the resolve, the
+connect, and the redirect.
 
 The fix moves the decision to those three moments and refuses to leave them:
 
@@ -146,7 +136,7 @@ otherwise follows redirects and dials whatever DNS returns. You do not need a ru
 2. url = https://hooks.cedar.example/ledger
    DNS: 8.8.8.8 (public)             destination: 200, "ok"
 3. url = https://hooks.cedar.example/ledger
-   DNS: 169.254.169.254              destination: HTTPS reply not guaranteed
+   DNS: 169.254.169.254              destination: no TLS; handshake fails
 4. url = https://report.cedar.example/hook
    DNS: 1.1.1.1 (public)             destination: 302 -> http://169.254.169.254/
 5. url = https://report.cedar.example/hook
@@ -159,16 +149,16 @@ otherwise follows redirects and dials whatever DNS returns. You do not need a ru
   so the teammate's rule rejects it; the vulnerable handler's HTTPS rule rejects it too, and
   `egress` rejects it. If this were the only test, the blocklist would look like a fix. It is not;
   it is the case an attacker would never bother sending.
-- **2 is safe and must stay working.** The handler validates `hooks.cedar.example`; the fixture
-  resolves it to `8.8.8.8`, a public address, and returns Cedar's webhook
-  response. The blocklist allows it (correctly) and `egress` allows it (resolves to public, no
+- **2 is safe and must stay working.** The handler validates `hooks.cedar.example`; the name
+  resolves to `8.8.8.8`, a public address; the socket connects there and Cedar's webhook answers
+  200. The blocklist allows it (correctly) and `egress` allows it (resolves to public, no
   redirect). This is the baseline: a fix that also breaks this has broken the feature.
 - **3 exposes the missing boundary, and the blocklist misses it.** The handler validates
   `hooks.cedar.example` — not a blocked host — so the teammate's rule passes it. But DNS answers
-  `169.254.169.254`, and the client attempts a link-local dial. A real HTTPS handshake may fail,
-  so this case proves an attempted forbidden connection, not that a token leaks. `egress` stops
-  it because it checks the *resolved* address, not the name, and pins the dial to the address it
-  approved. Trace: input `hooks.cedar.example` → name-based check passes → resolve to
+  `169.254.169.254`, and the client dials it. The handshake fails, because the metadata service
+  has no TLS, so no token comes back; what this case proves is a connection to an internal address
+  that the caller chose. `egress` stops it because it checks the *resolved* address, not the
+  name, and pins the dial to the address it approved. Trace: input `hooks.cedar.example` → name-based check passes → resolve to
   `169.254.169.254` → link-local check fails → refused before dial.
 - **4 and 5 are the near-identical pair.** The two requests are byte-for-byte the same at
   submission: same URL, same public host, same DNS answer. The only difference is what the
