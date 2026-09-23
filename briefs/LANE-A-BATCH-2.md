@@ -1,6 +1,6 @@
-# Lane A, batch 2 — service code, tests, claims for chapters 1–7
+# Lane A, batch 2 — service code, tests, claims for chapters 1–10
 
-For the author to run in Codex CLI from `~/book23`, after the review pass on chapters 0–3 has
+For the author to run in Codex CLI from `~/book23`, after both review passes (00–03 and 04–10) have
 committed or been abandoned (check `git status` and `git log` first):
 
     codex exec -m gpt-5.6-sol -s workspace-write -C ~/book23 "$(cat briefs/LANE-A-BATCH-2.md)" < /dev/null
@@ -11,7 +11,7 @@ You are Lane A of Book 23, "Security Rebook", in this directory: sources, servic
 You do not write chapter prose. Read first: `CONTEXT.md` (the fixed table is binding),
 `GUIDANCE.md` §2 and §5, `docs/HANDOVER.md`, `briefs/DRAFTING-BRIEF.md` (its "State of Ledger"
 table is the cumulative design), `service/README.md`, the existing `service/*.go` and tests, then
-`briefs/02.md` through `briefs/07.md` and the chapters they belong to. Before starting, run
+`briefs/02.md` through `briefs/10.md` and the chapters they belong to. Before starting, run
 `git status`; another process may have committed since this brief was written. Do not push.
 
 ## Ground rules
@@ -19,7 +19,7 @@ table is the cumulative design), `service/README.md`, the existing `service/*.go
 - Go 1.22, standard library only, one package `ledger` in `service/`. `gofmt` clean. Tests offline
   and deterministic (fake clock, fake resolver and transport for chapter 7).
 - **Cumulative states.** Follow the pattern of `NewApp` and `NewChapter9App`: add
-  `NewChapterNApp(mode)` for N = 2…7. Its `Vulnerable` side has every earlier chapter's repair in
+  `NewChapterNApp(mode)` for N = 2…10. Its `Vulnerable` side has every earlier chapter's repair in
   force and only chapter N's bug open; its `Fixed` side adds chapter N's repair. A later chapter
   never undoes an earlier repair. If two chapters' designs conflict, the later brief loses; record
   the conflict in `docs/HANDOVER-2.md` rather than resolving it silently.
@@ -62,11 +62,17 @@ table is the cumulative design), `service/README.md`, the existing `service/*.go
    resolver and transport, webhook test route, PDF logo fetch through it. Same claims and archive
    work for 05 (DEF CON slides PDF + TechCrunch), 06 (FTC complaint PDF, stipulated order, release)
    and 07 (HackerOne report JSON, Shopify blog).
-4. **verify.sh**: require each chapter's test group; check that no `{{excerpt:` remains in any
-   chapter whose service code exists; keep the HTML checks pending until a site exists.
-5. **docs/HANDOVER-2.md**: what was built, what each fixture cannot prove, every design conflict
+4. **Chapters 8 and 10** from `briefs/08.md` and `briefs/10.md`, after 1–7: `Settings` literal per
+   environment with the route-table walk against `PublicRoutes`, the debug error writer, and the
+   admin health route; the rate poller through `egress` with `rateRow`, the band, `FXRate` on the
+   invoice, invoice 412, and the refund quote converting at the stored rate. Same claims and
+   archive work (UpGuard; Kiln post-mortem and SwissBorg statement). If the 04–10 review pass has
+   already archived sources and written claims files, verify them rather than redoing them.
+5. **verify.sh**: require each chapter's test group; check that no `{{excerpt:` remains in any
+   chapter whose service code exists; run `node site/build.mjs` so the rendered pages in `docs/` carry the filled excerpts, and commit them.
+6. **docs/HANDOVER-2.md**: what was built, what each fixture cannot prove, every design conflict
    and every table row not asserted, and proposed CONTEXT additions. Run `cd service && go test
    ./...`, `./verify.sh`, `git diff --check` before the final commit.
 
 Do not edit `PLAN.md`, `GUIDANCE.md`, `CONTEXT.md` (propose in the handover), any chapter beyond
-placeholder filling, or any file under `review/`. Chapters 8–11 are not in this batch.
+placeholder filling, or any file under `review/`. Chapter 11 is not in this batch.
