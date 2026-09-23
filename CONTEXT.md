@@ -15,6 +15,8 @@ Authority order: this file → PLAN.md → GUIDANCE.md → chapter briefs. Start
 | 2026-09-23 | Pilots: ch. 1 (BOLA) and ch. 9 (zombie APIs); the author reads both before any other chapter is drafted | GUIDANCE L7 |
 | 2026-09-23 | Book 17's incidents (Capital One, MongoDB 2017, xz, Adobe 2013, MOVEit, Strava, Colonial, NotPetya, Target, Equifax, goto fail, CrowdStrike) are off limits | no overlap between the two security books |
 | 2026-09-23 | Editorial correction: Coinbase remains the opening incident; Peloton 2021 is selected for ch. 1 after comparing three original accounts in `docs/CH01-INCIDENT-CHOICE.md` | Coinbase's retrospective describes a source-account/asset mismatch within one user's accounts; Peloton's researcher shows manually editable workout IDs exposing other members' data even after login was required |
+| 2026-09-23 | Ch. 4 → Instagram 2019 (Muthiyah); ch. 5 → Zveare 2025 dealer portal (CBORD carries API2, not API5); ch. 6 → US v. Just In Time Tickets (every purchase valid, limits keyed on multipliable identities); invoice amounts fixed at £1,800.00/£640.00 (fixture was 7300/9100) | source-and-class gate results from the drafting agents, 2026-09-23 evening; editor's call under the author's "feel free" |
+| 2026-09-23 | Prose may name a test file only once the marked excerpts exist; until then the exercise table says it is the chapter's test "to run once the service code exists" | Codex review checkpoint: chapters claimed tests that did not exist |
 | 2026-09-23 | Editorial correction: ch. 6 and ch. 10 incident choices remain open pending source-and-class fit; if a distinct API10 source fails the hunt, fold response consumption into ch. 7 and revise the register | the proposed Starbucks race is not the same mechanism as API6's excessive access; the named SiriusXM/Hyundai cases do not establish the proposed API10 partner-to-consumer chain |
 
 ## 2. The service (the spine)
@@ -40,6 +42,12 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 |---|---|---|---|
 | Tenants | Cedar, Birch | ch. 0 | all |
 | Invoices | 104 (Cedar), 205 (Birch) | ch. 1 | 3, 5, 6, 9 |
+| Invoice amounts | 104 = £1,800.00, 205 = £640.00 (fixture stores pence: 180000, 64000) | ch. 3 | 6 |
+| Mobile app key | `mk_ledger_mobile_…` (possession of the key is not an identity) | ch. 2 | — |
+| Ledger-internal invoice fields | `CollectionsNote`, `Margin` (never in a response; `ViewFor(user, inv)` encodes) | ch. 3 | 5 |
+| Refund allowance | £1,000 per tenant per day, held on the tenant record; over it → `refund_needs_approval`, admin route `POST /v2/refunds/{quote}/approve` | ch. 6 | — |
+| Route access levels | `Public`, `User`, `TenantAdmin`, declared per route; missing declaration fails registration; denial is 403 (existence not hidden) | ch. 5 | 6, 8, 11 |
+| Webhook test route | `POST /v2/webhooks/test` body `{"url"}`; all outbound fetches through one `egress` client | ch. 7 | 10, 11 |
 | Refund quote | quote `q-771` for invoice 104 | ch. 1 | 6 |
 | Current API | `/v2` | ch. 0 | all |
 | Older API | `/v1` (read route + `/v1/invoices/{id}/pdf`); protected in ch. 1, retired in ch. 9 | ch. 1 | 8, 9, 11 |
@@ -103,16 +111,16 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
 
 | # | Title (working) | Class | Incident | Status |
 |---|---|---|---|---|
-| 0 | The Lookup That Never Asks | opener | Coinbase 2022 (source-account/asset mismatch) | planned |
-| 1 | Who's Asking | API1 BOLA | Peloton 2021, selected; claim gate still required before prose | **pilot** |
-| 2 | One Key for Every Door | API2 authentication | BrewDog 2021 | planned |
-| 3 | The Row You Didn't Mean to Send | API3 property level | shipping-company API (Domoney case 1), primary source to find | planned |
-| 4 | Nobody Counted | API4 resource consumption | X phone lookup 2022 | planned |
-| 5 | Same Door, Different Verb | API5 function level | campus access control 2022 | planned |
-| 6 | Every Request Was Valid | API6 business flows | open: find a primary excessive-flow case | planned |
-| 7 | The Server That Fetched for You | API7 SSRF | Shopify Exchange 2018 | planned |
+| 0 | The Lookup That Never Asks | opener | Coinbase 2022 (source-account/asset mismatch; researcher thread archived) | drafted |
+| 1 | Who's Asking | API1 BOLA | Peloton 2021 | **pilot, drafted** |
+| 2 | One Key for Every Door | API2 authentication | BrewDog 2021 | drafted |
+| 3 | The Row You Didn't Mean to Send | API3 property level | DPD 2022 (Pen Test Partners) | drafted |
+| 4 | Nobody Counted | API4 resource consumption | Instagram 2019 (Muthiyah); X/Twitter 2022 an aside | drafted |
+| 5 | Same Door, Different Verb | API5 function level | automaker dealer portal 2025 (Zveare, DEF CON 33); CBORD 2022 rejected as API2 | drafted |
+| 6 | Every Request Was Valid | API6 business flows | US v. Just In Time Tickets 2021 (FTC, BOTS Act; Ticketmaster bots) | drafted |
+| 7 | The Server That Fetched for You | API7 SSRF | Shopify Exchange 2018 (HackerOne #341876) | drafted |
 | 8 | Left On | API8 misconfiguration | home router (Domoney case 8) / AIOSEO | planned |
-| 9 | Deprecated Is a Label | API9 inventory | Optus 2022 | **pilot** |
+| 9 | Deprecated Is a Label | API9 inventory | Optus 2022 (ACMA concise statement, VID429/2024) | **pilot, drafted** |
 | 10 | What You Swallowed | API10 unsafe consumption | open: find a primary downstream-consumption case or fold lesson into ch. 7 | conditional |
 | 11 | Where Every Route Must Pass | payoff | — | planned last |
 

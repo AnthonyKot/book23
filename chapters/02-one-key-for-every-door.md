@@ -121,9 +121,9 @@ be anyone. Ops sets the date, warns the app's remaining users, and moves on.
 ### 3. Test identity, not only access
 
 Chapter 1's loop asked: can Alice read 205? This chapter adds the question underneath: can a
-request *become* Alice without Alice's credential? The table below is `service/ch02_test.go`. It
-runs in both modes; the vulnerable build proves the forgery works, the fixed build proves it does
-not.
+request *become* Alice without Alice's credential? The table below is this chapter's test, to
+run in both modes once its service code exists: the vulnerable build proves the forgery works, the
+fixed build proves it does not.
 
 | Route | Credential sent | `X-User` header | Invoice | Vulnerable build | Fixed build |
 | :--- | :--- | :--- | :--- | :--- | :--- |

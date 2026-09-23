@@ -19,7 +19,9 @@ and a worked answer that traces input → check (or its absence) → response or
 one-line source credit.
 
 Every Go block is a `{{excerpt:chNN-name}}` placeholder; the service is built later from your
-brief. Never present invented Go as executable or say tests pass. Put an HTML comment at the top
+brief. Never present invented Go as executable or say tests pass. Do not name a test file
+(`service/chNN_test.go`) that does not exist yet: call the exercise table "this chapter's test, to
+run in both modes once the service code exists". Put an HTML comment at the top
 listing every incident fact the claims file must gate, with the source URL. If the primary record
 does not support the assigned class, stop and write the brief with sourced alternatives; never
 invent incident detail. Numbers only when the record has them.
@@ -39,11 +41,33 @@ Write only `chapters/NN-slug.md` and `briefs/NN.md` in `/home/diablo/book23`. Do
 | 1 | `LoadInvoiceFor(user, id)` is the only way a handler gets an invoice; 404 for missing and forbidden alike; `/v1` read and `/v1/invoices/{id}/pdf` go through it but are **not retired** (that is ch. 9); two-user test loop over every invoice route; refund quote `q-771` → confirm must use the invoice stored with the quote |
 | 2 | `currentUser` resolves a bearer token through the session store (12-hour lifetime, fake clock); the mobile app key `mk_ledger_mobile_…` alone is not an identity; `/v1`'s old `X-User` header is ignored everywhere; tenant keys `ck_cedar_…` / `bk_birch_…` identify a tenant integration, not a person |
 | 3 | Invoice 104 = £1,800.00, 205 = £640.00; stored `store.Invoice` carries customer contact fields plus Ledger-internal `CollectionsNote` and `Margin`; responses encode `ViewFor(user, inv)` (ordinary vs admin view), never the row; `store.Invoice.MarshalJSON` returns an error; PATCH decodes typed `InvoicePatch{Reference}` / `ProfilePatch{DisplayName}` with unknown fields rejected; `/v1` PDF template bound to the view |
-| 4 | (CONTEXT register row still says "X phone lookup 2022"; the switch to Instagram 2019 is decided and is being recorded by the review pass.) OTP: 6 digits, 10-minute challenge, budget of 5 wrong attempts **per challenge** then locked; the per-IP limiter stays as a second, separate limit; `?limit=` capped at 50; 30 requests/minute per lookup route, applied at Ops's gateway; incident is Instagram 2019 (Muthiyah), X/Twitter 2022 is an aside |
+| 4 | OTP: 6 digits, 10-minute challenge, budget of 5 wrong attempts **per challenge** then locked; the per-IP limiter stays as a second, separate limit; `?limit=` capped at 50; 30 requests/minute per lookup route, applied at Ops's gateway; incident is Instagram 2019 (Muthiyah), X/Twitter 2022 is an aside |
 
-Chapters 5–11 add to this table; a later chapter may not silently undo an earlier repair.
+| 5 | Every route declares an access level (`Public`, `User`, `TenantAdmin`); registration fails without one; middleware after `currentUser` denies with **403** (existence not hidden, unlike ch. 1's 404); `DELETE /v2/invoices/{id}` and `/v2/admin/*` are `TenantAdmin`; `PATCH /v2/admin/users/{id}` exists and is admin-only; tenant scope (`LoadInvoiceFor`) still checked first; the vulnerable-only `/v2/admin` prefix check is gone |
+| 6 | Refund flow: `POST /v2/refunds/quote` (`LoadInvoiceFor`, amount ≤ remaining) and `POST /v2/refunds/confirm` (refunds the invoice stored with the quote; confirming a quote twice returns the original refund); `store.ConfirmRefund` enforces a **£1,000 per tenant per day** allowance keyed on the tenant, not the caller; over it → `refund_needs_approval`, quote parked for Dana at `POST /v2/refunds/{quote}/approve` (`TenantAdmin`); Ops records quotes per tenant per hour as a signal; per-user counters are the rejected local fix |
+| 7 | One outbound client, `egress`: resolve once → reject private/loopback/link-local → dial the pinned address → never follow redirects; `http.Get`/bare `http.Client` banned from handlers; `POST /v2/webhooks/test` and the `/v1` PDF logo fetch both go through it; Cedar's webhook is `https://hooks.cedar.example/ledger` |
+| 9 | `/v1` retired: routes removed from code and gateway, `ledger-staging.internal` no longer forwarded, `ReconcileInventory` (declared hosts × code × gateway × traffic) prints nothing and runs as a test |
+
+Chapters 8, 10 and 11 add to this table; a later chapter may not silently undo an earlier repair.
 
 ## Register for the next chapters (from PLAN §3; incidents still need the source-and-class gate)
+
+- **8 — Left On** (API8 misconfiguration): Domoney's home-router case and the AIOSEO WordPress
+  plugin are pointers; find the primary disclosure (researcher write-up, vendor advisory, CVE
+  record) and check the class: a default, debug, header or CORS setting left on, not a missing
+  check. Ledger: a debug or verbose-error setting, a permissive CORS origin, or a default
+  credential on `ledger-staging.internal`'s successor; the ch. 5 declared-access table is the
+  obvious reuse (a route declared `Public` by copy-paste). Repair: configuration as code with a test
+  that asserts every setting, plus the ch. 9 inventory run.
+- **10 — What You Swallowed** (API10 unsafe consumption): **incident open**; the earlier SiriusXM /
+  Hyundai chain was rejected. Needs a primary case where a service trusted data from a third-party
+  API or partner feed (parsed, followed, or written into records without validation). If none
+  survives, write the brief with candidates and the recommendation to fold the lesson into ch. 7,
+  and stop. Ledger: the partner rate feed `rates.partner.example`, `{"EUR": 0.92}` written straight
+  into invoice totals; repair: validate and bound partner data, fetch it through ch. 7's `egress`.
+- **11 — Where Every Route Must Pass** (payoff): written last by the main session.
+
+Earlier register (chapters 5–7, now drafted):
 
 - **5 — Same Door, Different Verb** (API5 function level): campus access-control system, 2022,
   admin functions reachable with student IDs (Domoney case 2; find the researcher's own write-up

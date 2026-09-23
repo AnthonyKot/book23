@@ -1,24 +1,29 @@
 # The Lookup That Never Asks
 
-<!-- claims to gate in checks/claims/00.tsv: February 2022; Tree of Alpha; edited request, source account; "0.0243 ETH to sell 0.0243 BTC"; retrospective quote "missing logic validation check ... mismatched source account"; fixed in hours; $250,000 largest to date; never maliciously exploited. Sources: Coinbase retrospective blog; The Block 2022-02-19. -->
+<!-- claims to gate in checks/claims/00.tsv: February 2022; Tree of Alpha; ETH-EUR order from the UI, request carries product, source and target account ids; changed product_id to BTC-USD and left both account ids; "0.0243 ETH to sell 0.0243 BTC"; fills matched, live order book; later test with source account changed to a SHIB account, 50 BTC limit sell; retrospective quote "missing logic validation check ... mismatched source account"; validation checked balance, not asset; patch validated the same day (11:42 AM to 4:01 PM); $250,000 largest to date; no malicious exploitation found. Sources: Tree of Alpha's thread (Thread Reader archive); Coinbase retrospective blog. -->
 
 In February 2022 a trader who posts as Tree of Alpha was trying Coinbase's new advanced trading
-interface. He placed a market order, then edited the request his browser was about to send. The
-order said: sell bitcoin on the BTC-USD order book. The edited field said: take the funds from my
-ether account. He held no bitcoin. The trade went through on the live exchange. In his words, he had
-used 0.0243 ETH to sell 0.0243 BTC on a pair he did not have access to.
+interface. He placed an ETH-EUR order from the web page and looked at the request his browser sent.
+It carried three things: a product, the pair being traded, and a source and a target account. He
+changed the product to BTC-USD and left both accounts as they were, ether as the source, euros as
+the target, expecting an error, because his account was not allowed to trade that pair. The order
+went through. In his words, he had used 0.0243 ETH to sell 0.0243 BTC on a pair he did not have
+access to, without holding any BTC, and the fills on the live order book matched. Before reporting
+it he tried the same mismatch from the other side: he moved some SHIB into an account, named it as the
+source, and placed a limit order to sell 50 BTC.
 
 Coinbase's own retrospective names the cause with unusual precision: a missing logic validation
 check in one API endpoint "allowed a user to submit trades to a specific order book using a
-mismatched source account". The endpoint checked the account it was given. It did not check that
-the account held the asset the order book trades. The fix took hours. The bounty was $250,000, then the largest Coinbase had paid, and the
-company said the bug had never been used maliciously.
+mismatched source account". Its validation checked that the named source account had the balance
+the order needed. It did not check that the account held the asset the order book trades. The
+report arrived on 11 February; a patch was validated and released that afternoon. The bounty was
+$250,000, then the largest Coinbase had paid, and the company said it found no malicious use.
 
 Notice what the bug was not. It was not a break-in. The trader was logged in to his own account,
 spending his own money, sending a request the server was built to accept. Every check that ran,
-passed. The damage came from the check that nobody wrote, because each step assumed another step
-had done it: the order form had already matched account to asset, so the endpoint did not; the
-endpoint had validated the account, so the matching engine did not.
+passed. The damage came from the check that nobody wrote: the balance check looked at the account
+it was handed, and nothing asked whether that account and that order book were talking about the
+same asset.
 
 That is the question this book asks of every request, in one form or another:
 

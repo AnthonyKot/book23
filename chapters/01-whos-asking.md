@@ -152,8 +152,9 @@ func (s *Store) LoadInvoiceFor(user User, id int) (Invoice, bool) {
 ```
 
 Every handler, in every version, calls `LoadInvoiceFor`. A bare `store.Invoice(id)` inside a route
-handler becomes something review rejects on sight. Go makes this easy to enforce: keep
-`store.Invoice` unexported from the handlers' package, and the compiler does the review.
+handler becomes something review rejects on sight. Go can enforce it for you: move the store into
+its own package and keep `Invoice` unexported, and the compiler does the review. Ledger's pilot
+keeps store and handlers in one package, so there the rule is review's to keep.
 
 ### 3. Test every route with two users
 
@@ -170,8 +171,9 @@ vulnerable build they prove the leak happens; against the fixed build they prove
 | `GET /v1/invoices/{id}/pdf` | Alice | 205 (Birch) | 200, Birch's PDF | 404, no PDF |
 | `GET /v2/invoices/{id}` | Ben | 104 (Cedar) | 200, Cedar's invoice | 404, no data |
 
-When someone adds a v3, it goes into the loop or the test fails. Do not expect monitoring to do this
-job. An alert on a spike in denied reads is worth having, but a route with no check never denies
+The loop is a list of routes, and a v3 nobody adds to it is a v3 the loop never visits; the test
+that catches that compares the routes the code registers with the routes the loop covers. Do not
+expect monitoring to do this job. An alert on a spike in denied reads is worth having, but a route with no check never denies
 anything.
 
 ### 4. Keep v1 behind the loader, and write down that it exists

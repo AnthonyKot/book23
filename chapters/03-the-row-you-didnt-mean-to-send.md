@@ -150,9 +150,9 @@ view does not carry cannot be printed.
 ### 3. Test what comes out, not only what comes back
 
 Chapter 1's loop asked, for every route, "does Alice get 404 for 205?". This chapter's loop asks,
-for every route that returns 200, "which keys are in the body?". The table below is
-`service/ch03_test.go`; in the vulnerable build the assertions on the left hold, in the fixed
-build the ones on the right.
+for every route that returns 200, "which keys are in the body?". The table below is this
+chapter's test, to run in both modes once its service code exists; in the vulnerable build the
+assertions on the left hold, in the fixed build the ones on the right.
 
 | Route | Caller | Request | Vulnerable build | Fixed build |
 | :--- | :--- | :--- | :--- | :--- |

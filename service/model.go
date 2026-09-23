@@ -27,8 +27,8 @@ type Store struct {
 
 func seedStore() *Store {
 	return &Store{invoices: map[int]Invoice{
-		104: {ID: 104, Tenant: "Cedar", Amount: 7300},
-		205: {ID: 205, Tenant: "Birch", Amount: 9100},
+		104: {ID: 104, Tenant: "Cedar", Amount: 180000}, // pence: £1,800.00
+		205: {ID: 205, Tenant: "Birch", Amount: 64000}, // pence: £640.00
 	}}
 }
 
