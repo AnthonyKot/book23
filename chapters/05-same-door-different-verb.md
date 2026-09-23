@@ -1,30 +1,28 @@
 # Same Door, Different Verb
 
-<!-- Incident switched from the register's CBORD 2022 candidate (API2 by its own record) to Eaton Zveare's 2025 dealer-portal disclosure: see briefs/05.md. Claims to gate in checks/claims/05.tsv. Primary: Eaton Zveare, "How API flaws led to admin access to over 1k USA dealers and control over your car", DEF CON 33 Car Hacking Village, 8 Aug 2025 (slides, media.defcon.org). Corroboration (TC): Zack Whittaker, TechCrunch, 10 Aug 2025, https://techcrunch.com/2025/08/10/security-flaws-in-a-carmakers-web-portal-let-one-hacker-remotely-unlock-cars-from-anywhere/ .
-Facts to gate: portal invite-only, two-factor auth, Java backend + Angular front end (slide 6); registration required an invite token, validated by an API the login page called; the registration form was present in the page and revealed by editing the page's own styling (7-8); the registration request carried the token but the server did not check it (9); the created account had no permissions (11); an admin user-management page was gated only in the browser, not the server (14-15); that page's create-user function accepted a role selection and produced a "national admin" account (16-18); the national admin account had access across the platform and an impersonation feature that bypassed login and two-factor (33-34); Zveare limited his actions to read-only while exploring (50); disclosure timeline 26 Jan discovered / 3 Feb reported via VDP / 6 Feb acknowledged / 11 Feb fixes confirmed and verified, 2025 (50). TC: automaker unnamed, "more than 1,000 dealerships", fixed within a week of the February disclosure, carmaker found no evidence of prior exploitation, Zveare quote "only two simple API vulnerabilities blasted the doors open, and it's always related to authentication."
-Do not name the automaker (withheld by the researcher). The API5 class label is the book's, not the researcher's. -->
+<!-- Incident claims are gated in checks/claims/05.tsv against Eaton Zveare's 77-slide DEF CON 33 deck, "Unexpected Connections" (10 Aug 2025), and his TechCrunch interview. Slides 6–21 document invite-only registration, the blank-token registration flaw, a profile update that established a session, browser-only admin denial, and an API that checked JSESSIONID but not admin permission. Slides 39–44 document the later impersonation pivot; slide 76 gives the disclosure dates. Keep the automaker unnamed. API5 is the book's classification, not the researcher's quoted label. -->
 
 In January 2025 Eaton Zveare spent a weekend on the web portal a large carmaker runs for its
 dealers across the United States. Dealers use it to order cars, record sales and manage customers.
-It is invite-only, guarded by two-factor authentication, and built on a Java backend with an
-Angular front end. It looked shut.
+It is invite-only, guarded by two-factor authentication, and built on an SAP/Java backend with an
+AngularJS front end. It looked shut.
 
 Getting an account was the first flaw, and it is not this chapter's subject: registration required
 an invite token, but the server accepted the request whether the token was valid or not — a broken
 authentication check, so anyone could register. Zveare said so himself afterwards, that "only two
 simple API vulnerabilities blasted the doors open, and it's always related to authentication." The
-account this gave him had no permissions at all. It could see nothing worth seeing. The interesting
-failure is what happened next.
+account this gave him had no permissions at all. A profile-update action then established a usable
+session. The interesting failure is what happened next.
 
 The portal had an administrative user-management page. An ordinary account was not supposed to
 reach it, and in the browser it did not: the front end checked the account's role and refused to
 render the page. But that check lived only in the browser. When Zveare made the page render anyway
 and its create-user function ran, the server took the request, read the elevated role the form
-offered, and created the account. The result was a "national admin" — an account with access
-across the platform and an impersonation feature that stepped past login and two-factor on the
-systems behind it. More than a thousand dealerships sat behind that one account. The carmaker,
-unnamed in the disclosure, fixed the flaws within a week of Zveare's February report and said it
-found no evidence anyone had exploited them first.
+offered, and created the account. The result was a "national admin" with access across the
+platform. A later impersonation feature let Zveare reach other dealer systems without their login
+or two-factor checks. More than a thousand dealerships sat behind the admin account. Zveare's
+slides record verified fixes on 11 February, eight days after his report; he told TechCrunch the
+unnamed carmaker found no evidence of earlier exploitation.
 
 The lesson is the one this chapter is about. The server authenticated the caller — it knew *who*
 was asking. It never asked *whether this caller may run this function*. Those are different
@@ -35,7 +33,7 @@ Top 10.
 ## The check you already have answers a different question
 
 Ledger has this shape too, and it is easy to miss because chapter 1 looks like it covered it. Every
-handler that touches an invoice now calls `LoadInvoiceFor(user, id)`, which refuses to return a row
+invoice-by-ID route gets its invoice through `LoadInvoiceFor(user, id)`, which refuses to return a row
 from another tenant. That answers *may this caller see this invoice*. It says nothing about *what
 this caller may do to it*. Here is the delete route as it stands before this chapter's fix:
 
@@ -50,8 +48,8 @@ result, because the only question asked is one they both pass.
 `GET /v2/invoices/104` and `DELETE /v2/invoices/104` are the same URL. The verb is the whole
 difference between reading a record and removing it, and in the vulnerable build the two verbs share
 one authorization story. Add the admin routes Ledger grew — `GET /v2/admin/users` lists a tenant's
-people — and the gap widens: those routes were registered behind an `/admin` path prefix, and the
-prefix was treated as if it were the guard.
+people — and the gap widens: those routes were registered under an `/admin` path prefix, and the
+name was mistaken for a guard.
 
 ## Why a check in the handler is not enough
 
@@ -82,16 +80,16 @@ refuses to register a route without one:
 
 `Access` has no usable zero value: a route that forgets to set it does not quietly become `Public`,
 it fails to register, and a test walks the table and asserts every route declares a level. The
-levels are `Public`, `User` and `TenantAdmin`. The check itself moves out of the handlers and into
-middleware that runs after `currentUser` and before the handler:
+levels are `Public`, `User` and `TenantAdmin`. After `currentUser`, an invoice-by-ID route runs
+`LoadInvoiceFor` first, returning 404 for an out-of-tenant ID; access middleware then checks the
+role before the handler:
 
 {{excerpt:ch05-require-access}}
 
-Now the delete handler does no role logic of its own; it is reached only if the route's declared
-level admits the caller. Tenant scoping stays where chapter 1 put it, inside `LoadInvoiceFor`; the
-role decision is the middleware's; neither is copied by hand into a handler where the next copy will
-drop it. The proof is greppable — `grep "Access:" service/routes.go` lists every route and its
-level, and the missing declaration is a compile-or-test failure, not a silent hole.
+Now the delete handler does no role logic of its own; it is reached only after the invoice scope
+and the route's declared level admit the caller. Tenant scoping stays in `LoadInvoiceFor`; the role
+decision is the middleware's. `grep "Access:" service/routes.go` lists the declarations, while
+registration and the route-table test catch a missing one before the service serves requests.
 
 One deliberate difference from chapter 1: when the middleware denies Alice the delete, it answers
 **403**, not the **404** Ledger returns for a cross-tenant read. In chapter 1 the 404 hid whether
@@ -167,15 +165,11 @@ F. GET    /v2/Admin/users         Alice   —                        (note the c
   decode a typed `ProfilePatch{DisplayName}`, so `role` is not a field it can set. Rejected as an
   unknown field in both builds. E and E' show that shutting one route does not shut the function:
   the admin route needed its own declaration.
-- **F is the trap.** `/v2/Admin/users` with a capital A is not the route that was registered. In the
-  vulnerable build the prefix guard `strings.HasPrefix(path, "/v2/admin")` does not match, so it
-  does nothing; the request is then 404 only because Go's mux compares patterns exactly. On a router
-  that folds case or collapses doubled slashes, the same request is served, and the guard never
-  ran. In the fixed build there is no prefix rule to fool: the route table has no such entry, so 404,
-  and a request for the real path is decided by its declaration. If you reasoned "it has admin in
-  the path, so it's guarded," reread the middle of this chapter. The path is not the permission;
-  the declaration is.
+- **F is the trap.** `/v2/Admin/users` with a capital A is not the registered route, so Go's mux
+  returns 404 in both builds. It never reaches a handler or a role decision. A request for the real
+  path reaches the route and is decided by its declaration in the fixed build. The path is not the
+  permission; the declaration is.
 
-*Incident from Eaton Zveare, "How API flaws led to admin access to over 1k USA dealers and control
-over your car," DEF CON 33 Car Hacking Village, 8 August 2025, corroborated by Zack Whittaker,
-TechCrunch, 10 August 2025. The method follows Colin Domoney, Defending APIs (Packt, 2024).*
+*Incident from Eaton Zveare, "Unexpected Connections," DEF CON 33, 10 August 2025, corroborated
+by Zack Whittaker, TechCrunch, 10 August 2025. The method follows Colin Domoney, Defending APIs
+(Packt, 2024).*

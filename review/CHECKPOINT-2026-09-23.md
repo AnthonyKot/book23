@@ -31,6 +31,16 @@ window without changing earlier values. `go test ./...`, `./verify.sh`, and `git
 passed; these still exercise only the existing Chapter 1/9 Go code. Next is Chapter 05: archive
 Zveare's DEF CON slides and any needed corroborating source before resolving the case F conflict.
 
+Chapter 05 completed: archived Zveare's 77-slide DEF CON deck and TechCrunch interview, with
+eleven located claims. The source credit and slide locators now match the available deck. The
+chapter includes the profile-update session step and separates the later impersonation pivot.
+The brief now makes tenant scope run before role middleware, agrees with the chapter that case F
+is 404 in both modes, and drops its internally contradictory vulnerable prefix guard. Chapter 8's
+planned prefix-bypass dependence must be redesigned in its later review; it was not edited here.
+`go test ./...`, `./verify.sh`, and `git diff --check` passed, with Chapter 5 still unimplemented.
+Next is Chapter 06: archive the FTC complaint, stipulated order and release, then test the
+refund-flow matrix against the fixed £1,000 tenant allowance and invoice balances.
+
 ## Chapter 00–03 pass complete
 
 The detailed findings, edits, verdicts and deferred work are in `review/codex-2026-09-23.md`.

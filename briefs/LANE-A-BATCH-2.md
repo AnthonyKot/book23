@@ -30,6 +30,10 @@ table is the cumulative design), `service/README.md`, the existing `service/*.go
   brief's block cannot be built as described (for example chapter 6's per-user counter, which is
   the rejected local fix and is not wired into any build), build it as an unexported helper with a
   direct test, mark it, and note in `docs/HANDOVER-2.md` that it is unwired.
+- **Briefs retire when built.** When a chapter's service code and tests exist, put one line at the
+  top of `briefs/NN.md` ("Built <date>; the code and tests in service/ are now the spec") and do
+  not edit the brief further. Shrink the chapter's header claims comment to a single line pointing
+  at `checks/claims/NN.tsv` once that file exists.
 - **Tests prove both sides.** Every row of every chapter's exercise table (in the chapter and in
   its brief's matrix) gets a test asserting the vulnerable and the fixed outcome, in
   `service/chNN_test.go`, grouped so `verify.sh` can require it. Sequences (chapter 6) are tests
