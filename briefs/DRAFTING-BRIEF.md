@@ -8,7 +8,8 @@ service. Do not read the other chapters in full unless you need a specific objec
 
 ## What a chapter is
 
-1,600–2,100 words of prose. One real incident, told from the original public disclosure, which you
+1,600–2,100 words of prose as a target, not a ceiling; longer is fine when the words carry
+mechanism or a traced answer. One real incident, told from the original public disclosure, which you
 fetch and read yourself (Domoney's *Defending APIs* is only the pointer). One OWASP API class,
 named in one sentence. The bug shown on Ledger in a vulnerable handler and a fixed handler, with
 the few details that decide whether the fix is real. Why the local fix is insufficient, tied to a

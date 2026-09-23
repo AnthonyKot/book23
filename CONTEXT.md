@@ -17,6 +17,7 @@ Authority order: this file → PLAN.md → GUIDANCE.md → chapter briefs. Start
 | 2026-09-23 | Editorial correction: Coinbase remains the opening incident; Peloton 2021 is selected for ch. 1 after comparing three original accounts in `docs/CH01-INCIDENT-CHOICE.md` | Coinbase's retrospective describes a source-account/asset mismatch within one user's accounts; Peloton's researcher shows manually editable workout IDs exposing other members' data even after login was required |
 | 2026-09-23 | Ch. 4 → Instagram 2019 (Muthiyah); ch. 5 → Zveare 2025 dealer portal (CBORD carries API2, not API5); ch. 6 → US v. Just In Time Tickets (every purchase valid, limits keyed on multipliable identities); invoice amounts fixed at £1,800.00/£640.00 (fixture was 7300/9100) | source-and-class gate results from the drafting agents, 2026-09-23 evening; editor's call under the author's "feel free" |
 | 2026-09-23 | Ch. 8 → UpGuard Power Apps (a default, not a check); ch. 10 → Kiln/SwissBorg 2025 (consumer signed a partner API's response undecoded), so ch. 10 stays a chapter and is not folded into ch. 7 | drafting agents' gate results; editor's call |
+| 2026-09-23 | Word band is a target, not a ceiling; length may grow where it improves the chapter | author: "We may extend word limit if it makes essay better" |
 | 2026-09-23 | Prose may name a test file only once the marked excerpts exist; until then the exercise table says it is the chapter's test "to run once the service code exists" | Codex review checkpoint: chapters claimed tests that did not exist |
 | 2026-09-23 | Editorial correction: ch. 6 and ch. 10 incident choices remain open pending source-and-class fit; if a distinct API10 source fails the hunt, fold response consumption into ch. 7 and revise the register | the proposed Starbucks race is not the same mechanism as API6's excessive access; the named SiriusXM/Hyundai cases do not establish the proposed API10 partner-to-consumer chain |
 
@@ -107,7 +108,9 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
   the worked answer identifies the check or state change that separates them. Vary the form to
   fit the class. An exception must be argued in the pre-draft brief and checked by the panel
   (GUIDANCE L8).
-- 1,600–2,100 words; the pilot sets the number; ±15% after that.
+- 1,600–2,100 words is the target, not a ceiling: a chapter may run longer when the extra words
+  carry mechanism, a traced answer or a second door (author, 2026-09-23). Cut padding, never the
+  hinge; a chapter under 1,600 is more suspect than one over 2,100.
 - Real incidents: nothing that is not in a fetched primary source. If the record does not say
   how long the fix took, the chapter does not say either.
 
