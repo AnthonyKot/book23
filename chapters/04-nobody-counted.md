@@ -1,6 +1,6 @@
 # Nobody Counted
 
-<!-- Incident claims are gated in checks/claims/04.tsv against Muthiyah's Instagram disclosure and its original-publication metadata. The researcher observed both a race hazard and IP rotation; his report does not expose the exact limiter implementation. The Twitter aside is gated against HackerOne #1439026 and X's later incident update; neither source establishes a missing lookup rate limit. -->
+<!-- Incident claims and source locators: checks/claims/04.tsv. -->
 
 In 2019 Laxman Muthiyah looked at how Instagram let a person back into an account they had been
 locked out of. You gave a phone number, Instagram texted a six-digit code, and you had ten minutes
@@ -27,11 +27,35 @@ Ledger has the same short-secret flow. When a customer forgets their password, L
 six-digit one-time code and checks it at `POST /v2/auth/otp/verify`. Here is that handler before
 this chapter's fix.
 
-{{excerpt:ch04-otp-vulnerable}}
+```go
+func (s *challengeStore) verifyVulnerable(input otpVerifyRequest) otpOutcome {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	challenge := s.current(input)
+	if challenge == nil || challenge.Used || !s.clock().Before(challenge.ExpiresAt) {
+		return otpExpired
+	}
+	if sha256.Sum256([]byte(input.Code)) != challenge.CodeHash {
+		return otpWrong // no counter against this account's challenge
+	}
+	challenge.Used = true
+	return otpMatched
+}
+```
 
 There is a limiter in front of it. Read what it keys on.
 
-{{excerpt:ch04-limiter-per-ip}}
+```go
+func perIPGuard(limiter *windowLimiter, budget int, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.allow(keyPerIP(r), budget) {
+			http.Error(w, "IP rate limit", http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+```
 
 It counts requests per client address. Ben, verifying his own login from his phone, is held to a
 sane rate, which is what the limiter was added for. But the count resets with every new address,
@@ -40,7 +64,29 @@ protected, because the two are measured against different things.
 
 The fix counts against the account and the code, not the caller:
 
-{{excerpt:ch04-otp-fixed}}
+```go
+func (s *challengeStore) verifyFixed(input otpVerifyRequest) otpOutcome {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	challenge := s.current(input)
+	if challenge == nil || challenge.Used || !s.clock().Before(challenge.ExpiresAt) {
+		return otpExpired
+	}
+	if challenge.Locked {
+		return otpLocked
+	}
+	if sha256.Sum256([]byte(input.Code)) != challenge.CodeHash {
+		challenge.Attempts++
+		if challenge.Attempts >= otpTargetBudget {
+			challenge.Locked = true
+			return otpLocked
+		}
+		return otpWrong
+	}
+	challenge.Used = true
+	return otpMatched
+}
+```
 
 Three details matter.
 

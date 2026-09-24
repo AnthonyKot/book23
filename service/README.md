@@ -8,8 +8,11 @@ Its login route uses hard-coded fixture passwords and its sessions are in memory
 fixture, not deployable authentication. `NewChapter3App` keeps the earlier repairs and demonstrates
 stored-row exposure versus role-specific response views, typed PATCH requests, and a raw `Invoice`
 JSON guard. Historical stages retain their original four-field response shape. `NewChapter9App`
-is still a pilot that starts after the
-Chapter 1 loader repair; it does not yet contain Chapters 2–8. Tests make no network requests.
+is still a pilot that starts after the Chapter 1 loader repair; it does not yet contain Chapters
+2–8. `NewChapter4App` keeps the first three repairs and demonstrates OTP challenge locks, separate
+IP throttling, a 50-row page cap, and 30/min email-lookup budgets at both gateway and shared
+handler. Its in-memory limits, fixture OTP code, and simulated text delivery are teaching devices.
+Tests make no network requests.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish
 that a real gateway matches its repository configuration, that traffic telemetry is complete,

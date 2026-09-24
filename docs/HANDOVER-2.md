@@ -8,7 +8,8 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 01 | Complete for batch 2; refund/list cases and route coverage tested | Author reconciles schematic exercise wording |
 | 02 | Complete for batch 2; session identity and exercise tested | Author reviews identity-probe wording |
 | 03 | Complete for batch 2; views, patches, and guard tested | Author reconciles mixed PATCH wording |
-| 04–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
+| 04 | Complete for batch 2; challenge, lookup, and page limits tested | Author aligns OTP excerpt wording |
+| 05–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -103,5 +104,40 @@ Chapter 01 exercise as a literal wire example.
   should update that framing. The rendered Chapter 03 page remains stale until the batch's
   deferred site build after Chapter 10; the Markdown source already has all five excerpts.
 
-Next: Chapter 04 resource limits. Chapter 09 still needs cumulative integration after Chapter 08.
-Do not push this implementation branch from Lane A.
+## Chapter 04 — completed in batch 2
+
+- `NewChapter4App` keeps Chapters 01–03's repairs in both modes. OTP request issues a test-only
+  six-digit code challenge with a ten-minute window. Vulnerable verification has only an
+  eight-per-minute IP guard; fixed verification also counts wrong guesses against the active
+  `(account_id, challenge_id)`, locks on the fifth failure, rejects reissue while locked, and
+  spends a challenge on success. An unlocked fixed reissue returns the same challenge without
+  resetting attempts. A successful code issues Chapter 02's twelve-hour session.
+- `GET /v2/invoices?email=…` and `GET /v1/invoices?email=…` both use the Chapter 01 tenant scope
+  and Chapter 03 views. Vulnerable v2 has only a 30/min IP budget at the gateway; vulnerable v1
+  has no lookup budget. Fixed mode registers both routes with separate 30/min tenant-and-route
+  budgets at the gateway and in their shared handler. Invoice-by-ID is a separate route and does
+  not consume this budget. `?limit=N` caps at 50 only in fixed mode; neither mode treats the page
+  cap as a frequency budget.
+- `service/ch04_test.go` exercises all OTP A/A'/A'' and lookup B/C sequences in both modes,
+  including same-IP and rotating-IP probes, exact ten-minute reissue, challenge use, a direct
+  IP-guard probe, and direct proofs of the gateway and handler lookup budgets. It injects 59
+  extra Cedar rows to make a 60-row page solely within the page test, then sends 10,000
+  50-row requests to prove the size cap does not limit frequency. Regression checks cover the
+  earlier loader, session, view, typed PATCH, and refund repairs.
+- The fixed values from `CONTEXT.md` remain unchanged. The eight-per-minute IP guard,
+  `731842` OTP code, sequential challenge IDs, and extra page rows are fixture-only values.
+  No real text is sent and the in-memory limiter is not a production rate limiter.
+- The three printed excerpts (`ch04-otp-vulnerable`, `ch04-limiter-per-ip`,
+  `ch04-otp-fixed`) exactly match marked Go blocks, and `verify.sh` now requires their test
+  groups and checks their equality while continuing to validate all claims archives.
+- Author note: the brief's older handler list says vulnerable v1 email lookup is unregistered,
+  but its exercise C and the reviewed chapter require v1 to serve without a budget. The service
+  follows the exercise. The two OTP excerpts are challenge-store verification methods called by
+  the HTTP handler, so the surrounding prose's word "handler" should be made precise. The
+  exercise's stated snapshot already has the OTP repair while the vulnerable build in its
+  executable table still needs the OTP flaw; the two modes represent the chapter-wide before
+  and after states, and the author should make that distinction clear. The
+  Chapter 04 Markdown is filled; rendered HTML awaits the deferred batch site build.
+
+Next: Chapter 05 declared function-level access. Chapter 09 still needs cumulative integration
+after Chapter 08. Do not push this implementation branch from Lane A.

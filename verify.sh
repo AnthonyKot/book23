@@ -10,7 +10,7 @@ trap 'rm -f "$test_log"' EXIT
   go test -v ./...
 ) | tee "$test_log"
 
-for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
+for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
   if ! grep -Fq -- "--- PASS: $group" "$test_log"; then
     echo "missing passing pilot test group: $group" >&2
     exit 1
@@ -59,7 +59,7 @@ manifest_archives = {row["archive"] for row in sources}
 if unregistered := claim_archives - manifest_archives:
     raise SystemExit(f"claim archives absent from SOURCES.tsv: {sorted(unregistered)}")
 
-for number in ("01", "02", "03", "09"):
+for number in ("01", "02", "03", "04", "09"):
     chapters = list((root / "chapters").glob(f"{number}-*.md"))
     if len(chapters) != 1 or "{{excerpt:" in chapters[0].read_text(encoding="utf-8"):
         raise SystemExit(f"built chapter {number} still has an excerpt placeholder")
@@ -78,6 +78,13 @@ for name in ("ch03-vulnerable-read", "ch03-view", "ch03-vulnerable-patch", "ch03
     match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
     if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch03:
         raise SystemExit(f"Chapter 03 printed excerpt {name} differs from marked Go source")
+
+ch04 = next((root / "chapters").glob("04-*.md")).read_text(encoding="utf-8")
+code = (root / "service" / "ch04_limits.go").read_text(encoding="utf-8")
+for name in ("ch04-otp-vulnerable", "ch04-limiter-per-ip", "ch04-otp-fixed"):
+    match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
+    if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch04:
+        raise SystemExit(f"Chapter 04 printed excerpt {name} differs from marked Go source")
 
 class Links(HTMLParser):
     def __init__(self):

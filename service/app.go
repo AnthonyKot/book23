@@ -34,6 +34,11 @@ func NewChapter3App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter03, time.Now)
 }
 
+// NewChapter4App keeps the first three repairs and isolates resource limits.
+func NewChapter4App(mode Mode) *App {
+	return buildAppWithClock(mode, chapter04, time.Now)
+}
+
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
 // but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
 // staging host; batch 2 integrates the intervening repairs after Chapter 8.
@@ -55,6 +60,7 @@ const (
 	chapter01 pilotStage = iota
 	chapter02
 	chapter03
+	chapter04
 	chapter09
 )
 
@@ -74,14 +80,23 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 
 	store := seedStore()
 	mux := http.NewServeMux()
+	propertyStage := stage == chapter03 || stage == chapter04
+	propertyMode := mode
+	if stage == chapter04 {
+		propertyMode = Fixed
+	}
+	var limits *chapter04Limits
+	if stage == chapter04 {
+		limits = newChapter04Limits(clock)
+	}
 	routes := []Route{{Method: http.MethodGet, Pattern: "/v2/invoices/{id}"}}
 	secure := mode == Fixed || stage != chapter01
-	registerStageInvoiceRoute(mux, routes[0], store, stage, mode, secure, false)
+	registerStageInvoiceRoute(mux, routes[0], store, propertyStage, propertyMode, secure, false)
 
 	listRoute := Route{Method: http.MethodGet, Pattern: "/v2/me/invoices"}
 	routes = append(routes, listRoute)
-	if stage == chapter03 {
-		mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, chapter03List(store, mode, false))
+	if propertyStage {
+		mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, chapter03List(store, propertyMode, false))
 	} else {
 		mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, listInvoices(store))
 	}
@@ -90,8 +105,10 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		quote := Route{Method: http.MethodPost, Pattern: "/v2/refunds/quote"}
 		confirm := Route{Method: http.MethodPost, Pattern: "/v2/refunds/confirm"}
 		routes = append(routes, filteredList, quote, confirm)
-		if stage == chapter03 {
-			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter03List(store, mode, true))
+		if stage == chapter04 {
+			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter04Invoices(store, mode, limits))
+		} else if propertyStage {
+			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter03List(store, propertyMode, true))
 		} else {
 			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
 		}
@@ -108,30 +125,44 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		read := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}"}
 		pdf := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf"}
 		routes = append(routes, read, pdf)
-		registerStageInvoiceRoute(mux, read, store, stage, mode, secure, false)
-		registerStageInvoiceRoute(mux, pdf, store, stage, mode, secure, true)
+		registerStageInvoiceRoute(mux, read, store, propertyStage, propertyMode, secure, false)
+		registerStageInvoiceRoute(mux, pdf, store, propertyStage, propertyMode, secure, true)
+		if stage == chapter04 {
+			lookup := Route{Method: http.MethodGet, Pattern: "/v1/invoices"}
+			routes = append(routes, lookup)
+			mux.HandleFunc(lookup.Method+" "+lookup.Pattern, chapter04Lookup(store, mode, limits, "v1"))
+		}
 	}
 
 	handler := http.Handler(mux)
-	if stage != chapter03 {
+	if !propertyStage {
 		handler = legacyJSONHandler(handler)
 	}
-	if stage == chapter02 || stage == chapter03 {
+	if stage == chapter02 || propertyStage {
 		sessions := newSessionStore(clock)
 		login := Route{Method: http.MethodPost, Pattern: "/v2/auth/login"}
 		me := Route{Method: http.MethodGet, Pattern: "/v2/me"}
 		routes = append(routes, login, me)
 		mux.HandleFunc(login.Method+" "+login.Pattern, loginHandler(sessions))
 		mux.HandleFunc(me.Method+" "+me.Pattern, identityProbe)
-		if stage == chapter03 {
+		if propertyStage {
 			patchInvoice := Route{Method: http.MethodPatch, Pattern: "/v2/invoices/{id}"}
 			patchProfile := Route{Method: http.MethodPatch, Pattern: "/v2/users/me"}
 			routes = append(routes, patchInvoice, patchProfile)
-			mux.HandleFunc(patchInvoice.Method+" "+patchInvoice.Pattern, chapter03InvoicePatch(store, mode))
-			mux.HandleFunc(patchProfile.Method+" "+patchProfile.Pattern, chapter03ProfilePatch(sessions, mode))
+			mux.HandleFunc(patchInvoice.Method+" "+patchInvoice.Pattern, chapter03InvoicePatch(store, propertyMode))
+			mux.HandleFunc(patchProfile.Method+" "+patchProfile.Pattern, chapter03ProfilePatch(sessions, propertyMode))
+		}
+		if stage == chapter04 {
+			requestOTP := Route{Method: http.MethodPost, Pattern: "/v2/auth/otp/request"}
+			verifyOTP := Route{Method: http.MethodPost, Pattern: "/v2/auth/otp/verify"}
+			routes = append(routes, requestOTP, verifyOTP)
+			mux.HandleFunc(requestOTP.Method+" "+requestOTP.Pattern, otpRequestHandler(mode, limits.challenges))
+			mux.Handle(verifyOTP.Method+" "+verifyOTP.Pattern,
+				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(mode, limits.challenges, sessions)))
+			handler = chapter04Gateway(mode, limits, handler)
 		}
 		identityMode := mode
-		if stage == chapter03 {
+		if propertyStage {
 			identityMode = Fixed
 		}
 		handler = chapter02Identity(identityMode, sessions, handler)
@@ -142,8 +173,8 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 	return &App{handler: handler, routes: routes, store: store}
 }
 
-func registerStageInvoiceRoute(mux *http.ServeMux, route Route, store *Store, stage pilotStage, mode Mode, secure, pdf bool) {
-	if stage == chapter03 {
+func registerStageInvoiceRoute(mux *http.ServeMux, route Route, store *Store, propertyStage bool, mode Mode, secure, pdf bool) {
+	if propertyStage {
 		mux.HandleFunc(route.Method+" "+route.Pattern, chapter03InvoiceHandler(store, mode, pdf))
 		return
 	}
