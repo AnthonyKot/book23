@@ -64,8 +64,10 @@ func vulnerableChapter03Read(store *Store, pdf bool) http.HandlerFunc {
 }
 ```
 
-`json.NewEncoder(w).Encode(inv)` serialises the stored row. The stored row is the struct Ledger
-keeps in its store, and that struct has every field the business ever needed: the line items and
+`json.NewEncoder(w).Encode(inv)` serialises the stored row. (`rawInvoice` is a bare alias of the
+stored type; in the finished service the stored type itself refuses to be encoded, which is the
+last block in this chapter, so the vulnerable handler has to ask for the raw row by name.) The
+stored row is the struct Ledger keeps in its store, and that struct has every field the business ever needed: the line items and
 the amount, but also the customer's email and phone, the collections note Ledger's own finance
 team writes when an invoice goes late, and the margin Ledger makes on the transaction. The web
 app displays the amount, the status and the due date. It ignores the rest. The rest is still on
@@ -191,9 +193,9 @@ sending `status` is either a bug or an attacker, and both should hear about it.
 
 ## The route you fixed, and the one you forgot
 
-In the proposed fixed service, Ledger uses `ViewFor` on `GET /v2/invoices/{id}`, and the response
-for invoice 104 loses its email, phone, note and margin. That will need a test. Two other routes
-serve the same invoice.
+In the fixed build, Ledger uses `ViewFor` on `GET /v2/invoices/{id}`, and the response for invoice
+104 loses its email, phone, note and margin. The test asserts exactly that. Two other routes serve
+the same invoice.
 
 `GET /v2/me/invoices` returns Alice's list. It was written after chapter 1, goes through the store
 filter on Alice's tenants, and encodes `[]store.Invoice`, one row per invoice, margin and all. The
@@ -233,8 +235,8 @@ the view does not carry cannot be printed.
 
 Chapter 1's loop asked, for every route, "does Alice get 404 for 205?". This chapter's loop asks,
 for every route that returns 200, "which keys are in the body?". The table below is this
-chapter's test, to run in both modes once its service code exists; in the vulnerable build the
-assertions on the left hold, in the fixed build the ones on the right.
+chapter's test, and it runs in both modes: in the vulnerable build the assertions on the left
+hold, in the fixed build the ones on the right.
 
 | Route | Caller | Request | Vulnerable build | Fixed build |
 | :--- | :--- | :--- | :--- | :--- |
@@ -242,7 +244,7 @@ assertions on the left hold, in the fixed build the ones on the right.
 | `GET /v2/invoices/104` | Dana | — | as above | body has `customer.email`; no `margin` |
 | `GET /v2/me/invoices` | Alice | — | rows carry `margin` | rows lack `margin`, `customer.email` |
 | `GET /v1/invoices/104/pdf` | Alice | — | PDF text contains the phone number | no phone, no email |
-| `PATCH /v2/invoices/104` | Alice | `{"reference":"PO-9","status":"paid"}` | status becomes `paid` | reference updated, status unchanged |
+| `PATCH /v2/invoices/104` | Alice | `{"reference":"PO-9","status":"paid"}` | status becomes `paid` | 400; neither field changes (a `{"reference":"PO-9"}` patch alone succeeds) |
 | `PATCH /v2/users/me` | Alice | `{"is_admin":true}` | Alice is now an admin | field rejected, Alice unchanged |
 
 The last row is the one to notice. Mass assignment on the user record is how a property bug
@@ -286,7 +288,8 @@ For each one:
   stored row. Whatever the template prints, it can print. Test: Alice fetches the PDF for 104; the
   fixed build's PDF text contains no phone number. Fix: bind the template to `InvoiceView`.
 - **D is safe.** `InvoicePatch` has one field, so `status` and `amount` in the body have nowhere to
-  land. With `DisallowUnknownFields` they are rejected outright.
+  land. With `DisallowUnknownFields` the whole request is refused, reference included: a client
+  that names a field it may not set gets a 400, not a partial update.
 - **E is vulnerable, and it is D with the type removed.** Decoding into a map and setting each key
   is `Decode(inv)` written by hand: every key the client names becomes a property the client
   sets. Test: Alice sends `{"status":"paid"}` to 104; in the fixed build the status is unchanged.

@@ -97,8 +97,8 @@
       <p class="essay-book">Incident: DPD, 2022</p>
       <p class="essay-payoff">The handler returned the row. The row had more in it than the page ever showed.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 5 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- Incident claims are gated in checks/claims/03.tsv against David Lodge's Pen Test Partners disclosure and its archived JSON screenshot. The primary record proves the parcel-code map, derived postcode, tracking-page gate, session JSON and dated disclosure sequence. It does not establish the intended field policy for an authorized recipient, bulk enumeration or an affected-person count. -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- Incident claims and source locators: checks/claims/03.tsv. -->
 
 <p>In September 2021 David Lodge of Pen Test Partners was looking at how DPD, the parcel carrier,
 tells you where your delivery is. The tracking site had an API call that took a parcel code and
@@ -129,11 +129,33 @@ list. Alice can no longer read invoice 205. What she reads when she asks for inv
 question this chapter opens.</p>
 <p>Here is the handler behind <code>GET /v2/invoices/{id}</code> after the chapter 1 fix. It is correct about
 <em>which</em> invoice. Look at what it does with the invoice once it has it.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch03-vulnerable-read</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
-<p><code>json.NewEncoder(w).Encode(inv)</code> serialises the stored row. The stored row is the struct Ledger
-keeps in its store, and that struct has every field the business ever needed: the line items and
+<pre><code class="language-go">func vulnerableChapter03Read(store *Store, pdf bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, &quot;unauthorized&quot;, http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue(&quot;id&quot;))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		if pdf {
+			renderRawPDF(w, invoice)
+			return
+		}
+		inv := rawInvoice(invoice)
+		w.Header().Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+		_ = json.NewEncoder(w).Encode(inv)
+	}
+}
+</code></pre>
+<p><code>json.NewEncoder(w).Encode(inv)</code> serialises the stored row. (<code>rawInvoice</code> is a bare alias of the
+stored type; in the finished service the stored type itself refuses to be encoded, which is the
+last block in this chapter, so the vulnerable handler has to ask for the raw row by name.) The
+stored row is the struct Ledger keeps in its store, and that struct has every field the business ever needed: the line items and
 the amount, but also the customer&#39;s email and phone, the collections note Ledger&#39;s own finance
 team writes when an invoice goes late, and the margin Ledger makes on the transaction. The web
 app displays the amount, the status and the due date. It ignores the rest. The rest is still on
@@ -142,9 +164,16 @@ the wire, in every response, to every logged-in user of the tenant.</p>
 <p>The fix is to stop encoding the stored type at all. Authorization decided which invoice Alice may
 see. A second, separate decision says which <em>properties</em> of it she may see, and that decision
 belongs on the server, in a type that exists for the purpose:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch03-view</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func ViewFor(user User, inv Invoice) any {
+	if user.Role == &quot;tenant-admin&quot; || user.IsAdmin {
+		return InvoiceAdminView{InvoiceCore: invoiceCore(inv), Customer: CustomerContactView{
+			Name: inv.Customer.Name, Email: inv.Customer.Email,
+			Phone: inv.Customer.Phone, Address: inv.Customer.Address,
+		}}
+	}
+	return publicViewFor(inv)
+}
+</code></pre>
 <p>Three details matter.</p>
 <ul>
 <li><strong>The view is a type, not a filter.</strong> A blocklist (&quot;strip <code>margin</code> before encoding&quot;) fails the
@@ -162,9 +191,29 @@ displays.</li>
 <h2 id="the-same-mistake-writing-instead-of-reading">The same mistake, writing instead of reading</h2>
 <p>The read side sends the whole struct out. The write side takes the whole struct in. Here is
 <code>PATCH /v2/invoices/{id}</code>, which lets a tenant set the purchase-order reference on an invoice:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch03-vulnerable-patch</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func vulnerableChapter03Patch(store *Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, &quot;unauthorized&quot;, http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue(&quot;id&quot;))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		inv := &amp;invoice
+		if json.NewDecoder(r.Body).Decode(inv) != nil {
+			http.Error(w, &quot;invalid patch&quot;, http.StatusBadRequest)
+			return
+		}
+		store.invoices[id] = *inv // matching exported fields came from the request
+		writeJSON(w, ViewFor(user, *inv))
+	}
+}
+</code></pre>
 <p><code>json.NewDecoder(r.Body).Decode(inv)</code> can write any matching exported field on the loaded
 struct. The web app only ever sends <code>reference</code>. Alice can send <code>{&quot;reference&quot;:&quot;PO-9&quot;,&quot;status&quot;:&quot;paid&quot;}</code>
 and mark invoice 104 paid, or <code>{&quot;amount&quot;:0}</code>, or <code>{&quot;tenant&quot;:&quot;birch&quot;}</code>. The loader checked that the
@@ -172,9 +221,30 @@ invoice was hers. The decoder let her rewrite it. OWASP folds this into the same
 the name <strong>mass assignment</strong>: the server bound client input to properties the client was never
 meant to set.</p>
 <p>The fix mirrors the read side. There is one decodable type for this route, and it has one field:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch03-patch</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func fixedChapter03Patch(store *Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, &quot;unauthorized&quot;, http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue(&quot;id&quot;))
+		inv, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		var patch InvoicePatch
+		if decodeOneJSON(r, &amp;patch) != nil {
+			http.Error(w, &quot;invalid patch field&quot;, http.StatusBadRequest)
+			return
+		}
+		inv.Reference = patch.Reference
+		store.invoices[id] = inv
+		writeJSON(w, ViewFor(user, inv))
+	}
+}
+</code></pre>
 <p>Go helps here more than most languages. <code>Decode</code> into <code>InvoicePatch{Reference string}</code> silently
 drops <code>status</code> and <code>amount</code>, because they have nowhere to land. Turn on
 <code>DisallowUnknownFields()</code> and it rejects them instead, which is the better answer: a client
@@ -196,9 +266,9 @@ invoice Alice sees is genuinely hers. That feels like the end of the problem. It
 the <em>object</em> problem. The property problem starts exactly there.</li>
 </ul>
 <h2 id="the-route-you-fixed-and-the-one-you-forgot">The route you fixed, and the one you forgot</h2>
-<p>In the proposed fixed service, Ledger uses <code>ViewFor</code> on <code>GET /v2/invoices/{id}</code>, and the response
-for invoice 104 loses its email, phone, note and margin. That will need a test. Two other routes
-serve the same invoice.</p>
+<p>In the fixed build, Ledger uses <code>ViewFor</code> on <code>GET /v2/invoices/{id}</code>, and the response for invoice
+104 loses its email, phone, note and margin. The test asserts exactly that. Two other routes serve
+the same invoice.</p>
 <p><code>GET /v2/me/invoices</code> returns Alice&#39;s list. It was written after chapter 1, goes through the store
 filter on Alice&#39;s tenants, and encodes <code>[]store.Invoice</code>, one row per invoice, margin and all. The
 list endpoint leaks what the item endpoint now hides, and it leaks it for every invoice at once.</p>
@@ -215,9 +285,10 @@ route, the list route and the PDF template.</p>
 <h3 id="2-make-the-stored-type-refuse-to-be-encoded">2. Make the stored type refuse to be encoded</h3>
 <p>Moving <code>ViewFor</code> into every handler is the chapter 1 mistake with a new name. Instead the stored
 type gets a <code>MarshalJSON</code> that returns an error:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch03-marshal-guard</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func (Invoice) MarshalJSON() ([]byte, error) {
+	return nil, errors.New(&quot;encode a view, not the row&quot;)
+}
+</code></pre>
 <p>Once built, an attempt to JSON-encode the stored row returns &quot;encode a view, not the row&quot;. The
 compiler cannot enforce this one, but a test that checks the encoder error can catch the next
 copied handler. The PDF template gets the same treatment: it is bound to <code>InvoiceView</code>, so a field
@@ -225,8 +296,8 @@ the view does not carry cannot be printed.</p>
 <h3 id="3-test-what-comes-out-not-only-what-comes-back">3. Test what comes out, not only what comes back</h3>
 <p>Chapter 1&#39;s loop asked, for every route, &quot;does Alice get 404 for 205?&quot;. This chapter&#39;s loop asks,
 for every route that returns 200, &quot;which keys are in the body?&quot;. The table below is this
-chapter&#39;s test, to run in both modes once its service code exists; in the vulnerable build the
-assertions on the left hold, in the fixed build the ones on the right.</p>
+chapter&#39;s test, and it runs in both modes: in the vulnerable build the assertions on the left
+hold, in the fixed build the ones on the right.</p>
 <div class="table-scroll" role="region" aria-label="Table; scroll horizontally if needed" tabindex="0"><table>
 <thead>
 <tr>
@@ -270,7 +341,7 @@ assertions on the left hold, in the fixed build the ones on the right.</p>
 <td align="left">Alice</td>
 <td align="left"><code>{&quot;reference&quot;:&quot;PO-9&quot;,&quot;status&quot;:&quot;paid&quot;}</code></td>
 <td align="left">status becomes <code>paid</code></td>
-<td align="left">reference updated, status unchanged</td>
+<td align="left">400; neither field changes (a <code>{&quot;reference&quot;:&quot;PO-9&quot;}</code> patch alone succeeds)</td>
 </tr>
 <tr>
 <td align="left"><code>PATCH /v2/users/me</code></td>
@@ -316,7 +387,8 @@ and it encodes a slice, but every element went through <code>ViewFor</code> firs
 stored row. Whatever the template prints, it can print. Test: Alice fetches the PDF for 104; the
 fixed build&#39;s PDF text contains no phone number. Fix: bind the template to <code>InvoiceView</code>.</li>
 <li><strong>D is safe.</strong> <code>InvoicePatch</code> has one field, so <code>status</code> and <code>amount</code> in the body have nowhere to
-land. With <code>DisallowUnknownFields</code> they are rejected outright.</li>
+land. With <code>DisallowUnknownFields</code> the whole request is refused, reference included: a client
+that names a field it may not set gets a 400, not a partial update.</li>
 <li><strong>E is vulnerable, and it is D with the type removed.</strong> Decoding into a map and setting each key
 is <code>Decode(inv)</code> written by hand: every key the client names becomes a property the client
 sets. Test: Alice sends <code>{&quot;status&quot;:&quot;paid&quot;}</code> to 104; in the fixed build the status is unchanged.
