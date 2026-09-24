@@ -218,9 +218,10 @@ For each one:
   Birch's PDF. Fix it with `LoadInvoiceFor`, then put it on the inventory.
 - **D is vulnerable in the second step.** The quote step checks the invoice; the confirm step
   trusts a fresh `invoice_id` from the body. Test: Alice gets quote `q-771` for 104, then confirms
-  with `invoice_id: 205`. Fixed build: rejected, and no refund on 205. Fix: confirm loads the quote,
-  checks it belongs to Alice, and refunds the invoice stored with it, ignoring the body's
-  `invoice_id`. This is Coinbase's bug in miniature: the step that validated and the step that
+  with `invoice_id: 205`. Fixed build: 400, and no refund on 205 or on 104. Fix: confirm takes
+  only a `quote_id`, loads the quote, checks it belongs to Alice, and refunds the invoice stored
+  with it; a body that names an invoice at all is refused, because the one field that could
+  disagree with the quote has no business being there. This is Coinbase's bug in miniature: the step that validated and the step that
   acted looked at different fields.
 - **E is vulnerable.** B and E look almost identical, but here the tenant comes from the query
   string and nothing compares it to the caller. Test: Alice requests `?tenant=birch`; fixed build
