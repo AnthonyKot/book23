@@ -20,4 +20,5 @@ export const chapters = [
   { file: "08-left-on", kicker: "API8", cls: "Security misconfiguration", incident: "Power Apps portals, 2021", payoff: "The check was there, wired correctly, and switched off.", status: "drafted" },
   { file: "09-deprecated-is-a-label", kicker: "API9", cls: "Improper inventory management", incident: "Optus, 2022", payoff: "A host that is not on your list is a host your fixes do not reach.", status: "pilot, drafted" },
   { file: "10-what-you-swallowed", kicker: "API10", cls: "Unsafe consumption of APIs", incident: "Kiln and SwissBorg, 2025", payoff: "The request you validated went out. The response you did not validate came back.", status: "drafted" },
+  { file: "11-where-every-route-must-pass", kicker: "Payoff", cls: "Where every route must pass", incident: "No incident", payoff: "Ten checks, one road. Every request takes it, and the test that walks the table is the one you keep.", status: "drafted" },
 ];

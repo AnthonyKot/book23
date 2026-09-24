@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Ten checks, one road. Every request takes it, and the test that walks the table is the one you keep.">
+  <meta name="theme-color" content="#1f2a44">
+  <meta property="og:title" content="Where Every Route Must Pass">
+  <meta property="og:description" content="Ten checks, one road. Every request takes it, and the test that walks the table is the one you keep.">
+  <meta property="og:type" content="website">
+  <title>Where Every Route Must Pass · Security Rebook</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231f2a44'/%3E%3Ctext x='16' y='45' font-size='36' fill='%23fffdf8'%3ES%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script defer src="../assets/app.js"></script>
+</head>
+<body class="article-view" data-active-slug="11-where-every-route-must-pass">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" aria-label="Security Rebook home">
+      <span class="wordmark__mark">S<span>?</span></span>
+      <span><strong>Security Rebook</strong><small>ten ways an API lets the wrong request through</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="progress-summary" data-progress-summary>0 of 11 exercises</span>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="book-navigation">Contents</button>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="book-nav" id="book-navigation" data-book-nav>
+      <div class="book-nav__intro">
+        <a href="../index.html">Contents</a>
+        <p>12 chapters. One service, attacked in order.</p>
+      </div>
+      <nav aria-label="Book contents">
+    <a class="book-nav__item" href="../chapters/00-the-lookup-that-never-asks.html">
+      <span class="book-nav__number">00</span>
+      <span><small>Opener</small>The Lookup That Never Asks</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/01-whos-asking.html" data-mission-link="01-whos-asking">
+      <span class="book-nav__number">01</span>
+      <span><small>API1</small>Who's Asking</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/02-one-key-for-every-door.html" data-mission-link="02-one-key-for-every-door">
+      <span class="book-nav__number">02</span>
+      <span><small>API2</small>One Key for Every Door</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/03-the-row-you-didnt-mean-to-send.html" data-mission-link="03-the-row-you-didnt-mean-to-send">
+      <span class="book-nav__number">03</span>
+      <span><small>API3</small>The Row You Didn't Mean to Send</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/04-nobody-counted.html" data-mission-link="04-nobody-counted">
+      <span class="book-nav__number">04</span>
+      <span><small>API4</small>Nobody Counted</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/05-same-door-different-verb.html" data-mission-link="05-same-door-different-verb">
+      <span class="book-nav__number">05</span>
+      <span><small>API5</small>Same Door, Different Verb</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/06-every-request-was-valid.html" data-mission-link="06-every-request-was-valid">
+      <span class="book-nav__number">06</span>
+      <span><small>API6</small>Every Request Was Valid</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/07-the-server-that-fetched-for-you.html" data-mission-link="07-the-server-that-fetched-for-you">
+      <span class="book-nav__number">07</span>
+      <span><small>API7</small>The Server That Fetched for You</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/08-left-on.html" data-mission-link="08-left-on">
+      <span class="book-nav__number">08</span>
+      <span><small>API8</small>Left On</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/09-deprecated-is-a-label.html" data-mission-link="09-deprecated-is-a-label">
+      <span class="book-nav__number">09</span>
+      <span><small>API9</small>Deprecated Is a Label</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item" href="../chapters/10-what-you-swallowed.html" data-mission-link="10-what-you-swallowed">
+      <span class="book-nav__number">10</span>
+      <span><small>API10</small>What You Swallowed</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a>
+    <a class="book-nav__item is-active" href="../chapters/11-where-every-route-must-pass.html" data-mission-link="11-where-every-route-must-pass">
+      <span class="book-nav__number">11</span>
+      <span><small>Payoff</small>Where Every Route Must Pass</span>
+      <span class="book-nav__check" aria-label="Exercise completed">✓</span>
+    </a></nav>
+      <a class="book-nav__skips" href="../index.html#how">How this book works →</a>
+    </aside>
+    <main id="main" class="essay-page">
+    <header class="essay-hero">
+      <div class="essay-kicker"><span>11</span>Payoff · Where every route must pass</div>
+      <h1 class="essay-title">Where Every Route Must Pass</h1>
+      <p class="essay-book">Incident: No incident</p>
+      <p class="essay-payoff">Ten checks, one road. Every request takes it, and the test that walks the table is the one you keep.</p>
+    </header>
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. 2 code blocks still pending from the service; the prose describes what each will show.</div>
+    <article class="prose"><!-- No incident in this chapter. Every statement about Ledger is asserted by service/ch11_test.go once Lane A builds it (briefs/11.md); the two Go blocks are marked excerpts. -->
+
+<p>The opener asked one question of a Coinbase trade: which check did this request assume had
+already happened? Ten chapters gave ten answers, and each answer was a place as much as a check.
+The loader that asks whose invoice. The session store that says who is asking. The view type
+that decides which fields leave. The counter keyed on the thing being guessed. The declaration
+that says which role a route needs. The store method that decides a refund under one lock. The
+one client every outbound request goes through. The settings literal a test reads. The inventory
+that reconciles the hosts. The rate that is stored once and read forever after.</p>
+<p>Read as a list, those are ten habits. Read as code, they are one road. Every request that
+reaches Ledger takes it, and each chapter&#39;s check stands at a fixed point on it. This chapter
+walks the road once, end to end, and then shows the one test that walks it for you.</p>
+<h2 id="every-request-takes-the-same-road">Every request takes the same road</h2>
+<p>Here is the finished build, the one every chapter&#39;s fixed side accumulates into, composed in one
+place. Go wraps handlers from the inside out, so the code reads bottom-up: the last line is the
+first thing a request meets.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch11-request-path</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Read it in the order a request does.</p>
+<ol>
+<li><strong>The host filter</strong> (the inventory chapter). <code>r.Host</code> must be <code>api.ledger.example</code>. Any
+other name, including <code>ledger-staging.internal</code>, gets 404 before a token is read. A host Ops
+did not declare is not a host Ledger serves.</li>
+<li><strong>Identity</strong> (the authentication chapter). The bearer token is looked up in the session store.
+If it is a live session, the request now carries a person; if it is a tenant key, it carries a
+service account; if it is the mobile app key or nothing, it carries nobody. This layer refuses
+nothing. It only decides who the rest of the road is talking to.</li>
+<li><strong>The error writer</strong> (the misconfiguration chapter). It sits outside authorization on purpose.
+Whatever a lower layer says about a <code>GET /v2/invoices/{id}</code> that failed, the body that leaves
+production is <code>{&quot;error&quot;:&quot;not found&quot;}</code>, because <code>Debug</code> is false in the literal this build was
+constructed from.</li>
+<li><strong>Authorization</strong> (the object-level and function-level chapters, in that order). For a route
+that names an invoice, <code>LoadInvoiceFor</code> runs first and answers 404 if the invoice is not the
+caller&#39;s; only then does the declared access level run and answer 403 if the caller&#39;s role is
+short. Tenant scope before role, so a request can never learn that a foreign invoice exists by
+being told it lacks the role to touch it.</li>
+<li><strong>The lookup budget</strong> (the resource chapter). Thirty a minute per tenant and route on the
+email lookups. It sits inside identity, so the key is the tenant, not the address, and a
+thousand rented addresses share one counter.</li>
+<li><strong>The handler.</strong> Only now does the code a chapter printed run: the loader for the invoice, the
+view for the response, the typed patch for the body, the store&#39;s <code>ConfirmRefund</code> for the
+money, <code>egress</code> for anything that leaves the building, the stored <code>FXRate</code> for anything in
+euros.</li>
+</ol>
+<p>Six layers, and not every chapter&#39;s repair is on them. The ones that are not have a place of
+their own, and that is the next section.</p>
+<h2 id="what-the-order-buys-you">What the order buys you</h2>
+<p>The layers are not a pile. Swap two and a chapter&#39;s repair quietly stops working, while every
+test that checks one layer alone keeps passing.</p>
+<ul>
+<li><strong>Identity before the budget.</strong> Put the lookup counter outside identity and it can only key on
+what it has, which is the client address. That is the Instagram limiter: real, busy, and
+counting the wrong thing. The counter needs the tenant, so it must stand after the layer that
+knows one.</li>
+<li><strong>Scope before role.</strong> Put the role check first and Dana, a Cedar admin, sends
+<code>DELETE /v2/invoices/205</code> and gets 403: she has learned that 205 exists and that a role could
+delete it. With the loader first she gets 404, the same answer a random number gets. The
+function-level chapter&#39;s declaration table is only safe because the object-level chapter&#39;s
+loader runs ahead of it.</li>
+<li><strong>The error writer outside authorization.</strong> Put it inside and it wraps the handler only; a 404
+raised by the scope layer would go out with whatever body that layer wrote. Outside, it sees
+every 404 on the invoice routes regardless of which layer raised it, and the body is one string.</li>
+<li><strong>The host filter outside everything.</strong> Every other layer is keyed on something the request
+carries, a token, a path, a tenant. The host filter is keyed on the list Ops wrote down. If it
+sat inside identity, a staging request would be given a person before being refused, and the
+session store&#39;s behaviour would become part of what the staging host exposes.</li>
+</ul>
+<p>None of those orderings is visible in a handler. They are visible only in the composition, which
+is why the composition is printed here and nowhere else.</p>
+<h2 id="the-controls-that-are-not-on-the-road">The controls that are not on the road</h2>
+<p>Three of the book&#39;s repairs never see a request, one acts on the way out rather than the way in,
+and one has no request to see. If you look for them on the road you will conclude they are
+missing.</p>
+<ul>
+<li><strong>The declaration table is checked at construction.</strong> Registering a route without an access
+level panics before the server listens. The function-level chapter&#39;s test is not a request; it
+is the fact that the process started.</li>
+<li><strong>The settings literal is checked at construction.</strong> <code>validateProductionSettings</code> walks the
+route table against <code>PublicRoutes</code> and refuses <code>Debug: true</code>, a wildcard origin, or a public
+route the allow-list does not name. The misconfiguration chapter&#39;s exposure, a route declared
+<code>Public</code> by copy-paste, cannot reach a running production build.</li>
+<li><strong>The inventory is a test.</strong> <code>ReconcileInventory</code> compares declared hosts, code routes, gateway
+surfaces and traffic, and the fixed build&#39;s output is empty. It runs in the build, not in the
+request, because the host it is looking for is one no request would tell you about.</li>
+<li><strong><code>egress</code> acts on the way out.</strong> The webhook test and the PDF logo fetch pass every inbound
+layer as an ordinary user&#39;s requests, and only then does the outbound client resolve, refuse
+the private address, or decline the redirect. A 400 from <code>egress</code> is a request that was
+perfectly authorized.</li>
+<li><strong>The rate feed has no request at all.</strong> <code>PollRates</code> runs on the hour with nobody calling. Its
+input is the partner&#39;s response, and its checks, the strict row, the band, the last good rate,
+are the road&#39;s checks pointed the other way. The stored <code>FXRate</code> is what lets the refund quote
+on the road stay ignorant of the feed.</li>
+</ul>
+<p>So &quot;where every route must pass&quot; is three places, not one: the composition above for the way in,
+<code>egress</code> for the way out, and construction time for the shape of the service itself. A control
+in any other place is a control on the route someone happened to test.</p>
+<h2 id="the-test-that-reads-the-whole-table">The test that reads the whole table</h2>
+<p>The object-level chapter closed with a loop: for every invoice route, request Cedar&#39;s invoice as
+Alice and as Ben. The finished build has twenty routes, three callers with different roles, and
+a fourth caller with no token. The loop grows to match, and it reads the route table rather than
+a list someone typed.</p>
+<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch11-every-route-every-caller</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+
+
+<p>Four properties, checked for every registered route and every caller, on the fixed build:</p>
+<ul>
+<li><strong>No body ever carries another tenant&#39;s data.</strong> Ben&#39;s responses never contain the string
+<code>Cedar</code>, invoice 104&#39;s number, or Alice&#39;s name; Alice&#39;s never contain Birch&#39;s. This is the
+object-level chapter&#39;s promise made for routes that chapter never saw.</li>
+<li><strong>No body ever carries an internal field.</strong> <code>CollectionsNote</code> and <code>Margin</code> appear in no
+response to anyone, Dana included. The property chapter&#39;s view is in force on every route that
+encodes an invoice, including the ones added after it.</li>
+<li><strong>Every 404 on an invoice route has the same body.</strong> Whatever layer raised it.</li>
+<li><strong>A refused status comes from the layer the declaration predicts.</strong> Anonymous on a <code>User</code>
+route is 401; a user on a <code>TenantAdmin</code> route is 403; anyone on a foreign invoice is 404; and a
+<code>Public</code> route answers 200 to a request with no token.</li>
+</ul>
+<p>What the loop does not check is as important. It sends one request per cell, so it cannot see the
+business-flow chapter&#39;s third refund or the resource chapter&#39;s thirty-first lookup; those are
+sequence tests in their own files. It runs in one process, so it cannot see a host that neither
+the gateway nor the logs mention; that is the inventory&#39;s limit, stated there. And it cannot see
+Coinbase&#39;s bug. The trader was logged in, spending his own money, on a route that answered him
+correctly; every cell in a table like this one would have been green. The check that was missing
+was &quot;is this the object the previous step approved?&quot;, and Ledger&#39;s version of it lives in two
+handlers that the loop only touches once: confirm refunds the invoice stored with the quote, and
+the euro quote converts at the rate stored with the invoice. Those are asserted as sequences too.</p>
+<p>Which is the last answer to the opener&#39;s question. The check a request assumes has already
+happened is, in a service built this way, one of three things: a layer on the road that runs
+before the handler, a rule enforced when the process starts, or a fact recorded by an earlier
+step and read back instead of recomputed. When you find a check that is none of those, you have
+found the next chapter of somebody&#39;s incident report.</p>
+<!--mission--><section class="mission" data-mission="11-where-every-route-must-pass"><div class="mission__label">Exercise</div>
+<h2 id="exercise-which-layer-answers">Exercise: which layer answers?</h2>
+<p>Use the finished fixed build. Alice is a Cedar user, Dana is Cedar&#39;s tenant admin, Ben is a Birch
+user; invoice 104 is Cedar&#39;s, 205 is Birch&#39;s. For each request, name the layer that produces the
+response (host filter, identity, error writer, scope, role, budget, handler, <code>egress</code>, or
+construction time) and the status. You do not need a running service.</p>
+<pre><code class="language-text">A. anonymous   GET    api.ledger.example/v2/health
+B. anonymous   GET    api.ledger.example/v2/admin/health
+C. Alice       GET    api.ledger.example/v2/invoices/205
+D. Alice       DELETE api.ledger.example/v2/invoices/104
+E. Dana        DELETE api.ledger.example/v2/invoices/205
+F. Alice       GET    api.ledger.example/v2/invoices?email=x@cedar.example   (31st in a minute)
+G. Alice       GET    ledger-staging.internal/v2/invoices/104
+H. Alice       POST   api.ledger.example/v2/webhooks/test  {&quot;url&quot;:&quot;https://hooks.cedar.example/ledger&quot;}
+                      (the name resolves to 169.254.169.254)
+</code></pre>
+<p><strong>Check your answer.</strong></p>
+<ul>
+<li><strong>A: handler, 200.</strong> <code>GET /v2/health</code> is declared <code>Public</code> and named in <code>PublicRoutes</code>, so the
+role layer passes a request with nobody in it and the handler writes <code>{&quot;ok&quot;:true}</code>. No layer
+refuses it, and that is the point of the allow-list: the routes that answer strangers are four,
+written down, and checked against the table when the process starts.</li>
+<li><strong>B: role, 401.</strong> One path segment away from A, opposite outcome. The admin probe is declared
+<code>TenantAdmin</code>; the role layer finds no user and answers 401 before the handler runs. Dana would
+get 200 and a body with a version and nothing else. In the vulnerable build this route was
+<code>Public</code> by copy-paste, and the settings validator is what refuses that build now.</li>
+<li><strong>C: scope, 404, and it is the decoy.</strong> The status looks like a route that does not exist. It
+is the loader: <code>LoadInvoiceFor(alice, 205)</code> sees Birch on the row and returns not-found, the
+scope layer answers 404, and the error writer replaces the body with <code>{&quot;error&quot;:&quot;not found&quot;}</code>.
+A random invoice number gets the identical bytes. If you named the host filter or the router,
+reread the road: the host is right and the route is registered. The answer came from the
+object-level chapter.</li>
+<li><strong>D: role, 403.</strong> Alice&#39;s own invoice, so scope passes and hands the row on. The delete route is
+declared <code>TenantAdmin</code>, Alice&#39;s role is <code>user</code>, and the role layer answers 403. Nothing is
+deleted. 104 is still there for Dana to delete.</li>
+<li><strong>E: scope, 404.</strong> D with the caller and the invoice swapped, and the pair to D. Dana has the
+role. She never gets to use it: 205 is Birch&#39;s, the loader returns not-found, and scope answers
+404 before the role layer runs. If you gave E a 403 you have put role before scope, and told
+Dana that 205 exists.</li>
+<li><strong>F: budget, 429.</strong> Alice is authenticated and authorized; the request would succeed. The
+lookup gateway counts it against <code>(Cedar, /v2/invoices)</code> for this minute, finds thirty already,
+and answers 429. Send it from a different address and the count is the same, because the key is
+the tenant identity got the layer above.</li>
+<li><strong>G: host filter, 404.</strong> Alice&#39;s token is valid and 104 is hers, and none of that is read. The
+host is not <code>api.ledger.example</code>, so the first layer answers 404 and the request never reaches
+identity. Before the inventory chapter&#39;s fix this host forwarded <code>/v1/</code> paths; now it forwards
+nothing, and the same request on the public host would be a 200.</li>
+<li><strong>H: <code>egress</code>, 400.</strong> Every inbound layer passes: right host, live session, <code>User</code> route, no
+invoice to scope. The handler calls <code>egress.Fetch</code>, which resolves the name, finds a link-local
+address in the answer, and refuses before dialling. The status is a 400 from a request that
+was completely authorized, which is why the outbound client is a layer of its own and not a
+check in a handler.</li>
+</ul>
+<p>If you named the handler for C, or the role layer for E, you have found the reason this chapter
+prints the composition rather than another handler. Handlers do not know what ran before them.
+The road does.</p>
+<p><em>No incident. Ledger&#39;s composition and the every-route loop are in <code>service/</code>; the method
+throughout follows Colin Domoney, Defending APIs (Packt, 2024).</em></p>
+</section></article>
+    <div class="mission-action" data-mission-action="11-where-every-route-must-pass">
+      <div><strong>Check your understanding.</strong><span>Work the exercise before reading the answers, then mark it done.</span></div>
+      <button type="button" data-complete-mission="11-where-every-route-must-pass">Mark exercise complete</button>
+    </div>
+    <nav class="essay-pager" aria-label="Adjacent chapters">
+    <a href="10-what-you-swallowed.html"><span>Previous</span>What You Swallowed</a>
+    <a class="essay-pager__next" href="../index.html"><span>Return</span>Contents</a>
+  </nav>
+  </main>
+  </div>
+</body>
+</html>
