@@ -4,8 +4,9 @@
 
 Between 17 and 20 September 2022 someone pulled the personal records of more than 9.5 million
 current and former customers out of Optus, Australia's second-largest telecommunications company:
-names, email addresses, dates of birth and phone numbers, with residential addresses and driver's
-licence, passport or Medicare numbers accessed for subsets of customers. What follows is the account the
+names, email addresses, dates of birth and phone numbers, and for some of them the home address
+and the driver's licence, passport or Medicare number that Australians use to prove who they
+are. What follows is the account the
 regulator gave a court two years later. The Australian Communications and Media Authority, ACMA,
 sued Optus in the Federal Court in May 2024, and the redacted concise statement it filed is public.
 Everything below is what ACMA alleges. Optus's systems are named in the filing only as black bars,
@@ -102,14 +103,17 @@ Deprecated is a word in a document. The gateway does not read the document. Unti
 stops answering, deprecated means exactly what it meant the day before: the route serves whatever
 it served, through whatever hosts forward to it, with whatever controls happen to have reached it.
 
-Here is how that goes wrong at Ledger after the next repair, not this one. The chapter on resource
-consumption put a thirty-per-minute budget on the email-lookup routes at the gateway and in their
-shared handler. The staging rule missed the gateway copy, but it cannot bypass the handler's
-budget on that lookup. The `/v1/invoices/104` route shown here is a different path; it still calls
-`LoadInvoiceFor`, so Alice cannot read Birch's invoice through staging. The point is not that this
-route leaks or runs unmetered today. The point is that the next host-level policy, applied only to
-Ops's inventory, may miss the undeclared name. Optus's Target Domain did not need to be exploitable
-in 2017 to be the way in five years later.
+Here is how that goes wrong at Ledger, not with this chapter's repair but with the next one. The
+chapter on resource consumption put a thirty-a-minute budget on the lookup routes, at the gateway
+and again in the shared handler. The gateway copy was written against the hosts Ops listed, so
+`ledger-staging.internal` never got it. The handler copy saved the day: the budget sits where
+every request passes, so the staging host is metered anyway, and the route shown here still calls
+`LoadInvoiceFor`, so Alice still cannot read Birch's invoice that way. Nothing leaks today. But
+the reason nothing leaks is that two earlier chapters happened to put their checks inside the
+handler. The next control that lives only at the gateway, a host-level policy, a certificate
+rule, a log that feeds the alerting, will be applied to Ops's inventory, and this host is not in
+it. Optus's Target Domain did not need to be exploitable in 2017 to be the way in five years
+later.
 
 So the question the BOLA chapter asked, "which routes can reach this data?", was one list short.
 Here it is with the missing one, as code rather than a checklist:
