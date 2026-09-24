@@ -1,6 +1,6 @@
 # Left On
 
-<!-- claims to gate in checks/claims/08.tsv: UpGuard, "By Design: How Default Permissions on Microsoft Power Apps Exposed Millions", published 23 Aug 2021, https://www.upguard.com/breaches/power-apps. Facts used: Power Apps portals expose an OData API at /_odata; a list's data was anonymously readable when the OData feed was enabled and the list's "Enable Table Permissions" setting was not set; that setting was off by default on every list ("all lists having table permissions disabled by default"); table permissions on the table itself do block anonymous access but lists ignore them until the list setting is on; Microsoft documentation quote "To secure a list, you must configure Table Permissions ... and also set the Enable Table Permissions Boolean value on the list record to true"; discovery 24 May 2021; found portals by subdomain enumeration of powerappsportals.com / powerappsportals.us / microsoftcrmportals.com and search engines; visiting /_odata listed the lists, visiting a list either showed data or a forbidden message; report to MSRC 24 Jun 2021; case closed 29 Jun 2021 as "determined that this behavior is considered to be by design"; over a thousand anonymously accessible lists across a few hundred portals; 47 entities notified; 38 million records in total; notifications from 2 Jul 2021; Microsoft's own Global Payroll Services portal, 332,000 records (names, @microsoft.com addresses, phone numbers, employee IDs), no longer public by 16 Jul after an abuse report on 15 Jul; all but one of the remaining Microsoft portals closed by 19 Jul; Microsoft released the Portal Checker and made table permissions enabled by default on newly created portals; UpGuard agrees with Microsoft that it is "not strictly a software vulnerability". Rejected pointers: All in One SEO CVE-2021-25036 (Jetpack, Marc Montpas, Dec 2021: case-insensitive REST route bypass of validateAccess — an authorization bug, not a setting); Domoney's home-router case (command injection on an unauthenticated /cgi-bin/adm.cgi endpoint — broken authentication plus injection, Domoney's own root-cause line). -->
+<!-- Incident claims are gated in checks/claims/08.tsv against the archived UpGuard disclosure; rejected pointers (AIOSEO CVE-2021-25036, Domoney's router case) are recorded in briefs/08.md. -->
 
 In May 2021 an analyst at UpGuard found that a Microsoft Power Apps portal was answering
 requests for its data without asking who was making them. Power Apps portals are low-code
@@ -13,8 +13,8 @@ Visit a list and you get either the rows or a message saying access is forbidden
 Which of those two you got depended on one setting. Microsoft's documentation said it plainly:
 to secure a list, you configure table permissions for the table *and* set the list's
 "Enable Table Permissions" value to true. The table permissions did their job. But a list
-ignored them, including custom table permissions, until that one Boolean on the list was turned on, and
-it was off by default on every list. Nobody had removed a check. The check was there, wired
+ignored them, and any custom permissions with them, until one Boolean on the list was turned on.
+That Boolean was off by default on every list. Nobody had removed a check. The check was there, wired
 correctly, and switched off.
 
 UpGuard enumerated portal subdomains, walked the `_odata` endpoints, and found over a thousand
@@ -27,8 +27,8 @@ notifying the owners one by one: 47 entities, 38 million records. One of the own
 Microsoft. Its Global Payroll Services portal had a list of 332,000 records with names,
 `@microsoft.com` addresses, phone numbers and employee IDs; it went private the day after UpGuard
 filed an abuse report. By the time the write-up was published, on
-23 August, Microsoft had released a Portal Checker that flags lists open to anonymous access and
-had announced a safer default for newly created portals, without a rollout date in this account.
+23 August, Microsoft had released a Portal Checker that flags lists open to anonymous access, and
+had said that new portals would be created with table permissions on.
 
 UpGuard's title for the piece was *By Design*, and they agree with Microsoft that what they found
 was not, strictly, a software vulnerability. That is the point. Every check the platform offered
@@ -205,9 +205,9 @@ This is this chapter's test, to run in both modes once the service code exists.
 - **C is the second exposure, and it never touches the route table.** Alice's request reaches
   `LoadInvoiceFor`, which finds 205, compares its tenant to hers, and returns not-found. The
   handler answers 404, exactly as chapter 1 intended. Then the error writer reads `Debug`, finds
-  it true, asks the store for a denial reason, and appends it. The check ran; the setting leaked
-  its verdict. In the fixed build the same request returns an opaque 404, while a separate
-  settings assertion rejects `Debug: true` in production.
+  it true, asks the store why, and appends the answer. The check ran and passed; the setting
+  leaked its verdict. In the fixed build the same request gets the same opaque 404, and a
+  separate settings test refuses to let a production `Settings` carry `Debug: true` at all.
 - **C' is C with one value changed.** Same request, same loader, same 404, and a body of
   `{"error":"not found"}`. Alice cannot tell 205 from an invoice number that was never issued.
   One Boolean separates C from C', and no handler, middleware or loader differs between them.
