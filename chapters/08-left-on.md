@@ -13,7 +13,7 @@ Visit a list and you get either the rows or a message saying access is forbidden
 Which of those two you got depended on one setting. Microsoft's documentation said it plainly:
 to secure a list, you configure table permissions for the table *and* set the list's
 "Enable Table Permissions" value to true. The table permissions did their job. But a list
-ignored them, and every other permission, until that one Boolean on the list was turned on, and
+ignored them, including custom table permissions, until that one Boolean on the list was turned on, and
 it was off by default on every list. Nobody had removed a check. The check was there, wired
 correctly, and switched off.
 
@@ -27,8 +27,8 @@ notifying the owners one by one: 47 entities, 38 million records. One of the own
 Microsoft. Its Global Payroll Services portal had a list of 332,000 records with names,
 `@microsoft.com` addresses, phone numbers and employee IDs; it went private the day after UpGuard
 filed an abuse report. By the time the write-up was published, on
-23 August, Microsoft had shipped a Portal Checker that flags lists open to anonymous access and
-had changed the product so that new portals have table permissions enabled by default.
+23 August, Microsoft had released a Portal Checker that flags lists open to anonymous access and
+had announced a safer default for newly created portals, without a rollout date in this account.
 
 UpGuard's title for the piece was *By Design*, and they agree with Microsoft that what they found
 was not, strictly, a software vulnerability. That is the point. Every check the platform offered
@@ -97,8 +97,9 @@ missing invoice and a forbidden one alike, so the route cannot be used to learn 
 numbers exist. That decision is still in force. It is also, in one build of Ledger, undone by a
 setting that never touches the loader.
 
-`Debug` was added for staging. When it is on, the error writer appends the reason to every
-error body, so a developer on `ledger-staging.internal` can see why a request failed:
+`Debug` was added for staging. When it is on, the error writer asks the store for an internal
+denial reason and appends it to the error body, so a developer on `ledger-staging.internal` can
+see why an invoice request failed:
 
 {{excerpt:ch08-debug-error-writer}}
 
@@ -181,7 +182,7 @@ This is this chapter's test, to run in both modes once the service code exists.
 | A | `GET /v2/health`, `Public` | none | 200, `{"ok":true}` | 200, `{"ok":true}` |
 | B | `GET /v2/admin/health`, `Public` | none | 200, version, hosts, `debug:true` | 401, no body detail (route is `TenantAdmin`) |
 | B' | `GET /v2/admin/health`, `TenantAdmin` | Dana | 200, version, hosts, `debug:true` (vulnerable build has no such declaration; Dana sees the public body) | 200, `{"version":"…"}` only |
-| C | `Debug: true`, `GET /v2/invoices/205` | Alice | 404, body includes `reason: invoice 205 belongs to tenant birch` | build fails the settings test; a production `Settings` cannot carry `Debug: true` |
+| C | `Debug: true`, `GET /v2/invoices/205` | Alice | 404, body includes `reason: invoice 205 belongs to tenant birch` | 404, `{"error":"not found"}`; a separate settings assertion rejects `Debug: true` for production |
 | C' | `Debug: false`, `GET /v2/invoices/205` | Alice | 404, `{"error":"not found"}` | 404, `{"error":"not found"}` |
 
 **Check your answer.**
@@ -204,9 +205,9 @@ This is this chapter's test, to run in both modes once the service code exists.
 - **C is the second exposure, and it never touches the route table.** Alice's request reaches
   `LoadInvoiceFor`, which finds 205, compares its tenant to hers, and returns not-found. The
   handler answers 404, exactly as chapter 1 intended. Then the error writer reads `Debug`, finds
-  it true, and appends the loader's reason. The check ran and passed; the setting leaked its
-  verdict. In the fixed build there is no build with this value in production: the settings test
-  asserts `Debug == false` and reads the bytes of this very response.
+  it true, asks the store for a denial reason, and appends it. The check ran; the setting leaked
+  its verdict. In the fixed build the same request returns an opaque 404, while a separate
+  settings assertion rejects `Debug: true` in production.
 - **C' is C with one value changed.** Same request, same loader, same 404, and a body of
   `{"error":"not found"}`. Alice cannot tell 205 from an invoice number that was never issued.
   One Boolean separates C from C', and no handler, middleware or loader differs between them.

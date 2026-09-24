@@ -16,3 +16,13 @@ work 08 → 10. For each chapter, source-gate the incident, write ranked finding
 make only authorized sentence-level changes, run `cd service && go test ./...`, `./verify.sh`,
 and `git diff --check`, update this checkpoint, and commit with `review: chNN`. Do not build new
 service code, rebuild the site, push or publish in this pass.
+
+Chapter 08 completed: UpGuard's original Power Apps report is archived and hashed, with ten
+located claims. The chapter now describes the Microsoft default change without a rollout date,
+and exercise C gives the fixed request an opaque 404 while a separate settings assertion rejects
+`Debug:true`. The brief uses CONTEXT's `CORSOrigins`, specifies a debug-only internal reason
+helper, and removes the stale Chapter 5 prefix guard. The health routes and web-app origin are
+registered in CONTEXT without changing previous values. `go test ./...`, `./verify.sh`, and
+`git diff --check` passed; Chapter 8's Go service remains unbuilt. Next: Chapter 09; check all
+four printed excerpts against marked service blocks, every exercise case against both-mode tests,
+and claims 09-10 through 09-14 against the archived court PDF.
