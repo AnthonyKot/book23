@@ -97,8 +97,8 @@
       <p class="essay-book">Incident: BrewDog, 2021</p>
       <p class="essay-payoff">A key that every copy of the app carries identifies the app, not the person.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 2 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- claims to gate in checks/claims/02.tsv: Alan Monie, Pen Test Partners, published 8 Oct 2021; token found in Android app code and associated with three API endpoints; quote "Every mobile app user was given the same hard coded API Bearer Token, rendering request authorisation useless"; quote "The customer IDs aren't quite sequential, but certainly aren't random"; appending a different customer ID to the endpoint URL returned that customer's PII; exposed fields: name, date of birth, email, gender, delivery addresses, telephone, shares held, shareholder number, bar discount amount and ID, referrals; over 200,000 Equity for Punks shareholders; present ~18 months from version 2.5.5 (March 2020); 2.5.12 (13 Sept 2021) still had a static key exposing discount codes; 2.5.13 released by 27 Sept 2021 after six test builds; at publication Monie knew of no customer notification. Source: https://www.pentestpartners.com/security-blog/free-brewdog-beer-with-a-side-order-of-shareholder-pii/ -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- Incident claims and source locators: checks/claims/02.tsv. -->
 
 <p>In September 2021 Alan Monie of Pen Test Partners examined code in the Android app of BrewDog, the
 Scottish brewer whose customers include more than 200,000 &quot;Equity for Punks&quot; shareholders. In the
@@ -123,11 +123,28 @@ this person see this record&quot; had nothing to work with. OWASP calls this <st
 and puts it second on its API Security Top 10.</p>
 <h2 id="where-the-bug-lives-a-credential-that-names-the-app-not-the-user">Where the bug lives: a credential that names the app, not the user</h2>
 <p>Ledger has a mobile app too, and it is how Ben, at Birch, reads Birch&#39;s invoices on his phone. Here
-is how the app authenticated to <code>/v1</code> when v1 was written: the login middleware from chapter 1,
+is how the app authenticated to <code>/v1</code> when v1 was written: the login helper from chapter 1,
 <code>currentUser</code>, as it stands before this chapter&#39;s fix.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch02-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func vulnerableCurrentUser(r *http.Request, sessions *sessionStore) (User, bool) {
+	token := bearerToken(r)
+	if user, ok := sessions.lookup(token, false); ok {
+		if claimed, found := namedUser(r.Header.Get(&quot;X-User&quot;)); found {
+			return claimed, true // support override trusts a caller-written header
+		}
+		return user, true
+	}
+	if token == mobileAppKey {
+		return namedUser(r.Header.Get(&quot;X-User&quot;))
+	}
+	if account, ok := tenantServiceAccount(token); ok {
+		if claimed, found := namedUser(r.Header.Get(&quot;X-User&quot;)); found &amp;&amp; claimed.Tenant == account.Tenant {
+			return claimed, true // tenant key can impersonate a person
+		}
+		return account, true
+	}
+	return User{}, false
+}
+</code></pre>
 <p>Read the two halves separately. The first half is authentication: it takes the bearer token from
 the request and looks it up. The token it finds is <code>mk_ledger_mobile_…</code>, the key issued to the
 mobile app when v1 shipped, the same one in every copy of the app. The second half is the identity:
@@ -141,9 +158,17 @@ claimed to be. Ben&#39;s phone sends <code>X-User: ben</code> and gets invoice 2
 user the server never verified.</p>
 <p>The fix is that the credential must identify the person, and the server must be the one that says
 so:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch02-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func fixedCurrentUser(r *http.Request, sessions *sessionStore) (User, bool) {
+	token := bearerToken(r)
+	if user, ok := sessions.lookup(token, true); ok {
+		return user, true // identity comes only from a live server-side session
+	}
+	if account, ok := tenantServiceAccount(token); ok {
+		return account, true // the key names a tenant integration, not a person
+	}
+	return User{}, false // the shared mobile app key is not a login
+}
+</code></pre>
 <p>Three details matter.</p>
 <ul>
 <li><strong>The user comes from the credential, not from a header beside it.</strong> A session token is issued
@@ -304,14 +329,14 @@ If support staff need to act as a customer, that requires a separate, audited pl
 capability, not Dana&#39;s tenant-admin role or a header any session can send.</li>
 <li><strong>D is safe.</strong> The identity is the tenant&#39;s service account, decided by the key alone. Birch&#39;s
 key can read Birch&#39;s invoices and nothing else, because <code>LoadInvoiceFor</code> still runs afterwards.
-With Birch&#39;s key and <code>X-User: ben</code>, a person-scoped identity probe would still name the Birch
-service account.</li>
+With Birch&#39;s key and <code>X-User: ben</code>, <code>GET /v2/me</code>, the route that answers &quot;who am I&quot;, still
+names the Birch service account.</li>
 <li><strong>E is vulnerable, and it looks like D.</strong> The difference is one clause: the key selects a tenant,
 and then a header selects a person inside it. The check that the account belongs to the tenant
 is real, and it is not enough: Birch&#39;s key with <code>X-User: ben</code> is Ben, with no login, no session,
 no expiry. Anyone holding <code>bk_birch_…</code> is every Birch user at once. Test with the same key and
-<code>X-User: ben</code> on a person-scoped identity probe: E names Ben; the fixed D-style rule names the
-Birch service account. An invoice-only 200 response would not distinguish them.</li>
+<code>X-User: ben</code> against <code>GET /v2/me</code>: E names Ben; the fixed D-style rule names the Birch
+service account. An invoice request would not tell them apart, since both get 205 with a 200.</li>
 </ul>
 <p>If you marked C safe because it starts the same way as A, you have found the shape of this
 chapter&#39;s bug: the server did verify a credential. It just let the client finish the sentence.</p>

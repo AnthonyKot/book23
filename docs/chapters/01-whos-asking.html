@@ -98,7 +98,7 @@
       <p class="essay-payoff">Login says who is calling. It never says whether they may see this record.</p>
     </header>
     <div class="currency-note"><strong>Draft</strong>Status: pilot, drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
-    <article class="prose"><!-- claims to gate in checks/claims/01.tsv: 20 Jan 2021 private disclosure; POST /stats/workouts/details with editable ids; initially no authentication; 2 Feb 2021 silent partial fix requiring authentication; still readable by any registered member incl. private profiles; "3 million" members; journalist contact ~90 days; resolved within 7 days of CISO engagement; published 5 May 2021; data fields listed. Source: Jan Masters, Pen Test Partners, "Tour de Peloton: Exposed user data". -->
+    <article class="prose"><!-- Incident claims: checks/claims/01.tsv. -->
 
 <p>In January 2021 Jan Masters, a researcher at Pen Test Partners, was looking at the API behind
 Peloton&#39;s bikes and app. One call stood out. For live-class details, the web app sent
@@ -320,9 +320,10 @@ review has one rule to enforce, but that is tidiness, not a fix.</li>
 Birch&#39;s PDF. Fix it with <code>LoadInvoiceFor</code>, then put it on the inventory.</li>
 <li><strong>D is vulnerable in the second step.</strong> The quote step checks the invoice; the confirm step
 trusts a fresh <code>invoice_id</code> from the body. Test: Alice gets quote <code>q-771</code> for 104, then confirms
-with <code>invoice_id: 205</code>. Fixed build: rejected, and no refund on 205. Fix: confirm loads the quote,
-checks it belongs to Alice, and refunds the invoice stored with it, ignoring the body&#39;s
-<code>invoice_id</code>. This is Coinbase&#39;s bug in miniature: the step that validated and the step that
+with <code>invoice_id: 205</code>. Fixed build: 400, and no refund on 205 or on 104. Fix: confirm takes
+only a <code>quote_id</code>, loads the quote, checks it belongs to Alice, and refunds the invoice stored
+with it; a body that names an invoice at all is refused, because the one field that could
+disagree with the quote has no business being there. This is Coinbase&#39;s bug in miniature: the step that validated and the step that
 acted looked at different fields.</li>
 <li><strong>E is vulnerable.</strong> B and E look almost identical, but here the tenant comes from the query
 string and nothing compares it to the caller. Test: Alice requests <code>?tenant=birch</code>; fixed build

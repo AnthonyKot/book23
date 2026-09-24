@@ -29,7 +29,7 @@ and puts it second on its API Security Top 10.
 ## Where the bug lives: a credential that names the app, not the user
 
 Ledger has a mobile app too, and it is how Ben, at Birch, reads Birch's invoices on his phone. Here
-is how the app authenticated to `/v1` when v1 was written: the login middleware from chapter 1,
+is how the app authenticated to `/v1` when v1 was written: the login helper from chapter 1,
 `currentUser`, as it stands before this chapter's fix.
 
 ```go
@@ -219,14 +219,14 @@ For each one:
   capability, not Dana's tenant-admin role or a header any session can send.
 - **D is safe.** The identity is the tenant's service account, decided by the key alone. Birch's
   key can read Birch's invoices and nothing else, because `LoadInvoiceFor` still runs afterwards.
-  With Birch's key and `X-User: ben`, a person-scoped identity probe would still name the Birch
-  service account.
+  With Birch's key and `X-User: ben`, `GET /v2/me`, the route that answers "who am I", still
+  names the Birch service account.
 - **E is vulnerable, and it looks like D.** The difference is one clause: the key selects a tenant,
   and then a header selects a person inside it. The check that the account belongs to the tenant
   is real, and it is not enough: Birch's key with `X-User: ben` is Ben, with no login, no session,
   no expiry. Anyone holding `bk_birch_…` is every Birch user at once. Test with the same key and
-  `X-User: ben` on a person-scoped identity probe: E names Ben; the fixed D-style rule names the
-  Birch service account. An invoice-only 200 response would not distinguish them.
+  `X-User: ben` against `GET /v2/me`: E names Ben; the fixed D-style rule names the Birch
+  service account. An invoice request would not tell them apart, since both get 205 with a 200.
 
 If you marked C safe because it starts the same way as A, you have found the shape of this
 chapter's bug: the server did verify a credential. It just let the client finish the sentence.
