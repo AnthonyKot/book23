@@ -22,6 +22,10 @@ Tests make no network requests.
 Fixed mode resolves once, refuses non-public addresses, pins the approved dial address, ignores
 environment proxies and stops at redirects. Chapter 7 tests inject DNS, dial and HTTP responses;
 the intentionally vulnerable mode uses default redirect behavior.
+`NewChapter8App` retains the earlier repairs and adds explicit production and staging
+settings, a route-table public allow-list, an admin health probe, and a debug error-body
+counterexample. Chapter 8 keeps the public fixture login route in its allow-list alongside
+health and the two OTP routes, so the earlier session lesson remains operable.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish
 that a real gateway matches its repository configuration, that traffic telemetry is complete,

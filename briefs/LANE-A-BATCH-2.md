@@ -34,7 +34,10 @@ tests, excerpts and commits, not a status line alone.
   repair. Chapter 09 must be **integrated after Chapter 08**: refactor
   `NewChapter9App(mode)` so vulnerable mode includes Chapters 01–08's repairs and the
   still-serving v1/staging surface, while fixed mode retires v1/staging. Preserve its
-  current exercise and inventory tests. Chapter 10 begins from Chapter 09 fixed.
+  current exercise and inventory tests. The user requested Chapter 10 before this
+  cumulative Chapter 09 pass. Build Chapter 10 on Chapter 08 fixed behavior plus
+  Chapter 09's fixed v1/staging retirement policy as an interim state, then align
+  Chapter 10 to the integrated Chapter 09 fixed app during the Chapter 09 pass.
 - The current Chapter 09 pilot is a partial implementation, despite its comment saying
   "cumulative." Do not treat its Chapter 01-only fixture as proof that Chapters 02–08 are
   present. Make the additional routes, settings and handler repairs explicit in its
@@ -99,17 +102,18 @@ Implement exactly the first incomplete entry, then stop and report. Commit it wi
 8. **08 — production settings.** Follow `briefs/08.md`: one `Settings` literal per
    environment, route-table walk against `PublicRoutes`, debug-only denial reason,
    opaque fixed 404 and the admin health route.
-9. **09 — cumulative integration.** Incorporate Chapters 02–08 into the existing
-   `NewChapter9App`. Keep the v1/staging vulnerable-versus-fixed exercise, inventory
-   reconciliation, and marked excerpt equality. Test the earlier session, view,
-   access, lookup-budget and settings repairs through Chapter 09 as well.
-10. **10 — partner response boundary.** Follow `briefs/10.md`: rate poller through
+9. **10 — partner response boundary.** Follow `briefs/10.md`: rate poller through
     `egress`, typed `rateRow{EUR}`, unknown fields rejected, 0.70–1.10 band,
     last-good rate and Ops page, invoice `FXRate`. Convert requested EUR to integer
     pence at the invoice's recorded rate **before** Chapter 06's remaining-balance
     check; store quote pence for confirm and the tenant allowance. Legacy EUR invoices
     without `FXRate` get 409 `rate_reconciliation_required`. Test the 0.95 redirect
     contrast and the full €300 refund example.
+10. **09 — cumulative integration.** Incorporate Chapters 02–08 into the existing
+    `NewChapter9App`. Keep the v1/staging vulnerable-versus-fixed exercise, inventory
+    reconciliation, and marked excerpt equality. Test the earlier session, view,
+    access, lookup-budget and settings repairs through Chapter 09 as well. Align
+    Chapter 10's base with the integrated Chapter 09 fixed state.
 
 ## Finish each invocation
 
@@ -131,7 +135,7 @@ Implement exactly the first incomplete entry, then stop and report. Commit it wi
   excerpt names, fixture limits, any design conflict or missing exercise assertion,
   and the next chapter. Run `cd service && go test ./...`, `./verify.sh` and
   `git diff --check`; inspect the staged diff; commit only this chapter's work.
-- After Chapter 10 alone, run `node site/build.mjs`, verify rendered pages have the
+- After the Chapter 09 cumulative integration, run `node site/build.mjs`, verify rendered pages have the
   filled excerpts, and commit the generated `docs/` in a separate site commit.
   Chapter 11 is outside this batch. Never push.
 

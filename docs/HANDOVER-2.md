@@ -12,7 +12,7 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 05 | Complete for batch 2; access declarations, admin routes and exercise tested | Author aligns vulnerable-build declaration wording |
 | 06 | Complete for batch 2; tenant allowance, approval and exercise tested | Author reviews thin confirm wrapper and reminder simulation |
 | 07 | Complete for batch 2; shared egress, webhook/PDF paths and exercise tested | Author checks logo-fixture wording |
-| 08 | Reviewed prose and brief; service pending | Settings code, excerpts and tests |
+| 08 | Complete for batch 2; settings, probes, debug contrast and exercise tested | Author aligns public-route count and login |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -241,5 +241,34 @@ Chapter 01 exercise as a literal wire example.
   the webhook test and PDF logo fetch. These are teaching fixtures, not claims about a deployed
   network boundary.
 
-Next: Chapter 08 production settings. Chapter 09 still needs cumulative integration
-after Chapter 08. Do not push this implementation branch from Lane A.
+## Chapter 08 — completed in batch 2
+
+- `NewChapter8App` composes Chapters 01–07's fixed behavior in both modes. Vulnerable
+  settings enable `Debug` and declare the admin health probe `Public`; fixed settings
+  disable `Debug`, declare the probe `TenantAdmin`, and return only a version field.
+  Both modes retain the harmless public liveness probe. The error writer runs after
+  the invoice scope check, so a cross-tenant request remains 404 while only the
+  vulnerable body exposes the stored tenant. Fixed mode writes the exact opaque JSON
+  body `{"error":"not found"}`. A missing invoice has no tenant-specific reason.
+- `validateProductionSettings` rejects `Debug:true`, a wildcard CORS origin, a
+  public route absent from `PublicRoutes`, or an allow-listed route missing from
+  the public route table. The fixed app validates its settings when constructed.
+  The production web origin `https://app.ledger.example` is an illustrative new
+  fixture value; no canonical number changed. The version and commit values are
+  deliberately non-numeric fixture strings.
+- `service/ch08_test.go` asserts exercise A, B, B', C and C' in both modes, including
+  an extra vulnerable instantiation with `Debug:false`; it checks the validator's
+  rejection of the vulnerable public admin route and earlier identity, view,
+  loader and role repairs. Five printed excerpts match marked Go source, and
+  `verify.sh` requires their tests and excerpt equality. HTML is deferred to the
+  batch site build after Chapter 10.
+- **Author alignment needed:** Chapter 8 prose says production has exactly three
+  public routes. The cumulative service also keeps Chapter 2's public password
+  login (`POST /v2/auth/login`) so the existing session exercise remains usable.
+  Production's allow-list therefore has four entries. Either acknowledge the
+  login fixture in the prose or explicitly retire that route in a later design;
+  do not silently omit it from the validator. The code excerpt makes this
+  discrepancy visible. The setting contrast and all five exercise outcomes hold.
+
+Next: Chapter 10 partner response boundary, then Chapter 09 cumulative integration through
+Chapters 02–08, as requested on 2026-09-24. Do not push this implementation branch from Lane A.

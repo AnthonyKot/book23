@@ -1,6 +1,6 @@
 # Left On
 
-<!-- Incident claims are gated in checks/claims/08.tsv against the archived UpGuard disclosure; rejected pointers (AIOSEO CVE-2021-25036, Domoney's router case) are recorded in briefs/08.md. -->
+<!-- Incident claims: checks/claims/08.tsv -->
 
 In May 2021 an analyst at UpGuard found that a Microsoft Power Apps portal was answering
 requests for its data without asking who was making them. Power Apps portals are low-code
@@ -48,7 +48,9 @@ Ops has a liveness probe, `GET /v2/health`, which the gateway polls and which re
 `{"ok":true}`. It is `Public`, correctly: a load balancer has no session, and the body says
 nothing. Later someone needed a richer probe for the deploy dashboard and copied the entry:
 
-{{excerpt:ch08-vulnerable-health-decl}}
+```go
+var vulnerableHealthDeclaration = Route{Method: http.MethodGet, Pattern: "/v2/admin/health", Access: Public}
+```
 
 `GET /v2/admin/health` returns the running version, the commit, the hosts the build is
 configured to serve (`api.ledger.example` and `ledger-staging.internal`), and the value of the
@@ -60,7 +62,9 @@ production build is running with `Debug` on.
 
 The fix is a value, not a check:
 
-{{excerpt:ch08-fixed-health-decl}}
+```go
+var fixedHealthDeclaration = Route{Method: http.MethodGet, Pattern: "/v2/admin/health", Access: TenantAdmin}
+```
 
 Two details decide whether the fix is real.
 
@@ -101,7 +105,41 @@ setting that never touches the loader.
 denial reason and appends it to the error body, so a developer on `ledger-staging.internal` can
 see why an invoice request failed:
 
-{{excerpt:ch08-debug-error-writer}}
+```go
+func chapter08ErrorWriter(settings Settings, store *Store, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || !strings.HasPrefix(r.URL.Path, "/v2/invoices/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		capture := &chapter08Capture{header: make(http.Header)}
+		next.ServeHTTP(capture, r)
+		if capture.status == http.StatusNotFound {
+			body := map[string]string{"error": "not found"}
+			if settings.Debug {
+				user, ok := currentUser(r)
+				id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/v2/invoices/"))
+				if ok && err == nil {
+					body["reason"] = store.invoiceMissReason(user, id)
+				}
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			writeJSON(w, body)
+			return
+		}
+		for key, values := range capture.header {
+			for _, value := range values {
+				w.Header().Add(key, value)
+			}
+		}
+		if capture.status != 0 {
+			w.WriteHeader(capture.status)
+		}
+		_, _ = w.Write(capture.body.Bytes())
+	})
+}
+```
 
 The loader still runs. The decision is still 404. But the body now says
 `{"error":"not found","reason":"invoice 205 belongs to tenant birch"}`, and Alice, who asked for
@@ -118,7 +156,35 @@ Ledger's repair has two parts, and neither is "turn it off."
 
 ### 1. Write the production settings down, in the language the service is written in
 
-{{excerpt:ch08-production-settings}}
+```go
+func ProductionSettings() Settings {
+	return Settings{
+		Debug:       false,
+		CORSOrigins: []string{"https://app.ledger.example"},
+		PublicRoutes: []RouteKey{
+			{http.MethodGet, "/v2/health"},
+			{http.MethodPost, "/v2/auth/login"},
+			{http.MethodPost, "/v2/auth/otp/request"},
+			{http.MethodPost, "/v2/auth/otp/verify"},
+		},
+		Hosts: []string{PublicHost},
+	}
+}
+
+func StagingSettings() Settings {
+	return Settings{
+		Debug:       true,
+		CORSOrigins: []string{"https://app.ledger.example"},
+		PublicRoutes: []RouteKey{
+			{http.MethodGet, "/v2/health"},
+			{http.MethodPost, "/v2/auth/login"},
+			{http.MethodPost, "/v2/auth/otp/request"},
+			{http.MethodPost, "/v2/auth/otp/verify"},
+		},
+		Hosts: []string{PublicHost, StagingHost},
+	}
+}
+```
 
 `Settings` is a struct, constructed in one place, with `Debug false`, the CORS origin list
 holding only Ledger's own web application, and `PublicRoutes` naming the three routes that may
@@ -130,7 +196,37 @@ differences between them are a diff.
 
 ### 2. Assert every value, and walk the route table against the allow-list
 
-{{excerpt:ch08-settings-test}}
+```go
+func TestChapter08ProductionSettings(t *testing.T) {
+	app := NewChapter8App(Fixed)
+	settings := ProductionSettings()
+	if err := validateProductionSettings(settings, app.Routes()); err != nil {
+		t.Fatal(err)
+	}
+	if settings.Debug || len(settings.CORSOrigins) != 1 || settings.CORSOrigins[0] == "*" {
+		t.Fatalf("unsafe production settings: %+v", settings)
+	}
+	got := chapter05Request(t, app, http.MethodGet, "/v2/invoices/205", "alice-token", "")
+	if got.status != 404 || got.body != "{\"error\":\"not found\"}\n" {
+		t.Fatalf("production denial = %+v", got)
+	}
+	bad := settings
+	bad.Debug = true
+	if err := validateProductionSettings(bad, app.Routes()); err == nil {
+		t.Fatal("production Debug:true was accepted")
+	}
+	bad = settings
+	bad.CORSOrigins = []string{"*"}
+	if err := validateProductionSettings(bad, app.Routes()); err == nil {
+		t.Fatal("wildcard CORS origin was accepted")
+	}
+	vulnerable := NewChapter8App(Vulnerable)
+	bad = settings
+	if err := validateProductionSettings(bad, vulnerable.Routes()); err == nil || !strings.Contains(err.Error(), "/v2/admin/health") {
+		t.Fatalf("unlisted public admin route = %v", err)
+	}
+}
+```
 
 This is where chapter 5's repair does new work. That chapter's test walks the route table and
 fails on a route with no `Access`. This one walks the same table and fails on a route whose

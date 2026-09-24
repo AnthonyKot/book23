@@ -10,7 +10,7 @@ trap 'rm -f "$test_log"' EXIT
   go test -v ./...
 ) | tee "$test_log"
 
-for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter05ExerciseCases TestChapter05AdminVoidAndScopeOrder TestEveryRouteDeclares TestChapter05MissingDeclarationFailsRegistration TestChapter05EarlierRepairs TestChapter06ExerciseSequences TestChapter06ReminderExerciseAndEarlierRepairs TestChapter06AllowanceDayAndAtomicity TestChapter07WebhookExerciseCases TestChapter07LinkLocalDialAndPinning TestChapter07AddressClasses TestChapter07PDFSecondPathAndEarlierRepairs TestChapter07PDFLinkLocalAnswer TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
+for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter05ExerciseCases TestChapter05AdminVoidAndScopeOrder TestEveryRouteDeclares TestChapter05MissingDeclarationFailsRegistration TestChapter05EarlierRepairs TestChapter06ExerciseSequences TestChapter06ReminderExerciseAndEarlierRepairs TestChapter06AllowanceDayAndAtomicity TestChapter07WebhookExerciseCases TestChapter07LinkLocalDialAndPinning TestChapter07AddressClasses TestChapter07PDFSecondPathAndEarlierRepairs TestChapter07PDFLinkLocalAnswer TestChapter08ExerciseCases TestChapter08ProductionSettings TestChapter08EarlierRepairs TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
   if ! grep -Fq -- "--- PASS: $group" "$test_log"; then
     echo "missing passing pilot test group: $group" >&2
     exit 1
@@ -59,7 +59,7 @@ manifest_archives = {row["archive"] for row in sources}
 if unregistered := claim_archives - manifest_archives:
     raise SystemExit(f"claim archives absent from SOURCES.tsv: {sorted(unregistered)}")
 
-for number in ("01", "02", "03", "04", "05", "06", "07", "09"):
+for number in ("01", "02", "03", "04", "05", "06", "07", "08", "09"):
     chapters = list((root / "chapters").glob(f"{number}-*.md"))
     if len(chapters) != 1 or "{{excerpt:" in chapters[0].read_text(encoding="utf-8"):
         raise SystemExit(f"built chapter {number} still has an excerpt placeholder")
@@ -109,6 +109,13 @@ for name, file in (("ch07-webhook-vulnerable", "ch07_handlers.go"), ("ch07-egres
     match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
     if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch07:
         raise SystemExit(f"Chapter 07 printed excerpt {name} differs from marked Go source")
+
+ch08 = next((root / "chapters").glob("08-*.md")).read_text(encoding="utf-8")
+for name, file in (("ch08-vulnerable-health-decl", "ch08_settings.go"), ("ch08-fixed-health-decl", "ch08_settings.go"), ("ch08-debug-error-writer", "ch08_settings.go"), ("ch08-production-settings", "ch08_settings.go"), ("ch08-settings-test", "ch08_test.go")):
+    code = (root / "service" / file).read_text(encoding="utf-8")
+    match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
+    if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch08:
+        raise SystemExit(f"Chapter 08 printed excerpt {name} differs from marked Go source")
 
 class Links(HTMLParser):
     def __init__(self):
