@@ -67,7 +67,7 @@ speak TLS would answer. If instead a public server answers
 `302 Location: http://169.254.169.254/latest/meta-data/`, the default client follows it, plain
 HTTP now, and reaches the metadata service. The test route reports only the status it got back,
 so what leaks here is the fact of the fetch, not a token; the delivery path, which forwards the
-body, is the same client. The check guarded the string. The attack lives in the resolve, the
+body, would go through the same client. The check guarded the string. The attack lives in the resolve, the
 connect, and the redirect.
 
 The fix moves the decision to those three moments and refuses to leave them:
@@ -159,7 +159,9 @@ and those are scattered.
 - **Every fetch is its own door.** The webhook test is not the only place Ledger calls out. It also
   *delivers* webhooks on the same tenant URL, and — the path that catches people — it fetches each
   tenant's branding logo while rendering `/v1/invoices/{id}/pdf`, the export route from the earlier
-  chapters. Fix the test route alone and the logo fetch is still an open egress.
+  chapters. Fix the test route alone and the logo fetch is still an open egress. (Delivery itself
+  is not in the executable fixture; the two fetches the tests exercise are the test route and the
+  logo.)
 - **A blocklist is a guess about the internal network.** Blocking `169.254.169.254` misses the IPv6
   metadata address, the `metadata.google.internal` name, `127.0.0.1`, `10.0.0.0/8`, and whatever
   private range the network uses next year. The safe list is short and stable — public addresses —

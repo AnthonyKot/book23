@@ -97,8 +97,8 @@
       <p class="essay-book">Incident: Shopify Exchange, 2018</p>
       <p class="essay-payoff">The string was checked. The socket connected somewhere else.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 4 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- Incident claims are gated in checks/claims/07.tsv against HackerOne report #341876 and Shopify's engineering recap (resources/incidents/07/). Ledger's webhook test is invented for the analogy and differs from Exchange's screenshot surface. -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- Incident claims: checks/claims/07.tsv (archived HackerOne report and Shopify engineering recap). Ledger's webhook and logo fetch are invented analogies. -->
 
 <h1 id="the-server-that-fetched-for-you">The Server That Fetched for You</h1>
 <p>In April 2018 a researcher, <code>0xacb</code>, reported a bug to Shopify that did not touch a single one of
@@ -131,9 +131,17 @@ the moment any Ledger route fetches a URL that a caller chose.</p>
 <code>https://hooks.cedar.example/ledger</code>. Because operators mistype these, there is a convenience route:
 <code>POST /v2/webhooks/test</code>, which fetches the URL in the body and reports the status it got back. Here
 is that handler before this chapter&#39;s fix.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-webhook-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func vulnerableChapter07Webhook(fetcher outboundFetcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rawURL, ok := chapter07WebhookInput(w, r) // checks only the submitted URL
+		if !ok {
+			return
+		}
+		reply, err := fetcher.Fetch(r.Context(), rawURL) // default client resolves and redirects
+		writeWebhookResult(w, reply, err)
+	}
+}
+</code></pre>
 <p>Read it the way <code>0xacb</code> read Exchange. The handler does check the URL: it must parse, it must be
 <code>https</code>, and it rejects the obvious literal <code>http://169.254.169.254/</code>. Then it hands the string to
 an HTTP client with <code>http.Get</code>&#39;s default behavior, which does three things the check never saw.
@@ -149,17 +157,66 @@ speak TLS would answer. If instead a public server answers
 <code>302 Location: http://169.254.169.254/latest/meta-data/</code>, the default client follows it, plain
 HTTP now, and reaches the metadata service. The test route reports only the status it got back,
 so what leaks here is the fact of the fetch, not a token; the delivery path, which forwards the
-body, is the same client. The check guarded the string. The attack lives in the resolve, the
+body, would go through the same client. The check guarded the string. The attack lives in the resolve, the
 connect, and the redirect.</p>
 <p>The fix moves the decision to those three moments and refuses to leave them:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-egress-policy</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func (e *egress) Fetch(ctx context.Context, rawURL string) (*http.Response, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil || u.Scheme != &quot;https&quot; || u.Hostname() == &quot;&quot; || u.User != nil {
+		return nil, errEgressDenied
+	}
+	host := strings.ToLower(u.Hostname())
+	addresses := []netip.Addr{}
+	if literal, err := netip.ParseAddr(host); err == nil {
+		addresses = append(addresses, literal)
+	} else {
+		addresses, err = e.resolve(ctx, host) // exactly one DNS lookup
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(addresses) == 0 {
+		return nil, errEgressDenied
+	}
+	for _, ip := range addresses {
+		if !publicAddress(ip) { // reject the entire answer set
+			return nil, errEgressDenied
+		}
+	}
+	port := u.Port()
+	if port == &quot;&quot; {
+		port = &quot;443&quot;
+	}
+	pinned := net.JoinHostPort(addresses[0].Unmap().String(), port)
+	transport := http.RoundTripper(&amp;http.Transport{Proxy: nil, DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
+		return e.dial(ctx, network, pinned) // URL host remains for TLS name validation
+	}})
+	if e.transport != nil {
+		transport = e.transport // canned test replies; dial pinning is tested separately
+	}
+	client := &amp;http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, errEgressDenied
+	}
+	return client.Do(req)
+}
+</code></pre>
 <p>The webhook test now goes through it, and nothing about the handler&#39;s own logic changes except the
 call it makes:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-webhook-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func fixedChapter07Webhook(fetcher outboundFetcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rawURL, ok := chapter07WebhookInput(w, r)
+		if !ok {
+			return
+		}
+		reply, err := fetcher.Fetch(r.Context(), rawURL) // shared egress checks the socket target
+		writeWebhookResult(w, reply, err)
+	}
+}
+</code></pre>
 <p>Three details decide whether this is real.</p>
 <ul>
 <li><strong>The address is resolved, then checked, then dialed — in that order, with the checked address
@@ -184,7 +241,9 @@ lives only in the handler is repairing the wrong layer.</li>
 <li><strong>Every fetch is its own door.</strong> The webhook test is not the only place Ledger calls out. It also
 <em>delivers</em> webhooks on the same tenant URL, and — the path that catches people — it fetches each
 tenant&#39;s branding logo while rendering <code>/v1/invoices/{id}/pdf</code>, the export route from the earlier
-chapters. Fix the test route alone and the logo fetch is still an open egress.</li>
+chapters. Fix the test route alone and the logo fetch is still an open egress. (Delivery itself
+is not in the executable fixture; the two fetches the tests exercise are the test route and the
+logo.)</li>
 <li><strong>A blocklist is a guess about the internal network.</strong> Blocking <code>169.254.169.254</code> misses the IPv6
 metadata address, the <code>metadata.google.internal</code> name, <code>127.0.0.1</code>, <code>10.0.0.0/8</code>, and whatever
 private range the network uses next year. The safe list is short and stable — public addresses —
@@ -196,9 +255,30 @@ every route had to pass through, so a new handler could not forget it. Egress ne
 The wrong fix is to copy the URL validation into the PDF renderer. The right fix is that Ledger has
 exactly one way to make an outbound request — <code>egress</code> — and <code>http.Get</code>, <code>http.Client{}</code>, and their
 kin are banned from handler code. The PDF renderer fetches the logo through the same client:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch07-pdf-logo-fetch</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func chapter07PDF(store *Store, fetcher outboundFetcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, &quot;unauthorized&quot;, http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue(&quot;id&quot;))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		logo := store.branding[invoice.Tenant].LogoURL
+		if logo != &quot;&quot; {
+			reply, err := fetcher.Fetch(r.Context(), logo)
+			if err == nil {
+				reply.Body.Close()
+			}
+		}
+		renderViewPDF(w, publicViewFor(invoice)) // unavailable logo never exposes a row
+	}
+}
+</code></pre>
 <p>Now the property holds by construction. A reviewer does not have to check that each fetch validated
 its URL; they have to check that each fetch went through <code>egress</code>, which is a <code>grep</code>. When Ledger
 adds a fourth outbound call next quarter, it either uses the one client or it stands out in review
