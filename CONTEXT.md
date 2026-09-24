@@ -49,7 +49,7 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 | Ledger-internal invoice fields | `CollectionsNote`, `Margin` (never in a response; `ViewFor(user, inv)` encodes) | ch. 3 | 5 |
 | Refund allowance | £1,000 per tenant per day, held on the tenant record; over it → `refund_needs_approval`, admin route `POST /v2/refunds/{quote}/approve` | ch. 6 | — |
 | Route access levels | `Public`, `User`, `TenantAdmin`, declared per route; missing declaration fails registration; denial is 403 (existence not hidden) | ch. 5 | 6, 8, 11 |
-| Production settings | `Settings{Debug:false, CORSOrigins, PublicRoutes}` as one literal per environment; `PublicRoutes` = `GET /v2/health`, `POST /v2/auth/otp/request`, `POST /v2/auth/otp/verify`; production error body exactly `{"error":"not found"}` | ch. 8 | 11 |
+| Production settings | `Settings{Debug:false, CORSOrigins, PublicRoutes}` as one literal per environment; `PublicRoutes` = `GET /v2/health`, `POST /v2/auth/login`, `POST /v2/auth/otp/request`, `POST /v2/auth/otp/verify`; production error body exactly `{"error":"not found"}` | ch. 8 | 11 |
 | Web app origin | `https://app.ledger.example` is the sole production `CORSOrigins` entry | ch. 8 | 11 |
 | Health routes | `GET /v2/health` is `Public` and returns `{"ok":true}`; `GET /v2/admin/health` is `TenantAdmin` and returns version only in fixed mode | ch. 8 | 11 |
 | Euro invoice | 412 (Cedar), €300.00 → £276.00 at 0.92 (27600 pence); invoice records `FXRate` and `AmountEUR`; euro band accepted from the feed 0.70–1.10; `store.rates` read only in `CreateInvoice` | ch. 10 | — |

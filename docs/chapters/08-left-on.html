@@ -97,8 +97,8 @@
       <p class="essay-book">Incident: Power Apps portals, 2021</p>
       <p class="essay-payoff">The check was there, wired correctly, and switched off.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 5 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- Incident claims are gated in checks/claims/08.tsv against the archived UpGuard disclosure; rejected pointers (AIOSEO CVE-2021-25036, Domoney's router case) are recorded in briefs/08.md. -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- Incident claims: checks/claims/08.tsv -->
 
 <p>In May 2021 an analyst at UpGuard found that a Microsoft Power Apps portal was answering
 requests for its data without asking who was making them. Power Apps portals are low-code
@@ -139,9 +139,8 @@ is the machinery UpGuard found working on Power Apps: enforcement is not the pro
 <p>Ops has a liveness probe, <code>GET /v2/health</code>, which the gateway polls and which returns
 <code>{&quot;ok&quot;:true}</code>. It is <code>Public</code>, correctly: a load balancer has no session, and the body says
 nothing. Later someone needed a richer probe for the deploy dashboard and copied the entry:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-vulnerable-health-decl</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">var vulnerableHealthDeclaration = Route{Method: http.MethodGet, Pattern: &quot;/v2/admin/health&quot;, Access: Public}
+</code></pre>
 <p><code>GET /v2/admin/health</code> returns the running version, the commit, the hosts the build is
 configured to serve (<code>api.ledger.example</code> and <code>ledger-staging.internal</code>), and the value of the
 <code>Debug</code> flag. The route sits under <code>/v2/admin</code>, so it reads as admin-only. It is not. The
@@ -150,9 +149,8 @@ walks the route table checks that every route <em>has</em> a level, which this o
 who reads the response learns that Ledger has a staging host, what it is called, and that the
 production build is running with <code>Debug</code> on.</p>
 <p>The fix is a value, not a check:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-fixed-health-decl</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">var fixedHealthDeclaration = Route{Method: http.MethodGet, Pattern: &quot;/v2/admin/health&quot;, Access: TenantAdmin}
+</code></pre>
 <p>Two details decide whether the fix is real.</p>
 <ul>
 <li><strong>The declaration moved, and the body shrank.</strong> Dana can still see that the service is up and
@@ -188,9 +186,40 @@ setting that never touches the loader.</p>
 <p><code>Debug</code> was added for staging. When it is on, the error writer asks the store for an internal
 denial reason and appends it to the error body, so a developer on <code>ledger-staging.internal</code> can
 see why an invoice request failed:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-debug-error-writer</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func chapter08ErrorWriter(settings Settings, store *Store, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || !strings.HasPrefix(r.URL.Path, &quot;/v2/invoices/&quot;) {
+			next.ServeHTTP(w, r)
+			return
+		}
+		capture := &amp;chapter08Capture{header: make(http.Header)}
+		next.ServeHTTP(capture, r)
+		if capture.status == http.StatusNotFound {
+			body := map[string]string{&quot;error&quot;: &quot;not found&quot;}
+			if settings.Debug {
+				user, ok := currentUser(r)
+				id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, &quot;/v2/invoices/&quot;))
+				if ok &amp;&amp; err == nil {
+					body[&quot;reason&quot;] = store.invoiceMissReason(user, id)
+				}
+			}
+			w.Header().Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+			w.WriteHeader(http.StatusNotFound)
+			writeJSON(w, body)
+			return
+		}
+		for key, values := range capture.header {
+			for _, value := range values {
+				w.Header().Add(key, value)
+			}
+		}
+		if capture.status != 0 {
+			w.WriteHeader(capture.status)
+		}
+		_, _ = w.Write(capture.body.Bytes())
+	})
+}
+</code></pre>
 <p>The loader still runs. The decision is still 404. But the body now says
 <code>{&quot;error&quot;:&quot;not found&quot;,&quot;reason&quot;:&quot;invoice 205 belongs to tenant birch&quot;}</code>, and Alice, who asked for
 205 from Cedar, has just been told that it exists and whose it is. <code>Debug</code> was on in production
@@ -201,20 +230,73 @@ correct. The list&#39;s Boolean is <code>Debug</code>: a value elsewhere that de
 <h2 id="configuration-is-code-so-it-gets-a-test">Configuration is code, so it gets a test</h2>
 <p>Ledger&#39;s repair has two parts, and neither is &quot;turn it off.&quot;</p>
 <h3 id="1-write-the-production-settings-down-in-the-language-the-service-is-written-in">1. Write the production settings down, in the language the service is written in</h3>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-production-settings</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+<pre><code class="language-go">func ProductionSettings() Settings {
+	return Settings{
+		Debug:       false,
+		CORSOrigins: []string{&quot;https://app.ledger.example&quot;},
+		PublicRoutes: []RouteKey{
+			{http.MethodGet, &quot;/v2/health&quot;},
+			{http.MethodPost, &quot;/v2/auth/login&quot;},
+			{http.MethodPost, &quot;/v2/auth/otp/request&quot;},
+			{http.MethodPost, &quot;/v2/auth/otp/verify&quot;},
+		},
+		Hosts: []string{PublicHost},
+	}
+}
 
-
+func StagingSettings() Settings {
+	return Settings{
+		Debug:       true,
+		CORSOrigins: []string{&quot;https://app.ledger.example&quot;},
+		PublicRoutes: []RouteKey{
+			{http.MethodGet, &quot;/v2/health&quot;},
+			{http.MethodPost, &quot;/v2/auth/login&quot;},
+			{http.MethodPost, &quot;/v2/auth/otp/request&quot;},
+			{http.MethodPost, &quot;/v2/auth/otp/verify&quot;},
+		},
+		Hosts: []string{PublicHost, StagingHost},
+	}
+}
+</code></pre>
 <p><code>Settings</code> is a struct, constructed in one place, with <code>Debug false</code>, the CORS origin list
-holding only Ledger&#39;s own web application, and <code>PublicRoutes</code> naming the three routes that may
-serve callers without a session: the liveness probe and the two one-time-code routes from the
-chapter on resource consumption, <code>POST /v2/auth/otp/request</code> and <code>POST /v2/auth/otp/verify</code>. A
+holding only Ledger&#39;s own web application, and <code>PublicRoutes</code> naming the four routes that may
+serve callers without a session: the liveness probe, the password login from the chapter on
+authentication, and the two one-time-code routes from the chapter on resource consumption,
+<code>POST /v2/auth/otp/request</code> and <code>POST /v2/auth/otp/verify</code>. A
 staging build constructs its own <code>Settings</code> with <code>Debug true</code> and the staging host. Production
 cannot inherit staging&#39;s values, because there is no inheritance: there are two literals, and the
 differences between them are a diff.</p>
 <h3 id="2-assert-every-value-and-walk-the-route-table-against-the-allow-list">2. Assert every value, and walk the route table against the allow-list</h3>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch08-settings-test</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func TestChapter08ProductionSettings(t *testing.T) {
+	app := NewChapter8App(Fixed)
+	settings := ProductionSettings()
+	if err := validateProductionSettings(settings, app.Routes()); err != nil {
+		t.Fatal(err)
+	}
+	if settings.Debug || len(settings.CORSOrigins) != 1 || settings.CORSOrigins[0] == &quot;*&quot; {
+		t.Fatalf(&quot;unsafe production settings: %+v&quot;, settings)
+	}
+	got := chapter05Request(t, app, http.MethodGet, &quot;/v2/invoices/205&quot;, &quot;alice-token&quot;, &quot;&quot;)
+	if got.status != 404 || got.body != &quot;{\&quot;error\&quot;:\&quot;not found\&quot;}\n&quot; {
+		t.Fatalf(&quot;production denial = %+v&quot;, got)
+	}
+	bad := settings
+	bad.Debug = true
+	if err := validateProductionSettings(bad, app.Routes()); err == nil {
+		t.Fatal(&quot;production Debug:true was accepted&quot;)
+	}
+	bad = settings
+	bad.CORSOrigins = []string{&quot;*&quot;}
+	if err := validateProductionSettings(bad, app.Routes()); err == nil {
+		t.Fatal(&quot;wildcard CORS origin was accepted&quot;)
+	}
+	vulnerable := NewChapter8App(Vulnerable)
+	bad = settings
+	if err := validateProductionSettings(bad, vulnerable.Routes()); err == nil || !strings.Contains(err.Error(), &quot;/v2/admin/health&quot;) {
+		t.Fatalf(&quot;unlisted public admin route = %v&quot;, err)
+	}
+}
+</code></pre>
 <p>This is where chapter 5&#39;s repair does new work. That chapter&#39;s test walks the route table and
 fails on a route with no <code>Access</code>. This one walks the same table and fails on a route whose
 <code>Access</code> is <code>Public</code> and whose method and pattern are not in <code>Settings.PublicRoutes</code>. The

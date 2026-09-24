@@ -187,9 +187,10 @@ func StagingSettings() Settings {
 ```
 
 `Settings` is a struct, constructed in one place, with `Debug false`, the CORS origin list
-holding only Ledger's own web application, and `PublicRoutes` naming the three routes that may
-serve callers without a session: the liveness probe and the two one-time-code routes from the
-chapter on resource consumption, `POST /v2/auth/otp/request` and `POST /v2/auth/otp/verify`. A
+holding only Ledger's own web application, and `PublicRoutes` naming the four routes that may
+serve callers without a session: the liveness probe, the password login from the chapter on
+authentication, and the two one-time-code routes from the chapter on resource consumption,
+`POST /v2/auth/otp/request` and `POST /v2/auth/otp/verify`. A
 staging build constructs its own `Settings` with `Debug true` and the staging host. Production
 cannot inherit staging's values, because there is no inheritance: there are two literals, and the
 differences between them are a diff.
