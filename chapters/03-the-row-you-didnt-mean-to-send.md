@@ -1,6 +1,6 @@
 # The Row You Didn't Mean to Send
 
-<!-- Incident claims are gated in checks/claims/03.tsv against David Lodge's Pen Test Partners disclosure and its archived JSON screenshot. The primary record proves the parcel-code map, derived postcode, tracking-page gate, session JSON and dated disclosure sequence. It does not establish the intended field policy for an authorized recipient, bulk enumeration or an affected-person count. -->
+<!-- Incident claims and source locators: checks/claims/03.tsv. -->
 
 In September 2021 David Lodge of Pen Test Partners was looking at how DPD, the parcel carrier,
 tells you where your delivery is. The tracking site had an API call that took a parcel code and
@@ -39,7 +39,30 @@ question this chapter opens.
 Here is the handler behind `GET /v2/invoices/{id}` after the chapter 1 fix. It is correct about
 *which* invoice. Look at what it does with the invoice once it has it.
 
-{{excerpt:ch03-vulnerable-read}}
+```go
+func vulnerableChapter03Read(store *Store, pdf bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue("id"))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		if pdf {
+			renderRawPDF(w, invoice)
+			return
+		}
+		inv := rawInvoice(invoice)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(inv)
+	}
+}
+```
 
 `json.NewEncoder(w).Encode(inv)` serialises the stored row. The stored row is the struct Ledger
 keeps in its store, and that struct has every field the business ever needed: the line items and
@@ -54,7 +77,17 @@ The fix is to stop encoding the stored type at all. Authorization decided which 
 see. A second, separate decision says which *properties* of it she may see, and that decision
 belongs on the server, in a type that exists for the purpose:
 
-{{excerpt:ch03-view}}
+```go
+func ViewFor(user User, inv Invoice) any {
+	if user.Role == "tenant-admin" || user.IsAdmin {
+		return InvoiceAdminView{InvoiceCore: invoiceCore(inv), Customer: CustomerContactView{
+			Name: inv.Customer.Name, Email: inv.Customer.Email,
+			Phone: inv.Customer.Phone, Address: inv.Customer.Address,
+		}}
+	}
+	return publicViewFor(inv)
+}
+```
 
 Three details matter.
 
@@ -75,7 +108,30 @@ Three details matter.
 The read side sends the whole struct out. The write side takes the whole struct in. Here is
 `PATCH /v2/invoices/{id}`, which lets a tenant set the purchase-order reference on an invoice:
 
-{{excerpt:ch03-vulnerable-patch}}
+```go
+func vulnerableChapter03Patch(store *Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue("id"))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		inv := &invoice
+		if json.NewDecoder(r.Body).Decode(inv) != nil {
+			http.Error(w, "invalid patch", http.StatusBadRequest)
+			return
+		}
+		store.invoices[id] = *inv // matching exported fields came from the request
+		writeJSON(w, ViewFor(user, *inv))
+	}
+}
+```
 
 `json.NewDecoder(r.Body).Decode(inv)` can write any matching exported field on the loaded
 struct. The web app only ever sends `reference`. Alice can send `{"reference":"PO-9","status":"paid"}`
@@ -86,7 +142,31 @@ meant to set.
 
 The fix mirrors the read side. There is one decodable type for this route, and it has one field:
 
-{{excerpt:ch03-patch}}
+```go
+func fixedChapter03Patch(store *Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue("id"))
+		inv, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		var patch InvoicePatch
+		if decodeOneJSON(r, &patch) != nil {
+			http.Error(w, "invalid patch field", http.StatusBadRequest)
+			return
+		}
+		inv.Reference = patch.Reference
+		store.invoices[id] = inv
+		writeJSON(w, ViewFor(user, inv))
+	}
+}
+```
 
 Go helps here more than most languages. `Decode` into `InvoicePatch{Reference string}` silently
 drops `status` and `amount`, because they have nowhere to land. Turn on
@@ -138,7 +218,11 @@ route, the list route and the PDF template.
 Moving `ViewFor` into every handler is the chapter 1 mistake with a new name. Instead the stored
 type gets a `MarshalJSON` that returns an error:
 
-{{excerpt:ch03-marshal-guard}}
+```go
+func (Invoice) MarshalJSON() ([]byte, error) {
+	return nil, errors.New("encode a view, not the row")
+}
+```
 
 Once built, an attempt to JSON-encode the stored row returns "encode a view, not the row". The
 compiler cannot enforce this one, but a test that checks the encoder error can catch the next

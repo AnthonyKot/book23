@@ -65,6 +65,17 @@ func (s *sessionStore) revoke(token string) {
 	delete(s.sessions, token)
 }
 
+func (s *sessionStore) updateUser(originalName string, user User) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for token, record := range s.sessions {
+		if record.User.Name == originalName {
+			record.User = user
+			s.sessions[token] = record
+		}
+	}
+}
+
 type requestPrincipal struct {
 	user          User
 	authenticated bool

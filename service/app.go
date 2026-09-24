@@ -29,6 +29,11 @@ func NewChapter2App(mode Mode) *App {
 	return newChapter2AppAt(mode, time.Now)
 }
 
+// NewChapter3App retains Chapters 1 and 2's repairs and isolates the property boundary.
+func NewChapter3App(mode Mode) *App {
+	return buildAppWithClock(mode, chapter03, time.Now)
+}
+
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
 // but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
 // staging host; batch 2 integrates the intervening repairs after Chapter 8.
@@ -49,6 +54,7 @@ type pilotStage int
 const (
 	chapter01 pilotStage = iota
 	chapter02
+	chapter03
 	chapter09
 )
 
@@ -70,17 +76,25 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 	mux := http.NewServeMux()
 	routes := []Route{{Method: http.MethodGet, Pattern: "/v2/invoices/{id}"}}
 	secure := mode == Fixed || stage != chapter01
-	registerInvoiceRoute(mux, routes[0], store, secure, false)
+	registerStageInvoiceRoute(mux, routes[0], store, stage, mode, secure, false)
 
 	listRoute := Route{Method: http.MethodGet, Pattern: "/v2/me/invoices"}
 	routes = append(routes, listRoute)
-	mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, listInvoices(store))
+	if stage == chapter03 {
+		mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, chapter03List(store, mode, false))
+	} else {
+		mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, listInvoices(store))
+	}
 	if stage != chapter09 {
 		filteredList := Route{Method: http.MethodGet, Pattern: "/v2/invoices"}
 		quote := Route{Method: http.MethodPost, Pattern: "/v2/refunds/quote"}
 		confirm := Route{Method: http.MethodPost, Pattern: "/v2/refunds/confirm"}
 		routes = append(routes, filteredList, quote, confirm)
-		mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
+		if stage == chapter03 {
+			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter03List(store, mode, true))
+		} else {
+			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
+		}
 		mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
 		confirmMode := mode
 		if stage != chapter01 {
@@ -94,24 +108,46 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		read := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}"}
 		pdf := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf"}
 		routes = append(routes, read, pdf)
-		registerInvoiceRoute(mux, read, store, secure, false)
-		registerInvoiceRoute(mux, pdf, store, secure, true)
+		registerStageInvoiceRoute(mux, read, store, stage, mode, secure, false)
+		registerStageInvoiceRoute(mux, pdf, store, stage, mode, secure, true)
 	}
 
 	handler := http.Handler(mux)
-	if stage == chapter02 {
+	if stage != chapter03 {
+		handler = legacyJSONHandler(handler)
+	}
+	if stage == chapter02 || stage == chapter03 {
 		sessions := newSessionStore(clock)
 		login := Route{Method: http.MethodPost, Pattern: "/v2/auth/login"}
 		me := Route{Method: http.MethodGet, Pattern: "/v2/me"}
 		routes = append(routes, login, me)
 		mux.HandleFunc(login.Method+" "+login.Pattern, loginHandler(sessions))
 		mux.HandleFunc(me.Method+" "+me.Pattern, identityProbe)
-		handler = chapter02Identity(mode, sessions, mux)
+		if stage == chapter03 {
+			patchInvoice := Route{Method: http.MethodPatch, Pattern: "/v2/invoices/{id}"}
+			patchProfile := Route{Method: http.MethodPatch, Pattern: "/v2/users/me"}
+			routes = append(routes, patchInvoice, patchProfile)
+			mux.HandleFunc(patchInvoice.Method+" "+patchInvoice.Pattern, chapter03InvoicePatch(store, mode))
+			mux.HandleFunc(patchProfile.Method+" "+patchProfile.Pattern, chapter03ProfilePatch(sessions, mode))
+		}
+		identityMode := mode
+		if stage == chapter03 {
+			identityMode = Fixed
+		}
+		handler = chapter02Identity(identityMode, sessions, handler)
 	}
 	if stage == chapter09 {
-		handler = chapter09Gateway(mode, mux)
+		handler = chapter09Gateway(mode, handler)
 	}
 	return &App{handler: handler, routes: routes, store: store}
+}
+
+func registerStageInvoiceRoute(mux *http.ServeMux, route Route, store *Store, stage pilotStage, mode Mode, secure, pdf bool) {
+	if stage == chapter03 {
+		mux.HandleFunc(route.Method+" "+route.Pattern, chapter03InvoiceHandler(store, mode, pdf))
+		return
+	}
+	registerInvoiceRoute(mux, route, store, secure, pdf)
 }
 
 func registerInvoiceRoute(mux *http.ServeMux, route Route, store *Store, secure, pdf bool) {
@@ -201,8 +237,16 @@ func writeInvoice(w http.ResponseWriter, invoice Invoice, pdf bool) {
 }
 
 func writeJSON(w http.ResponseWriter, value any) {
+	if _, legacy := w.(legacyResponseWriter); legacy {
+		value = legacyJSONValue(value)
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		http.Error(w, "cannot encode response", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(value)
+	_, _ = w.Write(append(encoded, '\n'))
 }
 
 // excerpt: ch09-gateway-host-filter

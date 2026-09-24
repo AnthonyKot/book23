@@ -5,7 +5,10 @@ before/after state, including the client-selected invoice list and refund quote/
 Quote and refund amounts are integer pence. `NewChapter2App` keeps the Chapter 1 repair in both
 modes and demonstrates session-derived identity, a shared mobile key, and tenant integration keys.
 Its login route uses hard-coded fixture passwords and its sessions are in memory; it is a teaching
-fixture, not deployable authentication. `NewChapter9App` is still a pilot that starts after the
+fixture, not deployable authentication. `NewChapter3App` keeps the earlier repairs and demonstrates
+stored-row exposure versus role-specific response views, typed PATCH requests, and a raw `Invoice`
+JSON guard. Historical stages retain their original four-field response shape. `NewChapter9App`
+is still a pilot that starts after the
 Chapter 1 loader repair; it does not yet contain Chapters 2–8. Tests make no network requests.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish

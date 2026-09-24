@@ -7,7 +7,8 @@ remaining cumulative Ledger implementation, one chapter per run.
 |---|---|---|
 | 01 | Complete for batch 2; refund/list cases and route coverage tested | Author reconciles schematic exercise wording |
 | 02 | Complete for batch 2; session identity and exercise tested | Author reviews identity-probe wording |
-| 03–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
+| 03 | Complete for batch 2; views, patches, and guard tested | Author reconciles mixed PATCH wording |
+| 04–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -69,5 +70,38 @@ Chapter 01 exercise as a literal wire example.
   login. The exercise describes a person-scoped identity probe without naming its concrete route;
   the implementation uses `/v2/me`. These are prose alignment choices for the author.
 
-Next: Chapter 03 response views and typed patches. Chapter 09 still needs cumulative
-integration after Chapter 08. Do not push this implementation branch from Lane A.
+## Chapter 03 — completed in batch 2
+
+- `NewChapter3App` composes the Chapter 01 loader/refund repairs and Chapter 02 session identity
+  repair in both modes. The vulnerable Chapter 03 routes encode a copy of the full invoice row,
+  accept matching stored fields on invoice PATCH, and let profile PATCH set `is_admin`.
+  Fixed routes encode `ViewFor(user, inv)` after `LoadInvoiceFor`, use strict
+  `InvoicePatch{Reference}` and `ProfilePatch{DisplayName}`, and bind the PDF to an
+  `InvoiceView` that has no contact or internal fields. Dana's admin view has contact fields;
+  neither view has `CollectionsNote` or `Margin`.
+- `Invoice.MarshalJSON` rejects raw row encoding. The vulnerable read uses a named `rawInvoice`
+  alias to demonstrate the bypass explicitly; historical Chapter 01/02 and the partial Chapter 09
+  pilot use a separate four-field legacy response so their previously printed handlers and
+  behavior stay intact. A direct raw marshal and an accidental raw `writeJSON` call fail in tests.
+- The chapter adds only fixture details for the existing invoices: distinct invoice numbers,
+  line-item labels, dates, customer contact examples, references, notes and margins. The canonical amounts remain
+  180000 and 64000 pence. These extra strings and internal margins are illustrative, not new
+  cross-chapter canonical values.
+- `service/ch03_test.go` asserts the chapter's read, list, PDF, invoice PATCH and profile PATCH
+  contrasts in both modes. It also checks direct raw encoding failure, every registered invoice
+  read route, cross-tenant reads and PATCH, forged identity rejection, session expiry, and the
+  earlier refund repair. Five exact excerpts (`ch03-vulnerable-read`, `ch03-view`,
+  `ch03-vulnerable-patch`, `ch03-patch`, `ch03-marshal-guard`) replace the Chapter 03 placeholders.
+  `verify.sh` requires these test groups, validates their source equality, and continues checking
+  all archived incident claims.
+- Author note: the exercise's D row says a mixed `{"reference":"PO-9","status":"paid"}` patch
+  updates the reference in fixed mode. The required `DisallowUnknownFields` policy rejects that
+  entire request with 400, leaving both fields unchanged. A reference-only patch succeeds. The
+  prose should reflect that distinction. The vulnerable read's `rawInvoice` alias also deserves
+  one short explanation beside the excerpt: the raw `Invoice` type itself now refuses JSON.
+  The chapter still calls the implementation proposed and its tests future work; the author
+  should update that framing. The rendered Chapter 03 page remains stale until the batch's
+  deferred site build after Chapter 10; the Markdown source already has all five excerpts.
+
+Next: Chapter 04 resource limits. Chapter 09 still needs cumulative integration after Chapter 08.
+Do not push this implementation branch from Lane A.

@@ -10,7 +10,7 @@ trap 'rm -f "$test_log"' EXIT
   go test -v ./...
 ) | tee "$test_log"
 
-for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
+for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
   if ! grep -Fq -- "--- PASS: $group" "$test_log"; then
     echo "missing passing pilot test group: $group" >&2
     exit 1
@@ -59,7 +59,7 @@ manifest_archives = {row["archive"] for row in sources}
 if unregistered := claim_archives - manifest_archives:
     raise SystemExit(f"claim archives absent from SOURCES.tsv: {sorted(unregistered)}")
 
-for number in ("01", "02", "09"):
+for number in ("01", "02", "03", "09"):
     chapters = list((root / "chapters").glob(f"{number}-*.md"))
     if len(chapters) != 1 or "{{excerpt:" in chapters[0].read_text(encoding="utf-8"):
         raise SystemExit(f"built chapter {number} still has an excerpt placeholder")
@@ -70,6 +70,14 @@ for name in ("ch02-vulnerable", "ch02-fixed"):
     match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
     if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch02:
         raise SystemExit(f"Chapter 02 printed excerpt {name} differs from marked Go source")
+
+ch03 = next((root / "chapters").glob("03-*.md")).read_text(encoding="utf-8")
+for name in ("ch03-vulnerable-read", "ch03-view", "ch03-vulnerable-patch", "ch03-patch", "ch03-marshal-guard"):
+    file = "model.go" if name == "ch03-marshal-guard" else "ch03_properties.go"
+    code = (root / "service" / file).read_text(encoding="utf-8")
+    match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
+    if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch03:
+        raise SystemExit(f"Chapter 03 printed excerpt {name} differs from marked Go source")
 
 class Links(HTMLParser):
     def __init__(self):
