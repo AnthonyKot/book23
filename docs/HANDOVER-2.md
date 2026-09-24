@@ -14,7 +14,7 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 07 | Complete for batch 2; shared egress, webhook/PDF paths and exercise tested | Author checks logo-fixture wording |
 | 08 | Complete for batch 2; settings, probes, debug contrast and exercise tested | Author aligns public-route count and login |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
-| 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
+| 10 | Complete for batch 2; partner rate, invoice and refund contrasts tested | Author reviews poller fixture and interim v1 gateway block |
 
 Chapter 01's exercise is schematic: it omits the refund quote amount, and its answer both
 says the injected confirm ID is rejected and says confirm ignores it. The executable
@@ -270,5 +270,37 @@ Chapter 01 exercise as a literal wire example.
   do not silently omit it from the validator. The code excerpt makes this
   discrepancy visible. The setting contrast and all five exercise outcomes hold.
 
-Next: Chapter 10 partner response boundary, then Chapter 09 cumulative integration through
-Chapters 02–08, as requested on 2026-09-24. Do not push this implementation branch from Lane A.
+## Chapter 10 — completed in batch 2
+
+- `NewChapter10App` retains Chapters 01–08's fixed handlers in both modes. Its
+  `PollRates` method models one hourly partner fetch; tests supply a canned transport
+  and fake clock, with no socket or scheduler. Vulnerable polling uses the default
+  redirect-following HTTP client and writes the full partner map. Fixed polling uses
+  the shared `egress` client, strict `rateRow{EUR}` decoding, the established
+  0.70–1.10 band, last-good `Rate{Value,AsOf}`, and an Ops page counter on refusal.
+  Fresh invoice creation shows the negative, 92, extra-GBP and redirect failures.
+- Invoice 412 is seeded for Chapter 10 at €300.00 and 0.92, producing 27600 pence.
+  Fixed invoices record `AmountEUR` and `FXRate`; GBP never reads the feed. The fixed
+  quote converts requested EUR at the invoice's rate before the remaining-balance
+  check and stores pence. Confirm and the Chapter 06 tenant daily allowance consume
+  that stored pence without reconversion. A legacy EUR row without `FXRate` receives
+  409 `rate_reconciliation_required` and increments the Ops page counter. The store's
+  rate-read counter verifies that fixed quote and confirm do not read the current
+  rate. Existing invoice amounts and the UTC-day refund fixture policy are unchanged.
+- `service/ch10_test.go` feeds all five exercise responses to both modes, asserting
+  response trace, stored rate, invoice amounts, Ops pages and invoice metadata. It
+  also tests the 0.95-after-0.92 refund sequence, stored quote and confirmed 27600
+  pence, a second 80000-pence quote parked because the UTC-day tenant total would
+  exceed 100000 pence, legacy reconciliation, and earlier loader, view, role and host repairs.
+  Five printed excerpts match their marked source; `verify.sh` requires tests,
+  equality and no Chapter 10 placeholders. Rendered HTML awaits the site rebuild.
+- **Interim Chapter 09 seam:** Chapter 10 applies the fixed Chapter 09 host policy
+  and blocks `/v1` at the gateway, but the older routes are still registered in
+  its route table. The next cumulative Chapter 09 pass must remove those routes
+  from Chapter 10's composition and align its inventory with the integrated
+  `NewChapter9App(Fixed)`. The current Chapter 09 pilot remains Chapter 01-only.
+  The fixture's `LGR-E4` invoice number and `Cedar Euro Customer` label are
+  illustrative strings for invoice 412, not new canonical amounts.
+
+Next: Chapter 09 cumulative integration through Chapters 02–08, then rebuild the
+site. Do not push this implementation branch from Lane A.

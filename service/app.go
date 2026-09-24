@@ -1,6 +1,7 @@
 package ledger
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,9 +13,12 @@ import (
 const PublicHost = "api.ledger.example"
 
 type App struct {
-	handler http.Handler
-	routes  []Route
-	store   *Store
+	handler     http.Handler
+	routes      []Route
+	store       *Store
+	rateFetcher outboundFetcher
+	rateClock   func() time.Time
+	rateMode    Mode
 }
 
 // NewApp constructs the Chapter 1 state. Fixed mode protects /v2 and both
@@ -59,6 +63,21 @@ func NewChapter8App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter08, time.Now)
 }
 
+// NewChapter10App uses Chapters 1-8's repairs and the Chapter 9 fixed gateway policy.
+func NewChapter10App(mode Mode) *App {
+	return buildAppWithClock(mode, chapter10, time.Now)
+}
+
+func (a *App) PollRates(ctx context.Context) error {
+	if a.rateClock == nil {
+		return fmt.Errorf("rate poller unavailable before Chapter 10")
+	}
+	if a.rateMode == Vulnerable {
+		return a.store.vulnerablePollRates()
+	}
+	return a.store.fixedPollRates(ctx, a.rateFetcher, a.rateClock())
+}
+
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
 // but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
 // staging host; batch 2 integrates the intervening repairs after Chapter 8.
@@ -86,6 +105,7 @@ const (
 	chapter07
 	chapter08
 	chapter09
+	chapter10
 )
 
 type Route struct {
@@ -119,30 +139,33 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 	}
 
 	store := seedStore()
+	if stage == chapter10 {
+		seedChapter10(store, mode, clock())
+	}
 	mux := http.NewServeMux()
-	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08
+	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10
 	propertyMode := mode
-	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
 		propertyMode = Fixed
 	}
 	var limits *chapter04Limits
-	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
 		limits = newChapter04Limits(clock)
 	}
-	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08
+	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10
 	limitMode := mode
-	if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 {
+	if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
 		limitMode = Fixed
 	}
-	flowStage := stage == chapter06 || stage == chapter07 || stage == chapter08
+	flowStage := stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10
 	flowMode := mode
-	if stage == chapter07 || stage == chapter08 {
+	if stage == chapter07 || stage == chapter08 || stage == chapter10 {
 		flowMode = Fixed
 	}
 	var fetcher outboundFetcher
-	if stage == chapter07 || stage == chapter08 {
+	if stage == chapter07 || stage == chapter08 || stage == chapter10 {
 		egressMode := mode
-		if stage == chapter08 {
+		if stage == chapter08 || stage == chapter10 {
 			egressMode = Fixed
 		}
 		fetcher = stage07Fetcher(egressMode, network)
@@ -170,7 +193,13 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 		} else {
 			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
 		}
-		if flowStage {
+		if stage == chapter10 {
+			if mode == Vulnerable {
+				mux.HandleFunc(quote.Method+" "+quote.Pattern, vulnerableChapter10Quote(store, clock))
+			} else {
+				mux.HandleFunc(quote.Method+" "+quote.Pattern, fixedChapter10Quote(store, clock))
+			}
+		} else if flowStage {
 			mux.HandleFunc(quote.Method+" "+quote.Pattern, chapter06Quote(store, clock))
 		} else {
 			mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
@@ -196,7 +225,7 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 		pdf := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf"}
 		routes = append(routes, read, pdf)
 		registerStageInvoiceRoute(mux, read, store, propertyStage, propertyMode, secure, false)
-		if stage == chapter07 || stage == chapter08 {
+		if stage == chapter07 || stage == chapter08 || stage == chapter10 {
 			mux.HandleFunc(pdf.Method+" "+pdf.Pattern, chapter07PDF(store, fetcher))
 		} else {
 			registerStageInvoiceRoute(mux, pdf, store, propertyStage, propertyMode, secure, true)
@@ -235,32 +264,37 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(limitMode, limits.challenges, sessions)))
 			handler = chapter04Gateway(limitMode, limits, handler)
 		}
-		if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 {
+		if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
 			accessMode := mode
-			if stage == chapter06 || stage == chapter07 || stage == chapter08 {
+			if stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
 				accessMode = Fixed
 			}
 			routes = registerChapter05Routes(mux, routes, store, sessions, accessMode)
 			if flowStage {
 				routes = registerChapter06Routes(mux, routes, store, flowMode, clock)
 			}
-			if stage == chapter07 || stage == chapter08 {
+			if stage == chapter07 || stage == chapter08 || stage == chapter10 {
 				webhookMode := mode
-				if stage == chapter08 {
+				if stage == chapter08 || stage == chapter10 {
 					webhookMode = Fixed
 				}
 				routes = registerChapter07Routes(mux, routes, webhookMode, fetcher)
 			}
-			if stage == chapter08 {
-				routes = registerChapter08Routes(mux, routes, mode, settings)
-				if mode == Fixed {
+			if stage == chapter08 || stage == chapter10 {
+				settingsMode := mode
+				if stage == chapter10 {
+					settingsMode = Fixed
+					settings = ProductionSettings()
+				}
+				routes = registerChapter08Routes(mux, routes, settingsMode, settings)
+				if settingsMode == Fixed {
 					if err := validateProductionSettings(settings, routes); err != nil {
 						panic(err)
 					}
 				}
 			}
 			handler = chapter05Authorization(accessMode, mux, routes, store, sessions, handler)
-			if stage == chapter08 {
+			if stage == chapter08 || stage == chapter10 {
 				handler = chapter08ErrorWriter(settings, store, handler)
 			}
 		}
@@ -273,7 +307,22 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 	if stage == chapter09 {
 		handler = chapter09Gateway(mode, handler)
 	}
-	return &App{handler: handler, routes: routes, store: store}
+	if stage == chapter10 {
+		handler = chapter09Gateway(Fixed, handler)
+		previous := handler
+		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/v1/") {
+				http.NotFound(w, r)
+				return
+			}
+			previous.ServeHTTP(w, r)
+		})
+	}
+	app := &App{handler: handler, routes: routes, store: store}
+	if stage == chapter10 {
+		app.rateFetcher, app.rateClock, app.rateMode = fetcher, clock, mode
+	}
+	return app
 }
 
 func registerStageInvoiceRoute(mux *http.ServeMux, route Route, store *Store, propertyStage bool, mode Mode, secure, pdf bool) {

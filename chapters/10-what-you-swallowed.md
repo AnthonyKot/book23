@@ -1,4 +1,4 @@
-<!-- Incident claims are gated in checks/claims/10.tsv against the archived Kiln and SwissBorg statements; the rejected SiriusXM/Hyundai pointer is recorded in CONTEXT.md. -->
+<!-- Incident claims: checks/claims/10.tsv -->
 
 # What You Swallowed
 
@@ -45,7 +45,36 @@ needs a rate, and it gets one from a partner feed at `rates.partner.example`, wh
 and the store keeps it. Here is the poller and the invoice creation that uses it, before this
 chapter's fix.
 
-{{excerpt:ch10-rates-vulnerable}}
+```go
+func (s *Store) vulnerablePollRates() error {
+	reply, err := http.Get(partnerRateURL) // default client follows redirects
+	if err != nil {
+		return err
+	}
+	defer reply.Body.Close()
+	if reply.StatusCode != http.StatusOK {
+		return fmt.Errorf("partner status %d", reply.StatusCode)
+	}
+	var row map[string]float64
+	if err := json.NewDecoder(reply.Body).Decode(&row); err != nil {
+		return err
+	}
+	s.rates = row // every key in the partner response is trusted
+	return nil
+}
+
+func (s *Store) vulnerableCreateInvoice(inv Invoice) Invoice {
+	if rate, ok := s.rates[inv.Currency]; ok {
+		amount := float64(inv.Amount)
+		if inv.Currency == "EUR" {
+			amount = inv.AmountEUR * 100
+		}
+		inv.Amount = int(math.Round(amount * rate))
+	}
+	s.invoices[inv.ID] = inv
+	return inv
+}
+```
 
 Read it the way you now read a request handler. The fetch is a bare `http.Get`, the call the SSRF
 chapter banned from handlers; the poller predates `egress` and nobody moved it. The body is
@@ -69,9 +98,60 @@ beside it, and the code applied everything that arrived.
 
 The fix treats the feed like a request body from a stranger:
 
-{{excerpt:ch10-rate-row}}
+```go
+type rateRow struct {
+	EUR float64 `json:"EUR"`
+}
+```
 
-{{excerpt:ch10-rates-fixed}}
+```go
+func decodeRateRow(body io.Reader) (rateRow, error) {
+	var row rateRow
+	decoder := json.NewDecoder(body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&row); err != nil {
+		return rateRow{}, err
+	}
+	var extra any
+	if err := decoder.Decode(&extra); err != io.EOF {
+		return rateRow{}, fmt.Errorf("extra partner JSON")
+	}
+	if row.EUR < 0.70 || row.EUR > 1.10 || math.IsNaN(row.EUR) || math.IsInf(row.EUR, 0) {
+		return rateRow{}, fmt.Errorf("EUR rate outside accepted band")
+	}
+	return row, nil
+}
+
+func (s *Store) fixedPollRates(ctx context.Context, fetcher outboundFetcher, at time.Time) error {
+	reply, err := fetcher.Fetch(ctx, partnerRateURL) // shared egress pins DNS and refuses redirects
+	if err != nil {
+		s.opsPages++
+		return err
+	}
+	defer reply.Body.Close()
+	if reply.StatusCode != http.StatusOK {
+		s.opsPages++
+		return fmt.Errorf("partner status %d", reply.StatusCode)
+	}
+	row, err := decodeRateRow(reply.Body)
+	if err != nil {
+		s.opsPages++
+		return err
+	}
+	s.lastGoodRate = Rate{Value: row.EUR, AsOf: at}
+	return nil
+}
+
+func (s *Store) fixedCreateInvoice(inv Invoice) Invoice {
+	if inv.Currency == "EUR" {
+		s.rateReads++ // only invoice creation reads the current partner rate
+		inv.FXRate = s.lastGoodRate.Value
+		inv.Amount = int(math.Round(inv.AmountEUR * inv.FXRate * 100))
+	}
+	s.invoices[inv.ID] = inv // GBP never consults the feed
+	return inv
+}
+```
 
 Three details decide whether this is real.
 
@@ -120,7 +200,27 @@ The path that catches people is the refund. The quote from the business-flows ch
 checks the amount against what remains in pence. For a euro invoice, it must first convert the
 requested euro amount to pence. Here is how the vulnerable build did it:
 
-{{excerpt:ch10-refund-quote-vulnerable}}
+```go
+func vulnerableChapter10Quote(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, inv, input, ok := chapter10QuoteRequest(w, r, store) // calls LoadInvoiceFor
+		if !ok {
+			return
+		}
+		amountPence := int(input.Amount) // GBP requests already carry integer pence
+		if inv.Currency == "EUR" {
+			amountPence = chapter10Pence(input.Amount, store.rates["EUR"])
+		}
+		if amountPence <= 0 || amountPence > inv.Amount-inv.Refunded {
+			http.Error(w, "invalid quote amount", http.StatusBadRequest)
+			return
+		}
+		quote := store.newQuote(user, inv, amountPence)
+		store.noteQuote(user.Tenant, clock())
+		writeJSON(w, quote)
+	}
+}
+```
 
 It converts at `store.rates["EUR"]`: today's rate, whatever the poller last stored. Fix the poller
 and this is still wrong, in two ways. A bad rate that reached the store before the fix is still
@@ -131,7 +231,32 @@ plainly owed. Two amounts, converted at two rates, are being compared as if they
 repair is the one the refund chapter made for the quote, applied to the rate: confirm uses the
 invoice stored with the quote; quote uses the rate stored with the invoice.
 
-{{excerpt:ch10-refund-quote-fixed}}
+```go
+func fixedChapter10Quote(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, inv, input, ok := chapter10QuoteRequest(w, r, store) // calls LoadInvoiceFor
+		if !ok {
+			return
+		}
+		amountPence := int(input.Amount) // GBP requests already carry integer pence
+		if inv.Currency == "EUR" {
+			if inv.FXRate == 0 {
+				store.opsPages++ // manual reconciliation, never today's rate
+				http.Error(w, "rate_reconciliation_required", http.StatusConflict)
+				return
+			}
+			amountPence = chapter10Pence(input.Amount, inv.FXRate)
+		}
+		if amountPence <= 0 || amountPence > inv.Amount-inv.Refunded {
+			http.Error(w, "invalid quote amount", http.StatusBadRequest)
+			return
+		}
+		quote := store.newQuote(user, inv, amountPence)
+		store.noteQuote(user.Tenant, clock())
+		writeJSON(w, quote)
+	}
+}
+```
 
 The quote stores the pence it computed, so `ConfirmRefund` and the tenant allowance never convert
 again. A euro invoice from before this chapter, with no `FXRate` on it, gets no quote until someone

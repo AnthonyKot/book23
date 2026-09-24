@@ -26,6 +26,12 @@ the intentionally vulnerable mode uses default redirect behavior.
 settings, a route-table public allow-list, an admin health probe, and a debug error-body
 counterexample. Chapter 8 keeps the public fixture login route in its allow-list alongside
 health and the two OTP routes, so the earlier session lesson remains operable.
+`NewChapter10App` retains those repairs and uses Chapter 9's fixed host policy, with a
+temporary gateway denial of `/v1` until the cumulative Chapter 9 integration removes its
+registered routes. `PollRates` models one hourly poll with injected time and outbound
+transport in tests. Vulnerable mode accepts the partner's arbitrary rate map and converts
+refunds at the latest rate; fixed mode checks a typed EUR row, retains the last good rate,
+and quotes refunds at the invoice's recorded rate. No scheduler or real partner is included.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish
 that a real gateway matches its repository configuration, that traffic telemetry is complete,

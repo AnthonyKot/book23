@@ -33,6 +33,8 @@ type Invoice struct {
 	Tenant          string   `json:"tenant"`
 	Number          string   `json:"number"`
 	Amount          int      `json:"amount"`
+	AmountEUR       float64  `json:"-"`
+	FXRate          float64  `json:"-"`
 	Refunded        int      `json:"refunded"`
 	LineItems       []string `json:"line_items"`
 	Currency        string   `json:"currency"`
@@ -60,6 +62,10 @@ type Store struct {
 	quoteVelocity   map[string]int
 	reminders       map[string]int
 	branding        map[string]Branding
+	rates           map[string]float64
+	lastGoodRate    Rate
+	rateReads       int
+	opsPages        int
 	nextQuoteNumber int
 }
 
