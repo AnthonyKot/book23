@@ -36,3 +36,18 @@ Chapter 4's shared-handler lookup budget. `service/ch09_test.go` now checks invo
 responses and its absence in 404 responses for every exercise case in both modes. `go test ./...`,
 `./verify.sh`, and `git diff --check` passed. Next: Chapter 10; archive Kiln and SwissBorg's own
 accounts, gate its claims, then check the stored FX rate and refund quote against Chapter 6.
+
+Chapter 10 completed: four direct Kiln/SwissBorg primary records are archived, checksummed and
+covered by fifteen located claims. The chapter now uses Kiln's precise 150k withdrawal-authority
+condition, keeps the two firms' decoder accounts attributed, says SwissBorg reported *over*
+192,000 SOL, and scopes Ledger's rate band to the fixture. The redirect response is 0.95 so its
+effect is visible; exercise cases start from a known 0.92 seed and fresh invoices. The brief and
+CONTEXT now require EUR→pence conversion before Chapter 6's remaining-balance check, storage of
+quote pence for confirm/allowance, and 409/manual reconciliation for older EUR invoices without
+`FXRate`. `go test ./...`, `./verify.sh`, `git diff --check`, archive hashes, and claim-ledger
+structure passed. Chapters 08 and 10 still lack Go code by design; Chapter 09 remains the only
+new executable pilot in this pass. Review report: `review/codex-2026-09-24-08-10.md`.
+
+The Chapter 08–10 review is complete. Next authorized steps belong to the author/Lane A:
+read the three drafts and report, implement the remaining service chapters from their briefs,
+then rebuild the site and decide when to publish. This review did not rebuild or push.

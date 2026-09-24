@@ -53,6 +53,7 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 | Web app origin | `https://app.ledger.example` is the sole production `CORSOrigins` entry | ch. 8 | 11 |
 | Health routes | `GET /v2/health` is `Public` and returns `{"ok":true}`; `GET /v2/admin/health` is `TenantAdmin` and returns version only in fixed mode | ch. 8 | 11 |
 | Euro invoice | 412 (Cedar), €300.00 → £276.00 at 0.92 (27600 pence); invoice records `FXRate` and `AmountEUR`; euro band accepted from the feed 0.70–1.10; `store.rates` read only in `CreateInvoice` | ch. 10 | — |
+| Euro refund quote | Request `amount` is EUR for a EUR invoice; convert with its recorded `FXRate` to integer pence before the remaining-balance check; store quote pence for confirm and the tenant allowance; a legacy EUR invoice missing `FXRate` returns 409 `rate_reconciliation_required` for manual reconciliation | ch. 10 | 11 |
 | Webhook test route | `POST /v2/webhooks/test` body `{"url"}`; all outbound fetches through one `egress` client | ch. 7 | 10, 11 |
 | Refund quote | quote `q-771` for invoice 104 | ch. 1 | 6 |
 | Current API | `/v2` | ch. 0 | all |
@@ -68,8 +69,8 @@ Only these people exist. Chapters never invent colleagues, meetings or quotes fo
 | Webhook URL per tenant | `https://hooks.cedar.example/ledger` | ch. 7 | 11 |
 | Tenant branding logo | tenant-configured `LogoURL` fetched during `/v1/invoices/{id}/pdf` rendering through `egress` | ch. 7 | 11 |
 | Egress allow-list | public IPs only, no redirects followed | ch. 7 | 11 |
-| Partner feed | exchange rates from `rates.partner.example` | ch. 10 | 11 |
-| Rate row Ledger trusts | `{"EUR": 0.92}` (vulnerable: written straight into invoice totals) | ch. 10 | — |
+| Partner feed | exchange rates from `GET https://rates.partner.example/latest`, polled hourly; EUR values are pounds per euro | ch. 10 | 11 |
+| Rate row Ledger trusts | `{"EUR": 0.92}` (vulnerable: written straight into invoice totals; fixed: typed `rateRow{EUR}`, unknown fields rejected, 0.70–1.10 band, otherwise last good rate retained and Ops paged) | ch. 10 | — |
 | Two-user test loop | every route serving invoices × {Alice→104, Alice→205, Ben→104} | ch. 1 | all |
 
 Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.tsv`, not here.
