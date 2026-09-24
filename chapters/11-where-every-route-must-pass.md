@@ -108,8 +108,8 @@ missing.
   user's request, and only then does the outbound client resolve, refuse the private address, or
   decline the redirect. The earlier PDF logo route used the same client before its `/v1` route
   was retired. A 400 from `egress` is a request that was perfectly authorized.
-- **The rate feed has no inbound request at all.** The fixture calls `PollRates` to model an
-  hourly job; it does not schedule one. Its input is the partner's response, and its checks, the
+- **The rate feed has no inbound request at all.** `PollRates` is the hourly fetch; nothing in
+  the fixture schedules it, and nobody calls in. Its input is the partner's response, and its checks, the
   strict row, the band, the last good rate, are the road's checks pointed the other way. The
   stored `FXRate` is what lets the refund quote on the road stay ignorant of the feed.
 

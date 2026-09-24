@@ -44,6 +44,7 @@ app still calls, and a small platform team, Ops, that runs the gateway in front 
 written in Go with nothing but the standard library, so every check is visible in the handler, and
 every handler you read in this book exists as a file whose tests run.
 
-Ledger is a teaching example, not a reconstruction of anyone's system. The incidents that open
+Ledger is a teaching example, not a reconstruction of anyone's system. This is not a reference
+on tools or process either: no scanners, no programme, no checklist beyond the one question. The incidents that open
 each chapter are real and are told from the original public record. What Ledger does is let you see
 the same mistake in fifteen lines, fix it, and then go looking for the door you forgot.

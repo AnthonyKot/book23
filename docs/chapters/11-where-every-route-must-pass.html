@@ -102,8 +102,8 @@
       <p class="essay-book">Incident: No incident</p>
       <p class="essay-payoff">Ten checks, one road. Every request takes it, and the test that walks the table is the one you keep.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 2 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- No incident in this chapter. Every statement about Ledger is asserted by service/ch11_test.go once Lane A builds it (briefs/11.md); the two Go blocks are marked excerpts. -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- No incident in this chapter. The route-wide properties and exercise are asserted by service/ch11_test.go; the two Go blocks are marked excerpts. -->
 
 <p>The opener asked one question of a Coinbase trade: which check did this request assume had
 already happened? Ten chapters gave ten answers, and each answer was a place as much as a check.
@@ -119,9 +119,17 @@ walks the road once, end to end, and then shows the one test that walks it for y
 <p>Here is the finished build, the one every chapter&#39;s fixed side accumulates into, composed in one
 place. Go wraps handlers from the inside out, so the code reads bottom-up: the last line is the
 first thing a request meets.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch11-request-path</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func chapter11RequestPath(mux *http.ServeMux, routes []Route, store *Store,
+	sessions *sessionStore, limits *chapter04Limits, settings Settings) http.Handler {
+	var handler http.Handler = mux
+	handler = chapter09LookupGateway(Fixed, limits, handler)
+	handler = chapter05Authorization(Fixed, mux, routes, store, sessions, handler)
+	handler = chapter08ErrorWriter(settings, store, handler)
+	handler = chapter02Identity(Fixed, sessions, handler)
+	handler = chapter09Gateway(Fixed, handler)
+	return handler
+}
+</code></pre>
 <p>Read it in the order a request does.</p>
 <ol>
 <li><strong>The host filter</strong> (the inventory chapter). <code>r.Host</code> must be <code>api.ledger.example</code>. Any
@@ -165,7 +173,8 @@ function-level chapter&#39;s declaration table is only safe because the object-l
 loader runs ahead of it.</li>
 <li><strong>The error writer outside authorization.</strong> Put it inside and it wraps the handler only; a 404
 raised by the scope layer would go out with whatever body that layer wrote. Outside, it sees
-every 404 on the invoice routes regardless of which layer raised it, and the body is one string.</li>
+every 404 on <code>GET /v2/invoices/{id}</code> after the host filter passes, regardless of which lower
+layer raised it, and the body is one string.</li>
 <li><strong>The host filter outside everything.</strong> Every other layer is keyed on something the request
 carries, a token, a path, a tenant. The host filter is keyed on the list Ops wrote down. If it
 sat inside identity, a staging request would be given a person before being refused, and the
@@ -188,14 +197,14 @@ route the allow-list does not name. The misconfiguration chapter&#39;s exposure,
 <li><strong>The inventory is a test.</strong> <code>ReconcileInventory</code> compares declared hosts, code routes, gateway
 surfaces and traffic, and the fixed build&#39;s output is empty. It runs in the build, not in the
 request, because the host it is looking for is one no request would tell you about.</li>
-<li><strong><code>egress</code> acts on the way out.</strong> The webhook test and the PDF logo fetch pass every inbound
-layer as an ordinary user&#39;s requests, and only then does the outbound client resolve, refuse
-the private address, or decline the redirect. A 400 from <code>egress</code> is a request that was
-perfectly authorized.</li>
-<li><strong>The rate feed has no request at all.</strong> <code>PollRates</code> runs on the hour with nobody calling. Its
-input is the partner&#39;s response, and its checks, the strict row, the band, the last good rate,
-are the road&#39;s checks pointed the other way. The stored <code>FXRate</code> is what lets the refund quote
-on the road stay ignorant of the feed.</li>
+<li><strong><code>egress</code> acts on the way out.</strong> The webhook test passes every inbound layer as an ordinary
+user&#39;s request, and only then does the outbound client resolve, refuse the private address, or
+decline the redirect. The earlier PDF logo route used the same client before its <code>/v1</code> route
+was retired. A 400 from <code>egress</code> is a request that was perfectly authorized.</li>
+<li><strong>The rate feed has no inbound request at all.</strong> <code>PollRates</code> is the hourly fetch; nothing in
+the fixture schedules it, and nobody calls in. Its input is the partner&#39;s response, and its checks, the
+strict row, the band, the last good rate, are the road&#39;s checks pointed the other way. The
+stored <code>FXRate</code> is what lets the refund quote on the road stay ignorant of the feed.</li>
 </ul>
 <p>So &quot;where every route must pass&quot; is three places, not one: the composition above for the way in,
 <code>egress</code> for the way out, and construction time for the shape of the service itself. A control
@@ -205,9 +214,31 @@ in any other place is a control on the route someone happened to test.</p>
 Alice and as Ben. The finished build has twenty routes, three callers with different roles, and
 a fourth caller with no token. The loop grows to match, and it reads the route table rather than
 a list someone typed.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch11-every-route-every-caller</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func TestChapter11EveryRouteEveryCaller(t *testing.T) {
+	routes := NewChapter10App(Fixed).Routes()
+	if len(routes) != 20 {
+		t.Fatalf(&quot;route inventory changed: %d&quot;, len(routes))
+	}
+	for _, route := range routes {
+		for _, cell := range chapter11ConcreteRequests(t, route) {
+			for _, caller := range chapter11Callers {
+				t.Run(route.Method+&quot; &quot;+cell.path+&quot;/&quot;+caller.name, func(t *testing.T) {
+					app := chapter11App()
+					path := cell.path
+					if route.Pattern == &quot;/v2/invoices&quot; &amp;&amp; caller.tenant != &quot;&quot; {
+						path += &quot;?tenant=&quot; + caller.tenant
+					}
+					got := chapter04Request(t, app, route.Method, path, caller.token, &quot;192.0.2.44&quot;, cell.body)
+					chapter11AssertTenant(t, caller, got)
+					chapter11AssertNoInternalFields(t, got)
+					chapter11AssertOpaqueInvoice404(t, route, got)
+					chapter11AssertDeclaredStatus(t, route, cell, caller, got)
+				})
+			}
+		}
+	}
+}
+</code></pre>
 <p>Four properties, checked for every registered route and every caller, on the fixed build:</p>
 <ul>
 <li><strong>No body ever carries another tenant&#39;s data.</strong> Ben&#39;s responses never contain the string
@@ -216,10 +247,12 @@ object-level chapter&#39;s promise made for routes that chapter never saw.</li>
 <li><strong>No body ever carries an internal field.</strong> <code>CollectionsNote</code> and <code>Margin</code> appear in no
 response to anyone, Dana included. The property chapter&#39;s view is in force on every route that
 encodes an invoice, including the ones added after it.</li>
-<li><strong>Every 404 on an invoice route has the same body.</strong> Whatever layer raised it.</li>
+<li><strong>Every 404 on <code>GET /v2/invoices/{id}</code> at the public host has the same body.</strong> Whichever lower
+layer raised it.</li>
 <li><strong>A refused status comes from the layer the declaration predicts.</strong> Anonymous on a <code>User</code>
 route is 401; a user on a <code>TenantAdmin</code> route is 403; anyone on a foreign invoice is 404; and a
-<code>Public</code> route answers 200 to a request with no token.</li>
+<code>Public</code> route does not refuse a request merely for having no token. A valid request may
+answer 200; an incomplete one may still get 400 from its handler.</li>
 </ul>
 <p>What the loop does not check is as important. It sends one request per cell, so it cannot see the
 business-flow chapter&#39;s third refund or the resource chapter&#39;s thirty-first lookup; those are
