@@ -97,8 +97,8 @@
       <p class="essay-book">Incident: Kiln and SwissBorg, 2025</p>
       <p class="essay-payoff">The request you validated went out. The response you did not validate came back.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 5 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- Incident claims are gated in checks/claims/10.tsv against the archived Kiln and SwissBorg statements; the rejected SiriusXM/Hyundai pointer is recorded in CONTEXT.md. -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- Incident claims: checks/claims/10.tsv -->
 
 <h1 id="what-you-swallowed">What You Swallowed</h1>
 <p>On 31 August 2025 SwissBorg, a Swiss crypto wealth platform, did something routine. They used the
@@ -138,9 +138,35 @@ needs a rate, and it gets one from a partner feed at <code>rates.partner.example
 <code>GET /latest</code> with a row like <code>{&quot;EUR&quot;: 0.92}</code>: pounds per euro. A poller fetches the row every hour
 and the store keeps it. Here is the poller and the invoice creation that uses it, before this
 chapter&#39;s fix.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-rates-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+<pre><code class="language-go">func (s *Store) vulnerablePollRates() error {
+	reply, err := http.Get(partnerRateURL) // default client follows redirects
+	if err != nil {
+		return err
+	}
+	defer reply.Body.Close()
+	if reply.StatusCode != http.StatusOK {
+		return fmt.Errorf(&quot;partner status %d&quot;, reply.StatusCode)
+	}
+	var row map[string]float64
+	if err := json.NewDecoder(reply.Body).Decode(&amp;row); err != nil {
+		return err
+	}
+	s.rates = row // every key in the partner response is trusted
+	return nil
+}
 
-
+func (s *Store) vulnerableCreateInvoice(inv Invoice) Invoice {
+	if rate, ok := s.rates[inv.Currency]; ok {
+		amount := float64(inv.Amount)
+		if inv.Currency == &quot;EUR&quot; {
+			amount = inv.AmountEUR * 100
+		}
+		inv.Amount = int(math.Round(amount * rate))
+	}
+	s.invoices[inv.ID] = inv
+	return inv
+}
+</code></pre>
 <p>Read it the way you now read a request handler. The fetch is a bare <code>http.Get</code>, the call the SSRF
 chapter banned from handlers; the poller predates <code>egress</code> and nobody moved it. The body is
 decoded into a <code>map[string]float64</code> and the whole map becomes the store&#39;s rate table, every key,
@@ -160,12 +186,57 @@ address the <code>Location</code> header names, from which a row comes back with
 tell. The third case is Kiln&#39;s in miniature: the expected thing arrived, the extra thing arrived
 beside it, and the code applied everything that arrived.</p>
 <p>The fix treats the feed like a request body from a stranger:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-rate-row</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+<pre><code class="language-go">type rateRow struct {
+	EUR float64 `json:&quot;EUR&quot;`
+}
+</code></pre>
+<pre><code class="language-go">func decodeRateRow(body io.Reader) (rateRow, error) {
+	var row rateRow
+	decoder := json.NewDecoder(body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&amp;row); err != nil {
+		return rateRow{}, err
+	}
+	var extra any
+	if err := decoder.Decode(&amp;extra); err != io.EOF {
+		return rateRow{}, fmt.Errorf(&quot;extra partner JSON&quot;)
+	}
+	if row.EUR &lt; 0.70 || row.EUR &gt; 1.10 || math.IsNaN(row.EUR) || math.IsInf(row.EUR, 0) {
+		return rateRow{}, fmt.Errorf(&quot;EUR rate outside accepted band&quot;)
+	}
+	return row, nil
+}
 
+func (s *Store) fixedPollRates(ctx context.Context, fetcher outboundFetcher, at time.Time) error {
+	reply, err := fetcher.Fetch(ctx, partnerRateURL) // shared egress pins DNS and refuses redirects
+	if err != nil {
+		s.opsPages++
+		return err
+	}
+	defer reply.Body.Close()
+	if reply.StatusCode != http.StatusOK {
+		s.opsPages++
+		return fmt.Errorf(&quot;partner status %d&quot;, reply.StatusCode)
+	}
+	row, err := decodeRateRow(reply.Body)
+	if err != nil {
+		s.opsPages++
+		return err
+	}
+	s.lastGoodRate = Rate{Value: row.EUR, AsOf: at}
+	return nil
+}
 
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-rates-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+func (s *Store) fixedCreateInvoice(inv Invoice) Invoice {
+	if inv.Currency == &quot;EUR&quot; {
+		s.rateReads++ // only invoice creation reads the current partner rate
+		inv.FXRate = s.lastGoodRate.Value
+		inv.Amount = int(math.Round(inv.AmountEUR * inv.FXRate * 100))
+	}
+	s.invoices[inv.ID] = inv // GBP never consults the feed
+	return inv
+}
+</code></pre>
 <p>Three details decide whether this is real.</p>
 <ul>
 <li><strong>The response is decoded into a declared type, with unknown fields rejected.</strong> <code>rateRow</code> has one
@@ -209,9 +280,26 @@ so the resolve, the private-address check, and the no-redirect rule are inherite
 <code>POST /v2/refunds/quote</code> with <code>{invoice_id, amount}</code>, loads the invoice with <code>LoadInvoiceFor</code> and
 checks the amount against what remains in pence. For a euro invoice, it must first convert the
 requested euro amount to pence. Here is how the vulnerable build did it:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-refund-quote-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func vulnerableChapter10Quote(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, inv, input, ok := chapter10QuoteRequest(w, r, store) // calls LoadInvoiceFor
+		if !ok {
+			return
+		}
+		amountPence := int(input.Amount) // GBP requests already carry integer pence
+		if inv.Currency == &quot;EUR&quot; {
+			amountPence = chapter10Pence(input.Amount, store.rates[&quot;EUR&quot;])
+		}
+		if amountPence &lt;= 0 || amountPence &gt; inv.Amount-inv.Refunded {
+			http.Error(w, &quot;invalid quote amount&quot;, http.StatusBadRequest)
+			return
+		}
+		quote := store.newQuote(user, inv, amountPence)
+		store.noteQuote(user.Tenant, clock())
+		writeJSON(w, quote)
+	}
+}
+</code></pre>
 <p>It converts at <code>store.rates[&quot;EUR&quot;]</code>: today&#39;s rate, whatever the poller last stored. Fix the poller
 and this is still wrong, in two ways. A bad rate that reached the store before the fix is still
 the rate every quote converts at. And even with a perfect feed, a customer billed €300.00 at 0.92
@@ -220,9 +308,31 @@ the remaining-balance check, the one that stops over-refunding, refuses a refund
 plainly owed. Two amounts, converted at two rates, are being compared as if they were one. The
 repair is the one the refund chapter made for the quote, applied to the rate: confirm uses the
 invoice stored with the quote; quote uses the rate stored with the invoice.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-refund-quote-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func fixedChapter10Quote(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, inv, input, ok := chapter10QuoteRequest(w, r, store) // calls LoadInvoiceFor
+		if !ok {
+			return
+		}
+		amountPence := int(input.Amount) // GBP requests already carry integer pence
+		if inv.Currency == &quot;EUR&quot; {
+			if inv.FXRate == 0 {
+				store.opsPages++ // manual reconciliation, never today&#39;s rate
+				http.Error(w, &quot;rate_reconciliation_required&quot;, http.StatusConflict)
+				return
+			}
+			amountPence = chapter10Pence(input.Amount, inv.FXRate)
+		}
+		if amountPence &lt;= 0 || amountPence &gt; inv.Amount-inv.Refunded {
+			http.Error(w, &quot;invalid quote amount&quot;, http.StatusBadRequest)
+			return
+		}
+		quote := store.newQuote(user, inv, amountPence)
+		store.noteQuote(user.Tenant, clock())
+		writeJSON(w, quote)
+	}
+}
+</code></pre>
 <p>The quote stores the pence it computed, so <code>ConfirmRefund</code> and the tenant allowance never convert
 again. A euro invoice from before this chapter, with no <code>FXRate</code> on it, gets no quote until someone
 reconciles it by hand. And <code>store.rates</code> is now consulted in one place: when an invoice is
