@@ -87,9 +87,10 @@ func (s *Store) UnrestrictedRefund(id string, actor User, at time.Time) (Refund,
 }
 ```
 
-Read it looking for £1,000. It is not there. The handler checks that the quote belongs to the
-caller's tenant, that it has not already been confirmed, and that the amount does not exceed what
-is left on the invoice. All three checks are right and all three are per request. Nothing asks what
+Read it looking for £1,000. It is not there. The handler is a thin wrapper; the checks live in
+the store method under it, `UnrestrictedRefund`. It checks that the quote belongs to the caller's
+tenant, that it has not already been confirmed, and that the amount does not exceed what is left
+on the invoice. All three checks are right and all three are per request. Nothing asks what
 the tenant has already refunded today. A script that requests a quote for £400 on invoice 104 and
 confirms it, then requests another and confirms that, then a third, has refunded £1,200 by the
 third confirm. Each quote was valid. Each confirm was valid. The button that would have stopped
@@ -237,8 +238,7 @@ Three things sit around that method.
    pounds cannot see a pattern about pace. The complaint's evidence was patterns: 436 accounts,
    12,500 addresses. Somebody has to be counting.
 
-This table is the chapter's test, to be run in both modes once the refund routes exist in the
-service. The rows are sequences, not single requests, because the bug is a sequence.
+This table is the chapter's test, and it runs in both modes. The rows are sequences, not single requests, because the bug is a sequence.
 
 | Sequence | Caller | Vulnerable build | Fixed build |
 | :--- | :--- | :--- | :--- |

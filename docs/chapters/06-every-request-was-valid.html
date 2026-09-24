@@ -97,8 +97,8 @@
       <p class="essay-book">Incident: Ticketmaster bots, 2021 complaint</p>
       <p class="essay-payoff">Every request was valid. The harm was the volume, and the limit was on the wrong object.</p>
     </header>
-    <div class="currency-note"><strong>Draft</strong>Status: drafted. 4 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!-- Incident claims are gated in checks/claims/06.tsv against the FTC complaint, the stipulated order and the FTC release (resources/incidents/06/). Everything about the broker is the government's allegation; the defendants neither admitted nor denied it. -->
+    <div class="currency-note"><strong>Draft</strong>Status: drafted. Every Go block on this page is an excerpt of <code>service/</code> and its exercise table runs as a test in both builds.</div>
+    <article class="prose"><!-- Incident claims: checks/claims/06.tsv (archived FTC complaint, order and release). The broker account is alleged; defendants neither admitted nor denied it. -->
 
 <p>In January 2021 the United States, on the Federal Trade Commission&#39;s behalf, filed a complaint in
 the Eastern District of New York against a Long Island ticket broker called Just In Time Tickets
@@ -141,12 +141,45 @@ reach £1,000 for Cedar the confirm button greys out and a note tells Alice to a
 <p>Here is the confirm handler behind that button, as it stands after the earlier chapters. The quote
 was created with <code>LoadInvoiceFor</code>, so it can only exist for an invoice Alice&#39;s tenant owns, and
 confirm refunds the invoice stored with the quote, never one named in the body.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch06-vulnerable-confirm</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
+<pre><code class="language-go">func vulnerableChapter06Confirm(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, quote, ok := chapter06ConfirmInput(w, r, store)
+		if !ok {
+			return // session, body and quote tenant were checked
+		}
+		refund, status := store.UnrestrictedRefund(quote.ID, user, clock())
+		writeChapter06Decision(w, status, refund)
+	}
+}
 
-
-<p>Read it looking for £1,000. It is not there. The handler checks that the quote belongs to the
-caller&#39;s tenant, that it has not already been confirmed, and that the amount does not exceed what
-is left on the invoice. All three checks are right and all three are per request. Nothing asks what
+func (s *Store) UnrestrictedRefund(id string, actor User, at time.Time) (Refund, string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	quote, ok := s.quotes[id]
+	if !ok || quote.Tenant != actor.Tenant {
+		return Refund{}, refundMissing
+	}
+	if quote.Status == refundConfirmed {
+		refund, found := s.refundByQuoteLocked(id)
+		if found {
+			return refund, refundConfirmed
+		}
+		return Refund{}, refundInvalid
+	}
+	if quote.Status == refundNeedsApproval {
+		return Refund{}, refundNeedsApproval
+	}
+	invoice, found := s.invoices[quote.InvoiceID]
+	if !found || quote.Amount &lt;= 0 || quote.Amount &gt; invoice.Amount-invoice.Refunded {
+		return Refund{}, refundInvalid
+	}
+	return s.recordRefundLocked(quote, actor, at), refundConfirmed
+}
+</code></pre>
+<p>Read it looking for £1,000. It is not there. The handler is a thin wrapper; the checks live in
+the store method under it, <code>UnrestrictedRefund</code>. It checks that the quote belongs to the caller&#39;s
+tenant, that it has not already been confirmed, and that the amount does not exceed what is left
+on the invoice. All three checks are right and all three are per request. Nothing asks what
 the tenant has already refunded today. A script that requests a quote for £400 on invoice 104 and
 confirms it, then requests another and confirms that, then a third, has refunded £1,200 by the
 third confirm. Each quote was valid. Each confirm was valid. The button that would have stopped
@@ -157,9 +190,17 @@ second call sees the quote is already confirmed and returns the original refund.
 idempotency, and it is worth having, but it protects one quote from being confirmed twice. The
 script never confirms a quote twice. It asks for a new one.</p>
 <p>The fix puts the business rule where the business flow actually executes:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch06-fixed-confirm</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func fixedChapter06Confirm(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, quote, ok := chapter06ConfirmInput(w, r, store)
+		if !ok {
+			return
+		}
+		refund, status := store.ConfirmRefund(quote.ID, user, clock())
+		writeChapter06Decision(w, status, refund)
+	}
+}
+</code></pre>
 <p>Three details decide whether this is real.</p>
 <ul>
 <li><strong>The total is computed from stored refunds, inside the store, at the moment of confirm.</strong> The
@@ -182,9 +223,17 @@ complaint.</p>
 the tenant key <code>ck_cedar_…</code> identifies Cedar&#39;s integration, not a person. The refund routes accept
 both, because Cedar&#39;s accounting system issues refunds automatically. Here is the per-user
 counter as it would sit in the handler:</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch06-per-user-counter</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func refundedToday(user User, refunds []Refund, at time.Time) int {
+	total := 0
+	today := at.UTC().Format(&quot;2006-01-02&quot;)
+	for _, refund := range refunds {
+		if refund.Actor == user.Name &amp;&amp; refund.At.UTC().Format(&quot;2006-01-02&quot;) == today {
+			total += refund.Amount
+		}
+	}
+	return total
+}
+</code></pre>
 <p>Now run the same script through the integration key. The key resolves to a service identity that
 has never refunded anything and gets a fresh bucket. Alice&#39;s session is at £1,000 and stopped;
 Cedar&#39;s key confirms the fourth quote. Dana has her own bucket too. The limit was
@@ -208,9 +257,42 @@ Rate limits bound how fast; this rule bounds how much.</li>
 <h2 id="where-the-limit-lives-and-what-watches-it">Where the limit lives, and what watches it</h2>
 <p>The fixed handler above calls into the store. Here is the store method, which is the choke point
 for this chapter in the way <code>LoadInvoiceFor</code> was for the first.</p>
-<div class="excerpt-pending" role="note"><span>Code pending</span><code>ch06-tenant-allowance</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
-
-
+<pre><code class="language-go">func (s *Store) ConfirmRefund(id string, actor User, at time.Time) (Refund, string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	quote, ok := s.quotes[id]
+	if !ok || quote.Tenant != actor.Tenant {
+		return Refund{}, refundMissing
+	}
+	if quote.Status == refundConfirmed {
+		refund, found := s.refundByQuoteLocked(id)
+		if found {
+			return refund, refundConfirmed
+		}
+		return Refund{}, refundInvalid
+	}
+	if quote.Status == refundNeedsApproval {
+		return Refund{}, refundNeedsApproval
+	}
+	invoice, found := s.invoices[quote.InvoiceID]
+	if !found || quote.Amount &lt;= 0 || quote.Amount &gt; invoice.Amount-invoice.Refunded {
+		return Refund{}, refundInvalid
+	}
+	today := at.UTC().Format(&quot;2006-01-02&quot;)
+	total := 0
+	for _, refund := range s.refunds {
+		if refund.Tenant == quote.Tenant &amp;&amp; refund.At.UTC().Format(&quot;2006-01-02&quot;) == today {
+			total += refund.Amount
+		}
+	}
+	if total+quote.Amount &gt; s.allowances[quote.Tenant] {
+		quote.Status = refundNeedsApproval
+		s.quotes[id] = quote
+		return Refund{}, refundNeedsApproval
+	}
+	return s.recordRefundLocked(quote, actor, at), refundConfirmed
+}
+</code></pre>
 <p>Every route that can move money out of a tenant, <code>/v2/refunds/confirm</code> and any batch or
 integration route added later, goes through <code>ConfirmRefund</code>, which takes the tenant from the
 stored quote. A handler cannot forget the allowance because the handler does not enforce it.</p>
@@ -228,8 +310,7 @@ minute for an hour, all under £1,000, is not blocked, it is flagged, because a 
 pounds cannot see a pattern about pace. The complaint&#39;s evidence was patterns: 436 accounts,
 12,500 addresses. Somebody has to be counting.</li>
 </ol>
-<p>This table is the chapter&#39;s test, to be run in both modes once the refund routes exist in the
-service. The rows are sequences, not single requests, because the bug is a sequence.</p>
+<p>This table is the chapter&#39;s test, and it runs in both modes. The rows are sequences, not single requests, because the bug is a sequence.</p>
 <div class="table-scroll" role="region" aria-label="Table; scroll horizontally if needed" tabindex="0"><table>
 <thead>
 <tr>
