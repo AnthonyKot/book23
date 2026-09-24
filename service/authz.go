@@ -11,7 +11,7 @@ import (
 type scopedInvoiceKey struct{}
 type scopedUserKey struct{}
 
-func registerChapter05Routes(mux *http.ServeMux, routes []Route, store *Store, sessions *sessionStore, mode Mode) []Route {
+func registerChapter05Routes(mux *http.ServeMux, routes []Route, store *Store, sessions *sessionStore, mode Mode, retireV1 bool) []Route {
 	added := []Route{
 		{Method: http.MethodDelete, Pattern: "/v2/invoices/{id}"},
 		{Method: http.MethodPost, Pattern: "/v2/admin/invoices/{id}/void"},
@@ -26,7 +26,7 @@ func registerChapter05Routes(mux *http.ServeMux, routes []Route, store *Store, s
 	mux.HandleFunc("POST /v2/admin/invoices/{id}/void", chapter05Void(store))
 	mux.HandleFunc("GET /v2/admin/users", chapter05Users(sessions))
 	mux.HandleFunc("PATCH /v2/admin/users/{id}", chapter05UserPatch(sessions))
-	return declareChapter05Routes(append(routes, added...))
+	return declareRoutes(append(routes, added...), activeDeclarations(chapter05Declarations, retireV1))
 }
 
 func chapter05Authorization(mode Mode, mux *http.ServeMux, routes []Route, store *Store, sessions *sessionStore, next http.Handler) http.Handler {

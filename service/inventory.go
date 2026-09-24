@@ -87,6 +87,22 @@ func Chapter09Inventory(mode Mode) InventoryFixture {
 	if mode == Fixed {
 		fixture = fixedInventory
 	}
+	// The printed four-route fixture isolates the chapter's before/after pair.
+	// Reconciliation uses the complete registered table, including earlier repairs.
+	fixture.Code = NewChapter9App(mode).Routes()
+	fixture.Gateway = append([]Surface(nil), fixture.Gateway...)
+	for _, route := range fixture.Code {
+		public := Surface{PublicHost, route.Method, route.Pattern}
+		if !containsSurface(fixture.Gateway, public) {
+			fixture.Gateway = append(fixture.Gateway, public)
+		}
+		if mode == Vulnerable && len(route.Pattern) >= 4 && route.Pattern[:4] == "/v1/" {
+			staging := Surface{StagingHost, route.Method, route.Pattern}
+			if !containsSurface(fixture.Gateway, staging) {
+				fixture.Gateway = append(fixture.Gateway, staging)
+			}
+		}
+	}
 	return fixture
 }
 

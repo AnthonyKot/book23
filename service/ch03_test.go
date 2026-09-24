@@ -200,14 +200,16 @@ func TestChapter03MarshalGuardAndEarlierRepairs(t *testing.T) {
 		t.Fatalf("unguarded raw response = %d %q", w.Code, w.Body.String())
 	}
 	for name, old := range map[string]*App{
-		"Chapter 1":       NewApp(Fixed),
-		"Chapter 2":       NewChapter2App(Fixed),
-		"Chapter 9 pilot": NewChapter9App(Vulnerable),
+		"Chapter 1": NewApp(Fixed),
+		"Chapter 2": NewChapter2App(Fixed),
 	} {
 		got := request(t, old, PublicHost, "alice-token", "/v2/invoices/104")
 		if got.status != 200 || strings.Contains(got.body, "customer") || strings.Contains(got.body, "margin") {
 			t.Errorf("%s historical response changed: %+v", name, got)
 		}
+	}
+	if got := request(t, NewChapter9App(Vulnerable), PublicHost, "alice-token", "/v2/invoices/104"); got.status != 200 || !strings.Contains(got.body, `"number":"LGR-A7"`) || strings.Contains(got.body, "collections_note") {
+		t.Errorf("Chapter 9 cumulative view = %+v", got)
 	}
 
 	for _, mode := range []Mode{Vulnerable, Fixed} {

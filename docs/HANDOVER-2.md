@@ -13,7 +13,7 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 06 | Complete for batch 2; tenant allowance, approval and exercise tested | Author reviews thin confirm wrapper and reminder simulation |
 | 07 | Complete for batch 2; shared egress, webhook/PDF paths and exercise tested | Author checks logo-fixture wording |
 | 08 | Complete for batch 2; settings, probes, debug contrast and exercise tested | Author aligns public-route count and login |
-| 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
+| 09 | Complete for batch 2; cumulative through 02–08, full route inventory and retirement tested | Author checks three printed excerpts and exercise outcomes |
 | 10 | Complete for batch 2; partner rate, invoice and refund contrasts tested | Author reviews poller fixture and interim v1 gateway block |
 
 Chapter 01's exercise is schematic: it omits the refund quote amount, and its answer both
@@ -294,13 +294,41 @@ Chapter 01 exercise as a literal wire example.
   exceed 100000 pence, legacy reconciliation, and earlier loader, view, role and host repairs.
   Five printed excerpts match their marked source; `verify.sh` requires tests,
   equality and no Chapter 10 placeholders. Rendered HTML awaits the site rebuild.
-- **Interim Chapter 09 seam:** Chapter 10 applies the fixed Chapter 09 host policy
-  and blocks `/v1` at the gateway, but the older routes are still registered in
-  its route table. The next cumulative Chapter 09 pass must remove those routes
-  from Chapter 10's composition and align its inventory with the integrated
-  `NewChapter9App(Fixed)`. The current Chapter 09 pilot remains Chapter 01-only.
+- The Chapter 09 integration now removes `/v1` from Chapter 10's registered
+  route table, and `NewChapter10App(Fixed).Routes()` equals the integrated
+  `NewChapter9App(Fixed).Routes()`; the earlier gateway-only block is gone.
   The fixture's `LGR-E4` invoice number and `Cedar Euro Customer` label are
   illustrative strings for invoice 412, not new canonical amounts.
 
-Next: Chapter 09 cumulative integration through Chapters 02–08, then rebuild the
-site. Do not push this implementation branch from Lane A.
+## Chapter 09 — cumulative integration completed in batch 2
+
+- `NewChapter9App` now composes Chapters 01–08 through the same registration,
+  identity, view, limits, access, refund, egress and settings paths as the prior
+  stages. Both modes keep those repairs. Vulnerable mode retains all three `/v1`
+  routes and the staging gateway rule; fixed mode registers no `/v1` routes and
+  rejects staging. Chapter 10 begins from the same fixed route table and host
+  policy. The three printed Chapter 09 blocks (`ch09-gateway-host-filter`,
+  `ch09-code-route-fixture`, `ch09-reconcile-inventory`) remain byte-identical to
+  their marked Go blocks and unchanged from the prior commit.
+- `Chapter09Inventory` expands the printed four-route teaching fixture with the
+  complete registered route table and gateway surfaces before reconciling. The
+  original four exercise findings remain exactly the same. The printed
+  `vulnerableDeprecated` list names three selected surfaces; the additional
+  `/v1/invoices` lookup and staging PDF path are included in the runtime gateway
+  list but not labelled deprecated in that printed list. This is an editorial
+  limitation of the frozen example, not an omitted code route.
+- `service/ch09_test.go` keeps the six exercise status pairs and four inventory
+  findings, then checks session expiry, typed PATCH, OTP lock, safe user/admin
+  views, role access, tenant allowance, public-route settings and outbound URL
+  denial in both modes. It proves staging's `/v1` email lookup misses the gateway
+  budget but reaches the shared-handler 30/min limit, while public `/v2` hits the
+  gateway budget. A retired `/v1` lookup remains 404 even after 31 probes, rather
+  than returning the old gateway's 429. The route test checks declarations, public gateway coverage,
+  fixed `/v1` removal and Chapter 10's matching fixed inventory.
+- The Chapter 03 historical-response test now treats Chapter 09 as a cumulative
+  safe-view stage rather than a four-field pilot. No chapter prose or marked
+  excerpt was changed. The site was already rebuilt in commit `425321e` with
+  zero pending blocks; the user plans the final excerpt/test review and any
+  further rebuild and push.
+
+Next: user review of Chapter 09 excerpt equality and test outcomes. No push from Lane A.

@@ -63,7 +63,7 @@ func NewChapter8App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter08, time.Now)
 }
 
-// NewChapter10App uses Chapters 1-8's repairs and the Chapter 9 fixed gateway policy.
+// NewChapter10App begins from Chapter 9's cumulative fixed route and host policy.
 func NewChapter10App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter10, time.Now)
 }
@@ -78,9 +78,8 @@ func (a *App) PollRates(ctx context.Context) error {
 	return a.store.fixedPollRates(ctx, a.rateFetcher, a.rateClock())
 }
 
-// NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
-// but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
-// staging host; batch 2 integrates the intervening repairs after Chapter 8.
+// NewChapter9App retains Chapters 1-8's repairs in both modes. Its fixed side
+// removes /v1 and the staging host; the vulnerable side leaves them serving.
 func NewChapter9App(mode Mode) *App {
 	return buildApp(mode, chapter09)
 }
@@ -131,7 +130,7 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 		panic("ledger: unknown mode " + mode)
 	}
 	settings := ProductionSettings()
-	if mode == Vulnerable {
+	if mode == Vulnerable && stage != chapter09 && stage != chapter10 {
 		settings = StagingSettings()
 	}
 	if override != nil {
@@ -143,29 +142,29 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 		seedChapter10(store, mode, clock())
 	}
 	mux := http.NewServeMux()
-	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10
+	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10
 	propertyMode := mode
-	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 		propertyMode = Fixed
 	}
 	var limits *chapter04Limits
-	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 		limits = newChapter04Limits(clock)
 	}
-	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10
+	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10
 	limitMode := mode
-	if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
+	if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 		limitMode = Fixed
 	}
-	flowStage := stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10
+	flowStage := stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10
 	flowMode := mode
-	if stage == chapter07 || stage == chapter08 || stage == chapter10 {
+	if stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 		flowMode = Fixed
 	}
 	var fetcher outboundFetcher
-	if stage == chapter07 || stage == chapter08 || stage == chapter10 {
+	if stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 		egressMode := mode
-		if stage == chapter08 || stage == chapter10 {
+		if stage == chapter08 || stage == chapter09 || stage == chapter10 {
 			egressMode = Fixed
 		}
 		fetcher = stage07Fetcher(egressMode, network)
@@ -181,7 +180,8 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 	} else {
 		mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, listInvoices(store))
 	}
-	if stage != chapter09 {
+	// The current list and refund routes remain registered in every chapter stage.
+	{
 		filteredList := Route{Method: http.MethodGet, Pattern: "/v2/invoices"}
 		quote := Route{Method: http.MethodPost, Pattern: "/v2/refunds/quote"}
 		confirm := Route{Method: http.MethodPost, Pattern: "/v2/refunds/confirm"}
@@ -219,13 +219,14 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 		}
 	}
 
-	serveV1 := stage != chapter09 || mode == Vulnerable
+	retireV1 := (stage == chapter09 && mode == Fixed) || stage == chapter10
+	serveV1 := !retireV1
 	if serveV1 {
 		read := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}"}
 		pdf := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf"}
 		routes = append(routes, read, pdf)
 		registerStageInvoiceRoute(mux, read, store, propertyStage, propertyMode, secure, false)
-		if stage == chapter07 || stage == chapter08 || stage == chapter10 {
+		if stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 			mux.HandleFunc(pdf.Method+" "+pdf.Pattern, chapter07PDF(store, fetcher))
 		} else {
 			registerStageInvoiceRoute(mux, pdf, store, propertyStage, propertyMode, secure, true)
@@ -262,31 +263,39 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 			mux.HandleFunc(requestOTP.Method+" "+requestOTP.Pattern, otpRequestHandler(limitMode, limits.challenges))
 			mux.Handle(verifyOTP.Method+" "+verifyOTP.Pattern,
 				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(limitMode, limits.challenges, sessions)))
-			handler = chapter04Gateway(limitMode, limits, handler)
+			if stage == chapter09 || stage == chapter10 {
+				lookupMode := mode
+				if stage == chapter10 {
+					lookupMode = Fixed
+				}
+				handler = chapter09LookupGateway(lookupMode, limits, handler)
+			} else {
+				handler = chapter04Gateway(limitMode, limits, handler)
+			}
 		}
-		if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
+		if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 			accessMode := mode
-			if stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter10 {
+			if stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 				accessMode = Fixed
 			}
-			routes = registerChapter05Routes(mux, routes, store, sessions, accessMode)
+			routes = registerChapter05Routes(mux, routes, store, sessions, accessMode, retireV1)
 			if flowStage {
-				routes = registerChapter06Routes(mux, routes, store, flowMode, clock)
+				routes = registerChapter06Routes(mux, routes, store, flowMode, clock, retireV1)
 			}
-			if stage == chapter07 || stage == chapter08 || stage == chapter10 {
+			if stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
 				webhookMode := mode
-				if stage == chapter08 || stage == chapter10 {
+				if stage == chapter08 || stage == chapter09 || stage == chapter10 {
 					webhookMode = Fixed
 				}
-				routes = registerChapter07Routes(mux, routes, webhookMode, fetcher)
+				routes = registerChapter07Routes(mux, routes, webhookMode, fetcher, retireV1)
 			}
-			if stage == chapter08 || stage == chapter10 {
+			if stage == chapter08 || stage == chapter09 || stage == chapter10 {
 				settingsMode := mode
-				if stage == chapter10 {
+				if stage == chapter09 || stage == chapter10 {
 					settingsMode = Fixed
 					settings = ProductionSettings()
 				}
-				routes = registerChapter08Routes(mux, routes, settingsMode, settings)
+				routes = registerChapter08Routes(mux, routes, settingsMode, settings, retireV1)
 				if settingsMode == Fixed {
 					if err := validateProductionSettings(settings, routes); err != nil {
 						panic(err)
@@ -294,7 +303,7 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 				}
 			}
 			handler = chapter05Authorization(accessMode, mux, routes, store, sessions, handler)
-			if stage == chapter08 || stage == chapter10 {
+			if stage == chapter08 || stage == chapter09 || stage == chapter10 {
 				handler = chapter08ErrorWriter(settings, store, handler)
 			}
 		}
@@ -309,14 +318,6 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 	}
 	if stage == chapter10 {
 		handler = chapter09Gateway(Fixed, handler)
-		previous := handler
-		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/v1/") {
-				http.NotFound(w, r)
-				return
-			}
-			previous.ServeHTTP(w, r)
-		})
 	}
 	app := &App{handler: handler, routes: routes, store: store}
 	if stage == chapter10 {

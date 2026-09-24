@@ -93,7 +93,7 @@ func chapter07PDF(store *Store, fetcher outboundFetcher) http.HandlerFunc {
 
 // end excerpt
 
-func registerChapter07Routes(mux *http.ServeMux, routes []Route, mode Mode, fetcher outboundFetcher) []Route {
+func registerChapter07Routes(mux *http.ServeMux, routes []Route, mode Mode, fetcher outboundFetcher, retireV1 bool) []Route {
 	route := Route{Method: http.MethodPost, Pattern: "/v2/webhooks/test"}
 	if mode == Vulnerable {
 		mux.HandleFunc(route.Method+" "+route.Pattern, vulnerableChapter07Webhook(fetcher))
@@ -102,5 +102,5 @@ func registerChapter07Routes(mux *http.ServeMux, routes []Route, mode Mode, fetc
 	}
 	policy := append(append([]Route{}, chapter05Declarations...), chapter06Declarations...)
 	policy = append(policy, chapter07Declarations...)
-	return declareRoutes(append(routes, route), policy)
+	return declareRoutes(append(routes, route), activeDeclarations(policy, retireV1))
 }

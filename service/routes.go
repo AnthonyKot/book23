@@ -41,6 +41,20 @@ func declareChapter05Routes(routes []Route) []Route {
 	return declareRoutes(routes, chapter05Declarations)
 }
 
+func activeDeclarations(policy []Route, retireV1 bool) []Route {
+	if !retireV1 {
+		return policy
+	}
+	active := make([]Route, 0, len(policy))
+	for _, route := range policy {
+		if len(route.Pattern) >= 4 && route.Pattern[:4] == "/v1/" {
+			continue
+		}
+		active = append(active, route)
+	}
+	return active
+}
+
 var chapter06Declarations = []Route{
 	{Method: http.MethodPost, Pattern: "/v2/refunds/{quote}/approve", Access: TenantAdmin},
 	{Method: http.MethodPost, Pattern: "/v2/invoices/{id}/remind", Access: UserAccess},

@@ -7,9 +7,8 @@ modes and demonstrates session-derived identity, a shared mobile key, and tenant
 Its login route uses hard-coded fixture passwords and its sessions are in memory; it is a teaching
 fixture, not deployable authentication. `NewChapter3App` keeps the earlier repairs and demonstrates
 stored-row exposure versus role-specific response views, typed PATCH requests, and a raw `Invoice`
-JSON guard. Historical stages retain their original four-field response shape. `NewChapter9App`
-is still a pilot that starts after the Chapter 1 loader repair; it does not yet contain Chapters
-2–8. `NewChapter4App` keeps the first three repairs and demonstrates OTP challenge locks, separate
+JSON guard. The Chapter 1 and 2 stages retain their original four-field response shape.
+`NewChapter4App` keeps the first three repairs and demonstrates OTP challenge locks, separate
 IP throttling, a 50-row page cap, and 30/min email-lookup budgets at both gateway and shared
 handler. Its in-memory limits, fixture OTP code, and simulated text delivery are teaching devices.
 `NewChapter5App` composes the earlier repairs and declares access for every registered route;
@@ -26,9 +25,12 @@ the intentionally vulnerable mode uses default redirect behavior.
 settings, a route-table public allow-list, an admin health probe, and a debug error-body
 counterexample. Chapter 8 keeps the public fixture login route in its allow-list alongside
 health and the two OTP routes, so the earlier session lesson remains operable.
-`NewChapter10App` retains those repairs and uses Chapter 9's fixed host policy, with a
-temporary gateway denial of `/v1` until the cumulative Chapter 9 integration removes its
-registered routes. `PollRates` models one hourly poll with injected time and outbound
+`NewChapter9App` composes Chapters 1–8 in both modes. Its vulnerable mode still registers
+`/v1` and forwards it on the unlisted staging host; fixed mode removes those routes and
+rejects that host. The runtime inventory includes every registered route, while the three
+printed Chapter 9 code blocks remain the chapter's focused exercise examples.
+`NewChapter10App` begins from Chapter 9's fixed route and host policy in both modes.
+`PollRates` models one hourly poll with injected time and outbound
 transport in tests. Vulnerable mode accepts the partner's arbitrary rate map and converts
 refunds at the latest rate; fixed mode checks a typed EUR row, retains the last good rate,
 and quotes refunds at the invoice's recorded rate. No scheduler or real partner is included.

@@ -274,14 +274,14 @@ func chapter06Remind(store *Store, mode Mode, clock func() time.Time) http.Handl
 	}
 }
 
-func registerChapter06Routes(mux *http.ServeMux, routes []Route, store *Store, mode Mode, clock func() time.Time) []Route {
+func registerChapter06Routes(mux *http.ServeMux, routes []Route, store *Store, mode Mode, clock func() time.Time, retireV1 bool) []Route {
 	added := []Route{
 		{Method: http.MethodPost, Pattern: "/v2/refunds/{quote}/approve"},
 		{Method: http.MethodPost, Pattern: "/v2/invoices/{id}/remind"},
 	}
 	mux.HandleFunc("POST /v2/refunds/{quote}/approve", chapter06Approve(store, clock))
 	mux.HandleFunc("POST /v2/invoices/{id}/remind", chapter06Remind(store, mode, clock))
-	return declareRoutes(append(routes, added...), append(chapter05Declarations, chapter06Declarations...))
+	return declareRoutes(append(routes, added...), activeDeclarations(append(chapter05Declarations, chapter06Declarations...), retireV1))
 }
 
 func scopeQuote(store *Store, next http.Handler) http.Handler {

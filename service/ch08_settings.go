@@ -89,7 +89,7 @@ var fixedHealthDeclaration = Route{Method: http.MethodGet, Pattern: "/v2/admin/h
 
 // end excerpt
 
-func registerChapter08Routes(mux *http.ServeMux, routes []Route, mode Mode, settings Settings) []Route {
+func registerChapter08Routes(mux *http.ServeMux, routes []Route, mode Mode, settings Settings, retireV1 bool) []Route {
 	health := Route{Method: http.MethodGet, Pattern: "/v2/health", Access: Public}
 	admin := fixedHealthDeclaration
 	if mode == Vulnerable {
@@ -116,7 +116,7 @@ func registerChapter08Routes(mux *http.ServeMux, routes []Route, mode Mode, sett
 	})
 	policy := append(append(append([]Route{}, chapter05Declarations...), chapter06Declarations...), chapter07Declarations...)
 	policy = append(policy, health, admin)
-	return declareRoutes(append(routes, health, Route{Method: admin.Method, Pattern: admin.Pattern}), policy)
+	return declareRoutes(append(routes, health, Route{Method: admin.Method, Pattern: admin.Pattern}), activeDeclarations(policy, retireV1))
 }
 
 type chapter08Capture struct {
