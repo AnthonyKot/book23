@@ -98,39 +98,11 @@
       <p class="essay-payoff">The request you validated went out. The response you did not validate came back.</p>
     </header>
     <div class="currency-note"><strong>Draft</strong>Status: drafted. 5 code blocks still pending from the service; the prose describes what each will show.</div>
-    <article class="prose"><!--
-Claims to gate in checks/claims/10.tsv.
-Sources: Kiln, "Re-enablement of Kiln services and security incident information", 7 Oct 2025,
-https://www.kiln.fi/post/re-enablement-of-kiln-services-and-security-incident-information (vendor
-post-mortem); SwissBorg, "Kiln Breach (Sep 2025): Security Impact on SwissBorg", 17 Nov 2025,
-https://swissborg.com/blog/swissborg-security-update-kiln-breach (consumer's account); joint
-statement, 8 Sep 2025, https://swissborg.com/blog/joint-statement-kiln-x-swissborg-regarding-sol-incident;
-Kiln announcement, 8 Sep 2025, https://www.kiln.fi/post/sol-incident-swissborg---announcement.
-- Entry point: a GitHub access token of a Kiln infrastructure engineer; the actor created and immediately
-  deleted branches to trigger CI/CD workflows and harvested stored secrets and cloud credentials (Kiln).
-- The actor injected a payload into a running Kubernetes pod hosting the Kiln Connect API, modifying the
-  logic of one API endpoint (Kiln).
-- The endpoint returned a malicious transaction in addition to the expected "deactivate stake" transaction;
-  it changed the withdrawal authority of the Solana stakes only if the existing withdrawal authority of the
-  stake account in the POST call held balances above 150k SOL (Kiln).
-- One customer used Kiln Dashboard to unstake SOL on 31 Aug 2025; the transaction was forwarded from the
-  Dashboard to their custody solution and approved by a quorum of signatories (Kiln).
-- Incident detected 8 Sep 2025; unauthorized access to a wallet used for staking operations; Solana funds
-  improperly removed; SwissBorg paused Solana staking (joint statement).
-- 192,000 SOL unstaked by the attacker (SwissBorg). No dollar figure: neither primary account gives one.
-- Kiln "consistently recommended" customers decode transactions to verify integrity before signing and
-  provides a decoding tool (Kiln); SwissBorg chose not to rely on it because it was not integrated in the
-  dashboard, not open-sourced or verifiable, and did not meet basic security standards (SwissBorg).
-- SwissBorg: the actor did not breach SwissBorg's wallet infrastructure; the incident occurred entirely
-  within Kiln's systems (SwissBorg).
-- No evidence of any other malicious transaction or other customer affected (Kiln).
-- Ledger's rate feed is invented for the analogy and is never presented as Kiln's or SwissBorg's system.
--->
+    <article class="prose"><!-- Incident claims are gated in checks/claims/10.tsv against the archived Kiln and SwissBorg statements; rejected pointers are recorded in briefs/10.md. -->
 
 <h1 id="what-you-swallowed">What You Swallowed</h1>
-<p>On 31 August 2025 an operations team at SwissBorg, a Swiss crypto wealth platform, did a routine
-thing. They used the dashboard of Kiln, the company that ran their Solana staking, to unstake some
-SOL. Behind the dashboard sat Kiln&#39;s Connect API: you POST the stake account and what you want
+<p>On 31 August 2025 SwissBorg, a Swiss crypto wealth platform, did something routine. They used the
+dashboard of Kiln, the company that ran their Solana staking, to unstake some SOL. Behind the dashboard sat Kiln&#39;s Connect API: you POST the stake account and what you want
 done, and it returns a transaction for you to sign. The dashboard forwarded the transaction to
 SwissBorg&#39;s custody system, a quorum of their signers approved it, and it went on-chain.</p>
 <p>The transaction was not what they had asked for. Some time before, an attacker had obtained a GitHub
@@ -140,21 +112,23 @@ credentials those workflows held, and used those to inject a payload into the ru
 served the Connect API. The payload changed the logic of one endpoint. It still returned the
 &quot;deactivate stake&quot; transaction a caller expected. Alongside it, it returned a second transaction
 that reassigned the <em>withdrawal authority</em> of the caller&#39;s stake accounts to an address the
-attacker controlled, and only when the stake account named in the POST held more than 150,000
-SOL. Smaller customers got exactly what they asked for. SwissBorg got that, and one thing more.</p>
-<p>On 8 September the attacker used the authority they now held to unstake and remove about 192,000
-SOL. Kiln and SwissBorg published a joint
-statement the same day; Kiln&#39;s post-mortem followed in October and SwissBorg&#39;s own account in
+attacker controlled, and only when the authority behind the stake account in the POST held more
+than 150,000 SOL in stake. Below that line a caller got exactly what they asked for. SwissBorg,
+by its own account the first of Kiln&#39;s clients over the line to sign an unstake, got that and one
+thing more.</p>
+<p>On 8 September the authority that had changed hands was used. SwissBorg says it detected, within minutes,
+a fraudulent transaction that unstaked more than 192,000 SOL. Kiln and SwissBorg published a
+joint statement the same day; Kiln&#39;s post-mortem followed in October and SwissBorg&#39;s own account in
 November. Two lines from those accounts are the whole lesson. Kiln: it had &quot;consistently
 recommended&quot; that customers decode transactions to verify their integrity before signing, and
 offered a tool for it. SwissBorg: it had chosen not to rely on that tool, because it was not
 integrated into the dashboard, not open-source or verifiable; and, separately, that the attacker
 &quot;did not breach SwissBorg&#39;s wallet infrastructure&quot; and the incident &quot;occurred entirely within
 Kiln&#39;s systems&quot;.</p>
-<p>Both statements are true, and together they describe the class. Nothing of SwissBorg&#39;s was broken
-into. Their own systems did what they were built to do: take what the partner&#39;s API returned and
-act on it. OWASP calls this <strong>unsafe consumption of APIs</strong>, API10: a service gives data from a
-third-party API more trust than it would give a request body, so a partner that is compromised,
+<p>The two companies disagree about the decoder, and this book does not referee. Read the lines
+they do not dispute. Nobody, on either account, broke into SwissBorg. Its custody system did what
+it was built to do: take what the partner&#39;s API returned and act on it. OWASP calls this
+<strong>unsafe consumption of APIs</strong>, API10: a service gives data from a third-party API more trust than it would give a request body, so a partner that is compromised,
 buggy, or simply different from what you assumed writes straight into your state. The request you
 validated went out. The response you did not validate came back, and you signed it.</p>
 <h2 id="where-the-bug-lives-a-row-from-the-partner-written-into-the-total">Where the bug lives: a row from the partner, written into the total</h2>
@@ -177,7 +151,8 @@ per euro. Nothing checks that the only key is <code>EUR</code>. Nothing keeps th
 27600 and forgets where the number came from.</p>
 <p>So the partner&#39;s response is the input, and four responses show four ways to swallow it. A row of
 <code>{&quot;EUR&quot;: 92}</code> bills the customer £27,600.00. A row of <code>{&quot;EUR&quot;: -0.92}</code> stores a negative total,
-which the refund flow will read as money owed. A row of <code>{&quot;EUR&quot;: 0.92, &quot;GBP&quot;: 0.5}</code> carries the
+which leaves the refund flow with a negative remaining balance. A row of
+<code>{&quot;EUR&quot;: 0.92, &quot;GBP&quot;: 0.5}</code> carries the
 rate you asked for, correct to the penny, and beside it a key you never asked for, and
 <code>CreateInvoice</code> applies it: from that hour every new Cedar invoice in pounds is halved, because &quot;if
 a rate exists for the currency&quot; was the only condition. And a <code>302</code> sends the poller to whatever
@@ -198,13 +173,13 @@ field, <code>EUR</code>. <code>DisallowUnknownFields</code> is the call the prop
 here it is pointed the other way, at what comes in from a partner rather than a client. A row
 with a <code>GBP</code> key is refused whole, not trimmed.</li>
 <li><strong>The value is bounded by a range Ledger declares, not by what the partner sent last time.</strong>
-The fixed poller accepts a euro rate only inside <code>0.70</code> to <code>1.10</code>: wide enough never to reject a
-real move, narrow enough to always reject a decimal slip, a negative, or a sabotage. Outside it,
-the poller keeps the last good rate and pages Ops. It does not bill at the new one.</li>
+The fixed poller accepts a euro rate only inside <code>0.70</code> to <code>1.10</code>. Those are Ledger&#39;s numbers,
+chosen by whoever owns the business, and they will need revising if the pound ever moves that
+far; the point is that the range is Ledger&#39;s, not the feed&#39;s. Outside it, the poller keeps the
+last good rate and pages Ops. It does not bill at the new one.</li>
 <li><strong>The invoice records the rate it used.</strong> <code>FXRate</code> and the original <code>AmountEUR</code> are stored next
-to the pence. A bad rate that gets through anyway is then a query, not an archaeology. This is
-the step SwissBorg&#39;s signers did not have: a readable record of what was actually applied, before
-the consequence.</li>
+to the pence. A bad rate that gets through anyway is then a query, not an archaeology, and a
+later quote reads the record rather than the feed.</li>
 </ul>
 <h2 id="if-it-is-one-range-check-why-is-it-a-whole-class">If it is one range check, why is it a whole class?</h2>
 <p>Because the range check guards one value on one path, and the trust that caused the bug is not
@@ -217,8 +192,9 @@ schema that protects you is the one you declared.</li>
 consumer code would have swallowed a Kiln bug, a schema change, or a provider&#39;s decimal-point
 mistake. The check is for <em>your</em> invariants, whatever the partner&#39;s reason for violating them.</li>
 <li><strong>The partner&#39;s verification tool is not your check.</strong> Kiln offered a decoder; SwissBorg declined
-it as unverifiable. Both wanted a check and neither had one on the consumer&#39;s side, in code the
-consumer could read. Validation you cannot inspect is trust with extra steps.</li>
+it, saying it was not integrated, not open-source, not verifiable. Whoever is right, the check
+that would have mattered was one on the consumer&#39;s side, in code the consumer could read.
+Validation you cannot inspect is trust with extra steps.</li>
 <li><strong>A response is an outbound request&#39;s other half.</strong> The SSRF chapter fixed where Ledger&#39;s
 requests go and said nothing about what comes back. <code>egress</code> refuses the <code>302</code>, and that is the
 right first line, but a partner that answers <code>200</code> with a hostile body is beyond anything a
@@ -231,57 +207,60 @@ so the resolve, the private-address check, and the no-redirect rule are inherite
 <code>302</code> case without a line of URL code in the poller, the way the PDF logo fetch was closed.</p>
 <p>The path that catches people is the refund. The quote from the business-flows chapter,
 <code>POST /v2/refunds/quote</code> with <code>{invoice_id, amount}</code>, loads the invoice with <code>LoadInvoiceFor</code> and
-checks the amount against what remains. A euro invoice is refunded in euros, so the handler has to
-convert. Here is how the vulnerable build did it:</p>
+checks the amount against what remains in pence. For a euro invoice, it must first convert the
+requested euro amount to pence. Here is how the vulnerable build did it:</p>
 <div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-refund-quote-vulnerable</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
 
 
 <p>It converts at <code>store.rates[&quot;EUR&quot;]</code>: today&#39;s rate, whatever the poller last stored. Fix the poller
 and this is still wrong, in two ways. A bad rate that reached the store before the fix is still
-used by every quote on an affected invoice. And even with a perfect feed, a customer billed
-€300.00 at 0.92 and refunded months later at 0.95 gets back a different number of pounds than they
-paid, and the remaining-balance check in pence, the one that stops over-refunding, is comparing
-two amounts converted at two rates. The repair is the one the refund chapter made for the quote,
-applied to the rate: confirm uses the invoice stored with the quote; quote uses the rate stored
-with the invoice.</p>
+the rate every quote converts at. And even with a perfect feed, a customer billed €300.00 at 0.92
+who asks for the full €300.00 back at 0.95 is asking for £285.00 against a £276.00 invoice, and
+the remaining-balance check, the one that stops over-refunding, refuses a refund the customer is
+plainly owed. Two amounts, converted at two rates, are being compared as if they were one. The
+repair is the one the refund chapter made for the quote, applied to the rate: confirm uses the
+invoice stored with the quote; quote uses the rate stored with the invoice.</p>
 <div class="excerpt-pending" role="note"><span>Code pending</span><code>ch10-refund-quote-fixed</code> — this Go block is built from the chapter's brief and will appear here once the service code exists.</div>
 
 
-<p>The invoice&#39;s <code>FXRate</code> is now the only rate a later step may read, and <code>store.rates</code> is consulted
-in one place: when an invoice is created. That is the shape of <code>LoadInvoiceFor</code> and <code>egress</code>: one
-door, one check, and every other path reads the checked result rather than the raw source.
+<p>The quote stores the pence it computed, so <code>ConfirmRefund</code> and the tenant allowance never convert
+again. A euro invoice from before this chapter, with no <code>FXRate</code> on it, gets no quote until someone
+reconciles it by hand. And <code>store.rates</code> is now consulted in one place: when an invoice is
+created. That is the shape of <code>LoadInvoiceFor</code> and <code>egress</code>: one door, one check, and every other path
+reads the checked result rather than the raw source.
 Recording what passed the boundary, and reading only the record afterward, is what makes the
 boundary hold for the paths you have not thought of yet.</p>
 <!--mission--><section class="mission" data-mission="10-what-you-swallowed"><div class="mission__label">Exercise</div>
 <h2 id="exercise-which-of-these-changes-what-cedar-39-s-customers-are-billed">Exercise: which of these changes what Cedar&#39;s customers are billed?</h2>
 <p>Ledger&#39;s poller fetches <code>GET https://rates.partner.example/latest</code> every hour and, in the
 vulnerable build, stores whatever map comes back; invoices are created at the stored rate.
-Invoice 412 is Cedar&#39;s, €300.00, created after the fetch; invoice 104 is Cedar&#39;s, £1,800.00,
-created after it too. A teammate proposes this fix: &quot;reject any rate greater than 10.&quot; Below are
-five partner responses. For each: say what the poller stores, what invoice 412 and invoice 104
-are recorded as, and mark whether the teammate&#39;s cap stops the damage and whether the chapter&#39;s
+Each case starts from the last good rate of 0.92 and creates fresh fixture versions of Cedar&#39;s
+invoice 412 (€300.00) and invoice 104 (£1,800.00) after the fetch. A teammate proposes this fix:
+&quot;reject any rate greater than 10.&quot; Below are five partner responses. For each: say what the poller
+stores, what invoices 412 and 104 are recorded as, and mark whether the teammate&#39;s cap stops the
+damage and whether the chapter&#39;s
 fixed build does. You do not need a running service.</p>
 <pre><code class="language-text">1. 200  {&quot;EUR&quot;: 92}
 2. 200  {&quot;EUR&quot;: 0.92}
 3. 200  {&quot;EUR&quot;: -0.92}
 4. 200  {&quot;EUR&quot;: 0.92, &quot;GBP&quot;: 0.5}
 5. 302  Location: https://rates.partner.example/v2/latest
-        (the redirected page answers 200 {&quot;EUR&quot;: 0.92})
+        (the redirected page answers 200 {&quot;EUR&quot;: 0.95})
 </code></pre>
 <p><strong>Check your answer.</strong></p>
 <ul>
 <li><strong>1 is the decoy.</strong> It is the response the cap was written for: 92 is greater than 10, so the
 teammate&#39;s rule drops it, and the fixed build drops it too, because 92 is outside <code>0.70</code>–<code>1.10</code>.
 Vulnerable build: row <code>{&quot;EUR&quot;: 92}</code> → no check → <code>rates[&quot;EUR&quot;] = 92</code> → invoice 412 stored as
-2760000 pence, £27,600.00; 104 untouched. It is the case a compromised feed would never send,
-because a human notices it on the first invoice.</li>
+2760000 pence, £27,600.00; 104 untouched. It is the case a compromised feed has no reason to
+send, because a human notices it on the first invoice.</li>
 <li><strong>2 is the baseline, and must keep working.</strong> Row → decoded into <code>rateRow{EUR: 0.92}</code>, no
 unknown fields → inside the band → stored with <code>AsOf</code> → invoice 412 recorded as 27600 pence with
 <code>FXRate 0.92</code>; 104 at 180000 pence. Both builds and the cap produce this. A fix that breaks it has
 broken invoicing.</li>
 <li><strong>3 is vulnerable, and the cap misses it.</strong> −0.92 is not greater than 10. Vulnerable build:
 <code>rates[&quot;EUR&quot;] = -0.92</code> → invoice 412 stored as −27600 pence, and the refund flow&#39;s
-remaining-balance check reads a debt as headroom. Fixed build: −0.92 is below <code>0.70</code> → row
+remaining-balance check sees a negative amount. Fixed build: −0.92 is below <code>0.70</code> → row
 refused, last good rate kept, Ops paged; 412 is created at 0.92. The cap guarded the end of the
 range someone had imagined.</li>
 <li><strong>4 and 2 are the near-identical pair.</strong> The euro rate is byte-for-byte the same, and the cap
@@ -293,11 +272,12 @@ discriminator is not a number. It is whether the code accepted a field it never 
 is why no check on the <em>value</em> of <code>EUR</code> can reach it. This is Kiln&#39;s shape: the thing you asked
 for was correct, and the thing beside it was the attack.</li>
 <li><strong>5 is closed by the earlier chapter, not this one.</strong> Vulnerable build: <code>http.Get</code> follows the
-redirect and stores a row from a location the poller never chose; honest this time, not
-necessarily next time. The cap never sees a redirect; it checks values, not fetches. Fixed build:
-<code>egress</code> returns the <code>302</code> as a result and does not follow it; no row is stored. If you marked 5
-as this chapter&#39;s bug, notice that its fix lives in a different function from the fix for 3 and
-4: where the request goes is egress policy; what the response may say is this chapter.</li>
+redirect and stores 0.95 from a location the poller never chose; invoice 412 becomes 28500
+pence. The cap never sees a redirect; it checks values, not fetches. Fixed build: <code>egress</code>
+returns the <code>302</code> as a result and does not follow it; the last good 0.92 stays, so invoice 412
+is 27600 pence. If you marked 5 as this chapter&#39;s bug, notice that its fix lives in a different
+function from the fix for 3 and 4: where the request goes is egress policy; what the response
+may say is this chapter.</li>
 </ul>
 <p>If you marked 4 safe because the euro rate was right, that is the transaction SwissBorg&#39;s signers
 approved: the deactivate they had asked for was in it.</p>

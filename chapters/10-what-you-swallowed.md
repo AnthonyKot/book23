@@ -1,38 +1,9 @@
-<!--
-Claims to gate in checks/claims/10.tsv.
-Sources: Kiln, "Re-enablement of Kiln services and security incident information", 7 Oct 2025,
-https://www.kiln.fi/post/re-enablement-of-kiln-services-and-security-incident-information (vendor
-post-mortem); SwissBorg, "Kiln Breach (Sep 2025): Security Impact on SwissBorg", 17 Nov 2025,
-https://swissborg.com/blog/swissborg-security-update-kiln-breach (consumer's account); joint
-statement, 8 Sep 2025, https://swissborg.com/blog/joint-statement-kiln-x-swissborg-regarding-sol-incident;
-Kiln announcement, 8 Sep 2025, https://www.kiln.fi/post/sol-incident-swissborg---announcement.
-- Entry point: a GitHub access token of a Kiln infrastructure engineer; the actor created and immediately
-  deleted branches to trigger CI/CD workflows and harvested stored secrets and cloud credentials (Kiln).
-- The actor injected a payload into a running Kubernetes pod hosting the Kiln Connect API, modifying the
-  logic of one API endpoint (Kiln).
-- The endpoint returned a malicious transaction in addition to the expected "deactivate stake" transaction;
-  it changed the withdrawal authority of the Solana stakes only if the existing withdrawal authority of the
-  stake account in the POST call held balances above 150k SOL (Kiln).
-- One customer used Kiln Dashboard to unstake SOL on 31 Aug 2025; the transaction was forwarded from the
-  Dashboard to their custody solution and approved by a quorum of signatories (Kiln).
-- Incident detected 8 Sep 2025; the initial statement said it may have involved unauthorized access
-  to a staking wallet; Solana funds were improperly removed; SwissBorg paused staking (joint statement).
-- Over 192,000 SOL unstaked in the fraudulent transaction (SwissBorg). No dollar figure: neither
-  primary account gives one.
-- Kiln "consistently recommended" customers decode transactions to verify integrity before signing and
-  provides a decoding tool (Kiln); SwissBorg chose not to rely on it because it was not integrated in the
-  dashboard, not open-sourced or verifiable, and did not meet basic security standards (SwissBorg).
-- SwissBorg: the actor did not breach SwissBorg's wallet infrastructure; the incident occurred entirely
-  within Kiln's systems (SwissBorg).
-- No evidence of any other malicious transaction or other customer affected (Kiln).
-- Ledger's rate feed is invented for the analogy and is never presented as Kiln's or SwissBorg's system.
--->
+<!-- Incident claims are gated in checks/claims/10.tsv against the archived Kiln and SwissBorg statements; rejected pointers are recorded in briefs/10.md. -->
 
 # What You Swallowed
 
-On 31 August 2025 SwissBorg did a routine thing. They used the
-dashboard of Kiln, the company that ran their Solana staking, to unstake some
-SOL. Behind the dashboard sat Kiln's Connect API: you POST the stake account and what you want
+On 31 August 2025 SwissBorg, a Swiss crypto wealth platform, did something routine. They used the
+dashboard of Kiln, the company that ran their Solana staking, to unstake some SOL. Behind the dashboard sat Kiln's Connect API: you POST the stake account and what you want
 done, and it returns a transaction for you to sign. The dashboard forwarded the transaction to
 SwissBorg's custody system, a quorum of their signers approved it, and it went on-chain.
 
@@ -43,13 +14,14 @@ credentials those workflows held, and used those to inject a payload into the ru
 served the Connect API. The payload changed the logic of one endpoint. It still returned the
 "deactivate stake" transaction a caller expected. Alongside it, it returned a second transaction
 that reassigned the *withdrawal authority* of the caller's stake accounts to an address the
-attacker controlled, and only when the existing withdrawal authority for the stake account in
-the POST held stake balances above 150,000 SOL. Other requests could return exactly what the
-caller expected. SwissBorg got that, and one thing more.
+attacker controlled, and only when the authority behind the stake account in the POST held more
+than 150,000 SOL in stake. Below that line a caller got exactly what they asked for. SwissBorg,
+by its own account the first of Kiln's clients over the line to sign an unstake, got that and one
+thing more.
 
-On 8 September a fraudulent transaction triggered the unstaking of over 192,000 SOL, by
-SwissBorg's account. Kiln and SwissBorg published a joint
-statement the same day; Kiln's post-mortem followed in October and SwissBorg's own account in
+On 8 September the authority that had changed hands was used. SwissBorg says it detected, within minutes,
+a fraudulent transaction that unstaked more than 192,000 SOL. Kiln and SwissBorg published a
+joint statement the same day; Kiln's post-mortem followed in October and SwissBorg's own account in
 November. Two lines from those accounts are the whole lesson. Kiln: it had "consistently
 recommended" that customers decode transactions to verify their integrity before signing, and
 offered a tool for it. SwissBorg: it had chosen not to rely on that tool, because it was not
@@ -57,11 +29,10 @@ integrated into the dashboard, not open-source or verifiable; and, separately, t
 "did not breach SwissBorg's wallet infrastructure" and the incident "occurred entirely within
 Kiln's systems".
 
-The two accounts differ on whether the offered decoder was usable, but together they show the
-consumer's boundary. SwissBorg says its systems were not breached. Its custody system took what
-the partner's API returned and acted on it. OWASP calls this **unsafe consumption of APIs**,
-API10: a service gives data from a
-third-party API more trust than it would give a request body, so a partner that is compromised,
+The two companies disagree about the decoder, and this book does not referee. Read the lines
+they do not dispute. Nobody, on either account, broke into SwissBorg. Its custody system did what
+it was built to do: take what the partner's API returned and act on it. OWASP calls this
+**unsafe consumption of APIs**, API10: a service gives data from a third-party API more trust than it would give a request body, so a partner that is compromised,
 buggy, or simply different from what you assumed writes straight into your state. The request you
 validated went out. The response you did not validate came back, and you signed it.
 
@@ -109,13 +80,13 @@ Three details decide whether this is real.
   here it is pointed the other way, at what comes in from a partner rather than a client. A row
   with a `GBP` key is refused whole, not trimmed.
 - **The value is bounded by a range Ledger declares, not by what the partner sent last time.**
-  The fixed poller accepts a euro rate only inside `0.70` to `1.10`, Ledger's assumed bounds for
-  this example. That refuses the decimal slip and negative value here; a real feed needs a range
-  its owner can revise as conditions change. Outside it, the poller keeps the last good rate and
-  pages Ops. It does not bill at the new one.
+  The fixed poller accepts a euro rate only inside `0.70` to `1.10`. Those are Ledger's numbers,
+  chosen by whoever owns the business, and they will need revising if the pound ever moves that
+  far; the point is that the range is Ledger's, not the feed's. Outside it, the poller keeps the
+  last good rate and pages Ops. It does not bill at the new one.
 - **The invoice records the rate it used.** `FXRate` and the original `AmountEUR` are stored next
-  to the pence. A bad rate that gets through anyway is then a query, not an archaeology. This is
-  a record Ledger can inspect before a later quote uses the rate.
+  to the pence. A bad rate that gets through anyway is then a query, not an archaeology, and a
+  later quote reads the record rather than the feed.
 
 ## If it is one range check, why is it a whole class?
 
@@ -129,8 +100,9 @@ about a value. It is the assumption that a partner's response is already what yo
   consumer code would have swallowed a Kiln bug, a schema change, or a provider's decimal-point
   mistake. The check is for *your* invariants, whatever the partner's reason for violating them.
 - **The partner's verification tool is not your check.** Kiln offered a decoder; SwissBorg declined
-  it as unsuitable for its workflow. The parties disagree on that tool; Ledger's response
-  validation belongs in code its own team can inspect.
+  it, saying it was not integrated, not open-source, not verifiable. Whoever is right, the check
+  that would have mattered was one on the consumer's side, in code the consumer could read.
+  Validation you cannot inspect is trust with extra steps.
 - **A response is an outbound request's other half.** The SSRF chapter fixed where Ledger's
   requests go and said nothing about what comes back. `egress` refuses the `302`, and that is the
   right first line, but a partner that answers `200` with a hostile body is beyond anything a
@@ -151,19 +123,20 @@ requested euro amount to pence. Here is how the vulnerable build did it:
 {{excerpt:ch10-refund-quote-vulnerable}}
 
 It converts at `store.rates["EUR"]`: today's rate, whatever the poller last stored. Fix the poller
-and this is still wrong, in two ways. A bad rate still in the store can reach a quote; even with a
-perfect feed, a full €300.00 refund on an invoice billed at 0.92 becomes £285.00 at 0.95. The
-remaining-balance check then rejects it against the £276.00 invoice, although the customer asked
-for the full amount originally billed in euros. The repair is the one the refund chapter made for
-the quote, applied to the rate: confirm uses the invoice stored with the quote; quote uses the rate
-stored with the invoice.
+and this is still wrong, in two ways. A bad rate that reached the store before the fix is still
+the rate every quote converts at. And even with a perfect feed, a customer billed €300.00 at 0.92
+who asks for the full €300.00 back at 0.95 is asking for £285.00 against a £276.00 invoice, and
+the remaining-balance check, the one that stops over-refunding, refuses a refund the customer is
+plainly owed. Two amounts, converted at two rates, are being compared as if they were one. The
+repair is the one the refund chapter made for the quote, applied to the rate: confirm uses the
+invoice stored with the quote; quote uses the rate stored with the invoice.
 
 {{excerpt:ch10-refund-quote-fixed}}
 
-The quote stores that converted pence amount, so `ConfirmRefund` and its tenant allowance never
-convert it again. An older euro invoice without a recorded `FXRate` needs reconciliation before
-a quote can be issued. For new invoices, `store.rates` is consulted in one place: at creation.
-That is the shape of `LoadInvoiceFor` and `egress`: one door, one check, and every other path
+The quote stores the pence it computed, so `ConfirmRefund` and the tenant allowance never convert
+again. A euro invoice from before this chapter, with no `FXRate` on it, gets no quote until someone
+reconciles it by hand. And `store.rates` is now consulted in one place: when an invoice is
+created. That is the shape of `LoadInvoiceFor` and `egress`: one door, one check, and every other path
 reads the checked result rather than the raw source.
 Recording what passed the boundary, and reading only the record afterward, is what makes the
 boundary hold for the paths you have not thought of yet.
@@ -194,7 +167,8 @@ fixed build does. You do not need a running service.
 - **1 is the decoy.** It is the response the cap was written for: 92 is greater than 10, so the
   teammate's rule drops it, and the fixed build drops it too, because 92 is outside `0.70`–`1.10`.
   Vulnerable build: row `{"EUR": 92}` → no check → `rates["EUR"] = 92` → invoice 412 stored as
-  2760000 pence, £27,600.00; 104 untouched. It is conspicuous on the first invoice.
+  2760000 pence, £27,600.00; 104 untouched. It is the case a compromised feed has no reason to
+  send, because a human notices it on the first invoice.
 - **2 is the baseline, and must keep working.** Row → decoded into `rateRow{EUR: 0.92}`, no
   unknown fields → inside the band → stored with `AsOf` → invoice 412 recorded as 27600 pence with
   `FXRate 0.92`; 104 at 180000 pence. Both builds and the cap produce this. A fix that breaks it has

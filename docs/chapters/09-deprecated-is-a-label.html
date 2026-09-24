@@ -102,8 +102,9 @@
 
 <p>Between 17 and 20 September 2022 someone pulled the personal records of more than 9.5 million
 current and former customers out of Optus, Australia&#39;s second-largest telecommunications company:
-names, dates of birth, phone numbers, addresses, and for a subset the driver&#39;s licence, passport
-and Medicare numbers that Australians use to prove who they are. What follows is the account the
+names, email addresses, dates of birth and phone numbers, and for some of them the home address
+and the driver&#39;s licence, passport or Medicare number that Australians use to prove who they
+are. What follows is the account the
 regulator gave a court two years later. The Australian Communications and Media Authority, ACMA,
 sued Optus in the Federal Court in May 2024, and the redacted concise statement it filed is public.
 Everything below is what ACMA alleges. Optus&#39;s systems are named in the filing only as black bars,
@@ -115,7 +116,7 @@ away from the static content on the main site. It had three APIs that were meant
 customer&#39;s information only after that customer had authenticated. And, ACMA alleges, it had been
 dormant and not in use since 2017. Nobody needed it. It was not decommissioned.</p>
 <p>In September 2018 a coding error was made in one of the access controls, and the error made that
-control ineffective for both domains. In June 2020 both domains became internet-facing with the
+control ineffective for both domains. By June 2020 both domains were internet-facing with the
 error in them. In August 2021 Optus detected that the Main Domain was vulnerable because of the
 error and fixed it there. It did not detect, and did not fix, the same issue on the Target
 Domain. The filing says the Target Domain &quot;was permitted to sit dormant and vulnerable to attack
@@ -183,16 +184,17 @@ and the domain nobody used did not get it.</p>
 <p>Deprecated is a word in a document. The gateway does not read the document. Until the route
 stops answering, deprecated means exactly what it meant the day before: the route serves whatever
 it served, through whatever hosts forward to it, with whatever controls happen to have reached it.</p>
-<p>Here is how that goes wrong at Ledger after the next repair, not this one. The chapter on resource
-consumption puts a budget of thirty requests a minute on the lookup routes, and it puts it at the
-gateway, keyed by host and route, because that is where every request passes. Every request on
-the host Ops listed. <code>ledger-staging.internal/v1/invoices/104</code> is forwarded by a rule that never
-saw the budget, so the walk that Peloton&#39;s researcher did by hand, and that the limiter was added
-to stop, runs at full speed against the one host nobody metered. The handler behind it still calls
-<code>LoadInvoiceFor</code>, so Alice still cannot read Birch&#39;s invoice that way. The point is not that this
-route leaks today. The point is that the next control, and the one after that, will be applied to
-the inventory, and this route is not in it. Optus&#39;s Target Domain did not need to be exploitable
-in 2017 to be the way in five years later.</p>
+<p>Here is how that goes wrong at Ledger, not with this chapter&#39;s repair but with the next one. The
+chapter on resource consumption put a thirty-a-minute budget on the lookup routes, at the gateway
+and again in the shared handler. The gateway copy was written against the hosts Ops listed, so
+<code>ledger-staging.internal</code> never got it. The handler copy saved the day: the budget sits where
+every request passes, so the staging host is metered anyway, and the route shown here still calls
+<code>LoadInvoiceFor</code>, so Alice still cannot read Birch&#39;s invoice that way. Nothing leaks today. But
+the reason nothing leaks is that two earlier chapters happened to put their checks inside the
+handler. The next control that lives only at the gateway, a host-level policy, a certificate
+rule, a log that feeds the alerting, will be applied to Ops&#39;s inventory, and this host is not in
+it. Optus&#39;s Target Domain did not need to be exploitable in 2017 to be the way in five years
+later.</p>
 <p>So the question the BOLA chapter asked, &quot;which routes can reach this data?&quot;, was one list short.
 Here it is with the missing one, as code rather than a checklist:</p>
 <pre><code class="language-go">// ch09-reconcile-inventory
