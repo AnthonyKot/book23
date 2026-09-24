@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const PublicHost = "api.ledger.example"
@@ -20,6 +21,12 @@ type App struct {
 // still-serving /v1 routes; it does not retire them.
 func NewApp(mode Mode) *App {
 	return buildApp(mode, chapter01)
+}
+
+// NewChapter2App keeps Chapter 1's loader repair in both modes. Its modes
+// differ only in how a credential becomes the caller's identity.
+func NewChapter2App(mode Mode) *App {
+	return newChapter2AppAt(mode, time.Now)
 }
 
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
@@ -41,6 +48,7 @@ type pilotStage int
 
 const (
 	chapter01 pilotStage = iota
+	chapter02
 	chapter09
 )
 
@@ -50,6 +58,10 @@ type Route struct {
 }
 
 func buildApp(mode Mode, stage pilotStage) *App {
+	return buildAppWithClock(mode, stage, time.Now)
+}
+
+func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App {
 	if mode != Vulnerable && mode != Fixed {
 		panic("ledger: unknown mode " + mode)
 	}
@@ -57,23 +69,27 @@ func buildApp(mode Mode, stage pilotStage) *App {
 	store := seedStore()
 	mux := http.NewServeMux()
 	routes := []Route{{Method: http.MethodGet, Pattern: "/v2/invoices/{id}"}}
-	secure := mode == Fixed || stage == chapter09
+	secure := mode == Fixed || stage != chapter01
 	registerInvoiceRoute(mux, routes[0], store, secure, false)
 
 	listRoute := Route{Method: http.MethodGet, Pattern: "/v2/me/invoices"}
 	routes = append(routes, listRoute)
 	mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, listInvoices(store))
-	if stage == chapter01 {
+	if stage != chapter09 {
 		filteredList := Route{Method: http.MethodGet, Pattern: "/v2/invoices"}
 		quote := Route{Method: http.MethodPost, Pattern: "/v2/refunds/quote"}
 		confirm := Route{Method: http.MethodPost, Pattern: "/v2/refunds/confirm"}
 		routes = append(routes, filteredList, quote, confirm)
 		mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
 		mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
-		mux.HandleFunc(confirm.Method+" "+confirm.Pattern, confirmRefund(store, mode))
+		confirmMode := mode
+		if stage != chapter01 {
+			confirmMode = Fixed // later stages retain Chapter 1's refund repair
+		}
+		mux.HandleFunc(confirm.Method+" "+confirm.Pattern, confirmRefund(store, confirmMode))
 	}
 
-	serveV1 := stage == chapter01 || mode == Vulnerable
+	serveV1 := stage != chapter09 || mode == Vulnerable
 	if serveV1 {
 		read := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}"}
 		pdf := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf"}
@@ -83,6 +99,15 @@ func buildApp(mode Mode, stage pilotStage) *App {
 	}
 
 	handler := http.Handler(mux)
+	if stage == chapter02 {
+		sessions := newSessionStore(clock)
+		login := Route{Method: http.MethodPost, Pattern: "/v2/auth/login"}
+		me := Route{Method: http.MethodGet, Pattern: "/v2/me"}
+		routes = append(routes, login, me)
+		mux.HandleFunc(login.Method+" "+login.Pattern, loginHandler(sessions))
+		mux.HandleFunc(me.Method+" "+me.Pattern, identityProbe)
+		handler = chapter02Identity(mode, sessions, mux)
+	}
 	if stage == chapter09 {
 		handler = chapter09Gateway(mode, mux)
 	}
@@ -153,6 +178,9 @@ func listInvoices(store *Store) http.HandlerFunc {
 // end excerpt
 
 func currentUser(r *http.Request) (User, bool) {
+	if principal, ok := r.Context().Value(principalContextKey{}).(requestPrincipal); ok {
+		return principal.user, principal.authenticated
+	}
 	const prefix = "Bearer "
 	header := r.Header.Get("Authorization")
 	if !strings.HasPrefix(header, prefix) {

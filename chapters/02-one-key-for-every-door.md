@@ -1,6 +1,6 @@
 # One Key for Every Door
 
-<!-- claims to gate in checks/claims/02.tsv: Alan Monie, Pen Test Partners, published 8 Oct 2021; token found in Android app code and associated with three API endpoints; quote "Every mobile app user was given the same hard coded API Bearer Token, rendering request authorisation useless"; quote "The customer IDs aren't quite sequential, but certainly aren't random"; appending a different customer ID to the endpoint URL returned that customer's PII; exposed fields: name, date of birth, email, gender, delivery addresses, telephone, shares held, shareholder number, bar discount amount and ID, referrals; over 200,000 Equity for Punks shareholders; present ~18 months from version 2.5.5 (March 2020); 2.5.12 (13 Sept 2021) still had a static key exposing discount codes; 2.5.13 released by 27 Sept 2021 after six test builds; at publication Monie knew of no customer notification. Source: https://www.pentestpartners.com/security-blog/free-brewdog-beer-with-a-side-order-of-shareholder-pii/ -->
+<!-- Incident claims and source locators: checks/claims/02.tsv. -->
 
 In September 2021 Alan Monie of Pen Test Partners examined code in the Android app of BrewDog, the
 Scottish brewer whose customers include more than 200,000 "Equity for Punks" shareholders. In the
@@ -32,7 +32,27 @@ Ledger has a mobile app too, and it is how Ben, at Birch, reads Birch's invoices
 is how the app authenticated to `/v1` when v1 was written: the login middleware from chapter 1,
 `currentUser`, as it stands before this chapter's fix.
 
-{{excerpt:ch02-vulnerable}}
+```go
+func vulnerableCurrentUser(r *http.Request, sessions *sessionStore) (User, bool) {
+	token := bearerToken(r)
+	if user, ok := sessions.lookup(token, false); ok {
+		if claimed, found := namedUser(r.Header.Get("X-User")); found {
+			return claimed, true // support override trusts a caller-written header
+		}
+		return user, true
+	}
+	if token == mobileAppKey {
+		return namedUser(r.Header.Get("X-User"))
+	}
+	if account, ok := tenantServiceAccount(token); ok {
+		if claimed, found := namedUser(r.Header.Get("X-User")); found && claimed.Tenant == account.Tenant {
+			return claimed, true // tenant key can impersonate a person
+		}
+		return account, true
+	}
+	return User{}, false
+}
+```
 
 Read the two halves separately. The first half is authentication: it takes the bearer token from
 the request and looks it up. The token it finds is `mk_ledger_mobile_…`, the key issued to the
@@ -50,7 +70,18 @@ user the server never verified.
 The fix is that the credential must identify the person, and the server must be the one that says
 so:
 
-{{excerpt:ch02-fixed}}
+```go
+func fixedCurrentUser(r *http.Request, sessions *sessionStore) (User, bool) {
+	token := bearerToken(r)
+	if user, ok := sessions.lookup(token, true); ok {
+		return user, true // identity comes only from a live server-side session
+	}
+	if account, ok := tenantServiceAccount(token); ok {
+		return account, true // the key names a tenant integration, not a person
+	}
+	return User{}, false // the shared mobile app key is not a login
+}
+```
 
 Three details matter.
 

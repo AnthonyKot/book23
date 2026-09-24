@@ -6,7 +6,8 @@ remaining cumulative Ledger implementation, one chapter per run.
 | Chapter | State | Next evidence |
 |---|---|---|
 | 01 | Complete for batch 2; refund/list cases and route coverage tested | Author reconciles schematic exercise wording |
-| 02–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
+| 02 | Complete for batch 2; session identity and exercise tested | Author reviews identity-probe wording |
+| 03–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -41,4 +42,32 @@ Chapter 01 exercise as a literal wire example.
   The verifier still reports 31 pending code blocks in the unbuilt chapters; Chapter 01
   has no placeholder left.
 
-Next: Chapter 02 sessions, with both-mode expiry tests and the 12-hour fake clock.
+## Chapter 02 — completed in batch 2
+
+- `NewChapter2App` keeps the Chapter 01 loader and list repairs in both modes. One identity
+  middleware supplies the caller to the existing handlers across `/v1` and `/v2`; the Chapter 01
+  marked Go blocks and the Chapter 09 pilot remain unchanged. Vulnerable mode trusts `X-User`
+  alongside a session token (even after expiry), shared mobile key, or same-tenant integration key. Fixed mode derives
+  a person only from a live server-side session, ignores `X-User`, and treats tenant keys as
+  service accounts. The shared app key alone cannot select any identity.
+- `POST /v2/auth/login` issues a session from fixture credentials. The store records issue time,
+  expires fixed-mode sessions at 12 hours, and can revoke a token. Tests inject a fake clock,
+  including the exact boundary and a 13-hour-old token through both API versions. The fixture
+  passwords and demo key suffixes are test-only strings, not new canonical book values.
+- `GET /v2/me` is the person-scoped identity probe needed by the reviewed D/E exercise: Birch's
+  key plus `X-User: ben` names Ben in vulnerable mode and the Birch service account in fixed mode.
+  Both cases would otherwise read Birch invoice 205 with status 200, hiding the distinction.
+  `service/ch02_test.go` asserts all exercise A–E outcomes in both modes, old v1 header behavior,
+  registered-route rejection of the app key, and survival of Chapter 01's invoice, list, and
+  refund repairs.
+- Exact source excerpts `ch02-vulnerable` and `ch02-fixed` replace both Chapter 02 placeholders;
+  the incident header now points at `checks/claims/02.tsv`. `verify.sh` requires all Chapter 02
+  test groups, rejects placeholders, and checks the printed excerpts against their marked source.
+  The existing claim-ledger/archive validation continues to cover Chapters 00–10.
+- Author note: the chapter calls `currentUser` a Chapter 01 "login middleware", although that
+  stage uses an opaque-token helper and has no login route. The new route is Chapter 02's fixture
+  login. The exercise describes a person-scoped identity probe without naming its concrete route;
+  the implementation uses `/v2/me`. These are prose alignment choices for the author.
+
+Next: Chapter 03 response views and typed patches. Chapter 09 still needs cumulative
+integration after Chapter 08. Do not push this implementation branch from Lane A.

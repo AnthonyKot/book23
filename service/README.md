@@ -2,9 +2,11 @@
 
 Ledger is a deliberately small, deterministic teaching service. `NewApp` exposes the Chapter 1
 before/after state, including the client-selected invoice list and refund quote/confirm sequence.
-Quote and refund amounts are integer pence. `NewChapter9App` is still a pilot that starts after
-the Chapter 1 loader repair; it does not yet contain Chapters 2–8. Authentication uses opaque
-fixture tokens; all data is in memory; tests make no network requests.
+Quote and refund amounts are integer pence. `NewChapter2App` keeps the Chapter 1 repair in both
+modes and demonstrates session-derived identity, a shared mobile key, and tenant integration keys.
+Its login route uses hard-coded fixture passwords and its sessions are in memory; it is a teaching
+fixture, not deployable authentication. `NewChapter9App` is still a pilot that starts after the
+Chapter 1 loader repair; it does not yet contain Chapters 2–8. Tests make no network requests.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish
 that a real gateway matches its repository configuration, that traffic telemetry is complete,
