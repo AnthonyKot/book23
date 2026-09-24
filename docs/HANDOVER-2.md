@@ -1,7 +1,7 @@
 # Lane A batch 2 implementation handover
 
-The reviewed Chapters 00–10 provide the prose and source gates. This handover tracks the
-remaining cumulative Ledger implementation, one chapter per run.
+The reviewed Chapters 00–11 provide the prose and source gates. This handover tracks the
+cumulative Ledger implementation, one chapter per run.
 
 | Chapter | State | Next evidence |
 |---|---|---|
@@ -15,6 +15,7 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 08 | Complete for batch 2; settings, probes, debug contrast and exercise tested | Author aligns public-route count and login |
 | 09 | Complete for batch 2; cumulative through 02–08, full route inventory and retirement tested | Author checks three printed excerpts and exercise outcomes |
 | 10 | Complete for batch 2; partner rate, invoice and refund contrasts tested | Author reviews poller fixture and interim v1 gateway block |
+| 11 | Complete for batch 2; final path, 20-route matrix and A–H tested | Author reviews exact excerpts, rebuilds site and pushes |
 
 Chapter 01's exercise is schematic: it omits the refund quote amount, and its answer both
 says the injected confirm ID is rejected and says confirm ignores it. The executable
@@ -331,4 +332,31 @@ Chapter 01 exercise as a literal wire example.
   zero pending blocks; the user plans the final excerpt/test review and any
   further rebuild and push.
 
-Next: user review of Chapter 09 excerpt equality and test outcomes. No push from Lane A.
+## Chapter 11 — completed in batch 2
+
+- `service/ch11_composition.go` holds the final fixed Chapter 10 request path in eleven Go
+  lines: mux, lookup budget, authorization, error writer, identity, then host filter. Only the
+  final fixed stage calls it; other stages and all 41 pre-existing marked excerpts remain
+  byte-identical. Existing Go tests pass, so the refactor preserves observed behavior.
+- `service/ch11_test.go` walks all 20 registered routes with anonymous, Alice, Ben and Dana.
+  Invoice paths use both 104 and 205; admin-user paths use alice and ben; quote approval uses
+  q-771 after a quote is seeded. Each cell checks tenant data, internal fields, opaque GET
+  invoice 404s and declared status. Its two named legitimate 400 cases are OTP verification
+  without an active challenge and approval of an open quote; there is no blanket skip. A second
+  test asserts exercise A–H, including same-tenant lookup limits across IPs, equal staging 404
+  bodies with valid and garbage tokens, and link-local egress denial without a dial.
+- Both chapter placeholders contain the exact marked Go source. `verify.sh` requires Chapter
+  11's two test groups, rejects its placeholders and checks excerpt equality. `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `./verify.sh` and `git diff --check` pass. The verifier
+  still sees two pending boxes in the previously rendered `docs/` HTML; rebuild the site from
+  the completed Markdown before publishing.
+- Review changed four overbroad prose claims: the opaque 404 applies to GET invoice details
+  after the host filter, public routes can legitimately answer 400 for incomplete input, the
+  PDF logo route was retired before the final build, and `PollRates` models an hourly job but
+  has no scheduler. The route-matrix checks satisfy all four stated properties within the
+  declared public-host and concrete-request scope; no property needed a broad exemption.
+- Proposed `CONTEXT.md` §6 row 11: completed final path composition and every-route audit,
+  with the final build's 20-route inventory and two explicit 400 fixtures. No canonical value
+  changed. No push from Lane A.
+
+Next: author checks Chapter 11 excerpts and outcomes, rebuilds `docs/`, then pushes.

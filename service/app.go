@@ -263,14 +263,16 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 			mux.HandleFunc(requestOTP.Method+" "+requestOTP.Pattern, otpRequestHandler(limitMode, limits.challenges))
 			mux.Handle(verifyOTP.Method+" "+verifyOTP.Pattern,
 				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(limitMode, limits.challenges, sessions)))
-			if stage == chapter09 || stage == chapter10 {
-				lookupMode := mode
-				if stage == chapter10 {
-					lookupMode = Fixed
+			if stage != chapter10 || mode != Fixed {
+				if stage == chapter09 || stage == chapter10 {
+					lookupMode := mode
+					if stage == chapter10 {
+						lookupMode = Fixed
+					}
+					handler = chapter09LookupGateway(lookupMode, limits, handler)
+				} else {
+					handler = chapter04Gateway(limitMode, limits, handler)
 				}
-				handler = chapter09LookupGateway(lookupMode, limits, handler)
-			} else {
-				handler = chapter04Gateway(limitMode, limits, handler)
 			}
 		}
 		if stage == chapter05 || stage == chapter06 || stage == chapter07 || stage == chapter08 || stage == chapter09 || stage == chapter10 {
@@ -302,21 +304,27 @@ func buildAppWithSettings(mode Mode, stage pilotStage, clock func() time.Time, n
 					}
 				}
 			}
-			handler = chapter05Authorization(accessMode, mux, routes, store, sessions, handler)
-			if stage == chapter08 || stage == chapter09 || stage == chapter10 {
-				handler = chapter08ErrorWriter(settings, store, handler)
+			if stage != chapter10 || mode != Fixed {
+				handler = chapter05Authorization(accessMode, mux, routes, store, sessions, handler)
+				if stage == chapter08 || stage == chapter09 || stage == chapter10 {
+					handler = chapter08ErrorWriter(settings, store, handler)
+				}
 			}
 		}
 		identityMode := mode
 		if propertyStage {
 			identityMode = Fixed
 		}
-		handler = chapter02Identity(identityMode, sessions, handler)
+		if stage == chapter10 && mode == Fixed {
+			handler = chapter11RequestPath(mux, routes, store, sessions, limits, settings)
+		} else {
+			handler = chapter02Identity(identityMode, sessions, handler)
+		}
 	}
 	if stage == chapter09 {
 		handler = chapter09Gateway(mode, handler)
 	}
-	if stage == chapter10 {
+	if stage == chapter10 && mode == Vulnerable {
 		handler = chapter09Gateway(Fixed, handler)
 	}
 	app := &App{handler: handler, routes: routes, store: store}

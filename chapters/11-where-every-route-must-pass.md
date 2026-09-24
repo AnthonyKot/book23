@@ -1,6 +1,6 @@
 # Where Every Route Must Pass
 
-<!-- No incident in this chapter. Every statement about Ledger is asserted by service/ch11_test.go once Lane A builds it (briefs/11.md); the two Go blocks are marked excerpts. -->
+<!-- No incident in this chapter. The route-wide properties and exercise are asserted by service/ch11_test.go; the two Go blocks are marked excerpts. -->
 
 The opener asked one question of a Coinbase trade: which check did this request assume had
 already happened? Ten chapters gave ten answers, and each answer was a place as much as a check.
@@ -20,7 +20,18 @@ Here is the finished build, the one every chapter's fixed side accumulates into,
 place. Go wraps handlers from the inside out, so the code reads bottom-up: the last line is the
 first thing a request meets.
 
-{{excerpt:ch11-request-path}}
+```go
+func chapter11RequestPath(mux *http.ServeMux, routes []Route, store *Store,
+	sessions *sessionStore, limits *chapter04Limits, settings Settings) http.Handler {
+	var handler http.Handler = mux
+	handler = chapter09LookupGateway(Fixed, limits, handler)
+	handler = chapter05Authorization(Fixed, mux, routes, store, sessions, handler)
+	handler = chapter08ErrorWriter(settings, store, handler)
+	handler = chapter02Identity(Fixed, sessions, handler)
+	handler = chapter09Gateway(Fixed, handler)
+	return handler
+}
+```
 
 Read it in the order a request does.
 
@@ -67,7 +78,8 @@ test that checks one layer alone keeps passing.
   loader runs ahead of it.
 - **The error writer outside authorization.** Put it inside and it wraps the handler only; a 404
   raised by the scope layer would go out with whatever body that layer wrote. Outside, it sees
-  every 404 on the invoice routes regardless of which layer raised it, and the body is one string.
+  every 404 on `GET /v2/invoices/{id}` after the host filter passes, regardless of which lower
+  layer raised it, and the body is one string.
 - **The host filter outside everything.** Every other layer is keyed on something the request
   carries, a token, a path, a tenant. The host filter is keyed on the list Ops wrote down. If it
   sat inside identity, a staging request would be given a person before being refused, and the
@@ -92,14 +104,14 @@ missing.
 - **The inventory is a test.** `ReconcileInventory` compares declared hosts, code routes, gateway
   surfaces and traffic, and the fixed build's output is empty. It runs in the build, not in the
   request, because the host it is looking for is one no request would tell you about.
-- **`egress` acts on the way out.** The webhook test and the PDF logo fetch pass every inbound
-  layer as an ordinary user's requests, and only then does the outbound client resolve, refuse
-  the private address, or decline the redirect. A 400 from `egress` is a request that was
-  perfectly authorized.
-- **The rate feed has no request at all.** `PollRates` runs on the hour with nobody calling. Its
-  input is the partner's response, and its checks, the strict row, the band, the last good rate,
-  are the road's checks pointed the other way. The stored `FXRate` is what lets the refund quote
-  on the road stay ignorant of the feed.
+- **`egress` acts on the way out.** The webhook test passes every inbound layer as an ordinary
+  user's request, and only then does the outbound client resolve, refuse the private address, or
+  decline the redirect. The earlier PDF logo route used the same client before its `/v1` route
+  was retired. A 400 from `egress` is a request that was perfectly authorized.
+- **The rate feed has no inbound request at all.** The fixture calls `PollRates` to model an
+  hourly job; it does not schedule one. Its input is the partner's response, and its checks, the
+  strict row, the band, the last good rate, are the road's checks pointed the other way. The
+  stored `FXRate` is what lets the refund quote on the road stay ignorant of the feed.
 
 So "where every route must pass" is three places, not one: the composition above for the way in,
 `egress` for the way out, and construction time for the shape of the service itself. A control
@@ -112,7 +124,32 @@ Alice and as Ben. The finished build has twenty routes, three callers with diffe
 a fourth caller with no token. The loop grows to match, and it reads the route table rather than
 a list someone typed.
 
-{{excerpt:ch11-every-route-every-caller}}
+```go
+func TestChapter11EveryRouteEveryCaller(t *testing.T) {
+	routes := NewChapter10App(Fixed).Routes()
+	if len(routes) != 20 {
+		t.Fatalf("route inventory changed: %d", len(routes))
+	}
+	for _, route := range routes {
+		for _, cell := range chapter11ConcreteRequests(t, route) {
+			for _, caller := range chapter11Callers {
+				t.Run(route.Method+" "+cell.path+"/"+caller.name, func(t *testing.T) {
+					app := chapter11App()
+					path := cell.path
+					if route.Pattern == "/v2/invoices" && caller.tenant != "" {
+						path += "?tenant=" + caller.tenant
+					}
+					got := chapter04Request(t, app, route.Method, path, caller.token, "192.0.2.44", cell.body)
+					chapter11AssertTenant(t, caller, got)
+					chapter11AssertNoInternalFields(t, got)
+					chapter11AssertOpaqueInvoice404(t, route, got)
+					chapter11AssertDeclaredStatus(t, route, cell, caller, got)
+				})
+			}
+		}
+	}
+}
+```
 
 Four properties, checked for every registered route and every caller, on the fixed build:
 
@@ -122,10 +159,12 @@ Four properties, checked for every registered route and every caller, on the fix
 - **No body ever carries an internal field.** `CollectionsNote` and `Margin` appear in no
   response to anyone, Dana included. The property chapter's view is in force on every route that
   encodes an invoice, including the ones added after it.
-- **Every 404 on an invoice route has the same body.** Whatever layer raised it.
+- **Every 404 on `GET /v2/invoices/{id}` at the public host has the same body.** Whichever lower
+  layer raised it.
 - **A refused status comes from the layer the declaration predicts.** Anonymous on a `User`
   route is 401; a user on a `TenantAdmin` route is 403; anyone on a foreign invoice is 404; and a
-  `Public` route answers 200 to a request with no token.
+  `Public` route does not refuse a request merely for having no token. A valid request may
+  answer 200; an incomplete one may still get 400 from its handler.
 
 What the loop does not check is as important. It sends one request per cell, so it cannot see the
 business-flow chapter's third refund or the resource chapter's thirty-first lookup; those are
