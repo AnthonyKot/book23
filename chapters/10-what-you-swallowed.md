@@ -1,4 +1,4 @@
-<!-- Incident claims are gated in checks/claims/10.tsv against the archived Kiln and SwissBorg statements; rejected pointers are recorded in briefs/10.md. -->
+<!-- Incident claims are gated in checks/claims/10.tsv against the archived Kiln and SwissBorg statements; the rejected SiriusXM/Hyundai pointer is recorded in CONTEXT.md. -->
 
 # What You Swallowed
 
