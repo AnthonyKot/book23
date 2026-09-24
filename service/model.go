@@ -16,20 +16,24 @@ type User struct {
 }
 
 type Invoice struct {
-	ID     int    `json:"id"`
-	Tenant string `json:"tenant"`
-	Amount int    `json:"amount"`
+	ID       int    `json:"id"`
+	Tenant   string `json:"tenant"`
+	Amount   int    `json:"amount"`
+	Refunded int    `json:"refunded"`
 }
 
 type Store struct {
-	invoices map[int]Invoice
+	invoices        map[int]Invoice
+	quotes          map[string]Quote
+	refunds         []Refund
+	nextQuoteNumber int
 }
 
 func seedStore() *Store {
 	return &Store{invoices: map[int]Invoice{
 		104: {ID: 104, Tenant: "Cedar", Amount: 180000}, // pence: £1,800.00
-		205: {ID: 205, Tenant: "Birch", Amount: 64000}, // pence: £640.00
-	}}
+		205: {ID: 205, Tenant: "Birch", Amount: 64000},  // pence: £640.00
+	}, quotes: make(map[string]Quote), nextQuoteNumber: 772}
 }
 
 func (s *Store) Invoice(id int) (Invoice, bool) {

@@ -13,6 +13,7 @@ const PublicHost = "api.ledger.example"
 type App struct {
 	handler http.Handler
 	routes  []Route
+	store   *Store
 }
 
 // NewApp constructs the Chapter 1 state. Fixed mode protects /v2 and both
@@ -21,9 +22,9 @@ func NewApp(mode Mode) *App {
 	return buildApp(mode, chapter01)
 }
 
-// NewChapter9App constructs the cumulative Chapter 9 state. Its vulnerable
-// side begins after the Chapter 1 authorization repair. Its fixed side keeps
-// that repair on /v2 while removing /v1 and the staging host.
+// NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
+// but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
+// staging host; batch 2 integrates the intervening repairs after Chapter 8.
 func NewChapter9App(mode Mode) *App {
 	return buildApp(mode, chapter09)
 }
@@ -62,6 +63,15 @@ func buildApp(mode Mode, stage pilotStage) *App {
 	listRoute := Route{Method: http.MethodGet, Pattern: "/v2/me/invoices"}
 	routes = append(routes, listRoute)
 	mux.HandleFunc(listRoute.Method+" "+listRoute.Pattern, listInvoices(store))
+	if stage == chapter01 {
+		filteredList := Route{Method: http.MethodGet, Pattern: "/v2/invoices"}
+		quote := Route{Method: http.MethodPost, Pattern: "/v2/refunds/quote"}
+		confirm := Route{Method: http.MethodPost, Pattern: "/v2/refunds/confirm"}
+		routes = append(routes, filteredList, quote, confirm)
+		mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
+		mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
+		mux.HandleFunc(confirm.Method+" "+confirm.Pattern, confirmRefund(store, mode))
+	}
 
 	serveV1 := stage == chapter01 || mode == Vulnerable
 	if serveV1 {
@@ -76,7 +86,7 @@ func buildApp(mode Mode, stage pilotStage) *App {
 	if stage == chapter09 {
 		handler = chapter09Gateway(mode, mux)
 	}
-	return &App{handler: handler, routes: routes}
+	return &App{handler: handler, routes: routes, store: store}
 }
 
 func registerInvoiceRoute(mux *http.ServeMux, route Route, store *Store, secure, pdf bool) {

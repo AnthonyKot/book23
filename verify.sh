@@ -10,7 +10,7 @@ trap 'rm -f "$test_log"' EXIT
   go test -v ./...
 ) | tee "$test_log"
 
-for group in TestChapter01ExerciseCases TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
+for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
   if ! grep -Fq -- "--- PASS: $group" "$test_log"; then
     echo "missing passing pilot test group: $group" >&2
     exit 1
@@ -28,7 +28,8 @@ from urllib.parse import urlparse
 root = pathlib.Path(sys.argv[1])
 expected_header = ["claim_id", "claim", "archive", "source_url", "locator", "evidence", "qualification"]
 
-for number in ("00", "01", "09"):
+claim_archives = set()
+for number in (f"{i:02d}" for i in range(11)):
     claim_file = root / "checks" / "claims" / f"{number}.tsv"
     with claim_file.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.reader(handle, delimiter="\t"))
@@ -40,6 +41,7 @@ for number in ("00", "01", "09"):
         archive = root / row[2]
         if not archive.is_file() or archive.stat().st_size == 0:
             raise SystemExit(f"{claim_file}:{line}: missing archive {row[2]}")
+        claim_archives.add(row[2])
         parsed = urlparse(row[3])
         if parsed.scheme != "https" or not parsed.netloc:
             raise SystemExit(f"{claim_file}:{line}: invalid source URL {row[3]}")
@@ -52,6 +54,14 @@ for row in sources:
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
     if digest != row["sha256"]:
         raise SystemExit(f"source checksum mismatch: {row['archive']}")
+manifest_archives = {row["archive"] for row in sources}
+if unregistered := claim_archives - manifest_archives:
+    raise SystemExit(f"claim archives absent from SOURCES.tsv: {sorted(unregistered)}")
+
+for number in ("01", "09"):
+    chapters = list((root / "chapters").glob(f"{number}-*.md"))
+    if len(chapters) != 1 or "{{excerpt:" in chapters[0].read_text(encoding="utf-8"):
+        raise SystemExit(f"built chapter {number} still has an excerpt placeholder")
 
 class Links(HTMLParser):
     def __init__(self):

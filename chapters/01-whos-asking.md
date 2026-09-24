@@ -1,6 +1,6 @@
 # Who's Asking
 
-<!-- claims to gate in checks/claims/01.tsv: 20 Jan 2021 private disclosure; POST /stats/workouts/details with editable ids; initially no authentication; 2 Feb 2021 silent partial fix requiring authentication; still readable by any registered member incl. private profiles; "3 million" members; journalist contact ~90 days; resolved within 7 days of CISO engagement; published 5 May 2021; data fields listed. Source: Jan Masters, Pen Test Partners, "Tour de Peloton: Exposed user data". -->
+<!-- Incident claims: checks/claims/01.tsv. -->
 
 In January 2021 Jan Masters, a researcher at Pen Test Partners, was looking at the API behind
 Peloton's bikes and app. One call stood out. For live-class details, the web app sent
