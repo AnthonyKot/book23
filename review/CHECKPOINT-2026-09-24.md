@@ -26,3 +26,13 @@ registered in CONTEXT without changing previous values. `go test ./...`, `./veri
 `git diff --check` passed; Chapter 8's Go service remains unbuilt. Next: Chapter 09; check all
 four printed excerpts against marked service blocks, every exercise case against both-mode tests,
 and claims 09-10 through 09-14 against the archived court PDF.
+
+Chapter 09 completed: the five later claim rows were checked against the court PDF's scanned
+concise statement; 09-11/09-14 were clarified and 09-15 gates the May 2024 proceeding date.
+All three printed Go blocks match their marked excerpts exactly. The prose now keeps the Target
+Domain's 2017 exposure separate from the joint vulnerable state by June 2020, distinguishes
+address/identity-document subsets from fields accessed for all affected customers, and preserves
+Chapter 4's shared-handler lookup budget. `service/ch09_test.go` now checks invoice data in 200
+responses and its absence in 404 responses for every exercise case in both modes. `go test ./...`,
+`./verify.sh`, and `git diff --check` passed. Next: Chapter 10; archive Kiln and SwissBorg's own
+accounts, gate its claims, then check the stored FX rate and refund quote against Chapter 6.

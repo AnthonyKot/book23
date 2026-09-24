@@ -2,6 +2,7 @@ package ledger
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -30,6 +31,12 @@ func TestChapter09ExerciseCases(t *testing.T) {
 				got := request(t, apps[mode], test.host, "alice-token", test.path)
 				if got.status != want {
 					t.Fatalf("status = %d, want %d; body=%q", got.status, want, got.body)
+				}
+				if want == 200 && !strings.Contains(got.body, `"id":104`) {
+					t.Errorf("200 response lacks Alice's invoice 104: %q", got.body)
+				}
+				if want == 404 && (strings.Contains(got.body, `"id":`) || strings.Contains(got.body, "Birch")) {
+					t.Errorf("404 response exposes invoice data: %q", got.body)
 				}
 			})
 		}

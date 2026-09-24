@@ -4,8 +4,8 @@
 
 Between 17 and 20 September 2022 someone pulled the personal records of more than 9.5 million
 current and former customers out of Optus, Australia's second-largest telecommunications company:
-names, dates of birth, phone numbers, addresses, and for a subset the driver's licence, passport
-and Medicare numbers that Australians use to prove who they are. What follows is the account the
+names, email addresses, dates of birth and phone numbers, with residential addresses and driver's
+licence, passport or Medicare numbers accessed for subsets of customers. What follows is the account the
 regulator gave a court two years later. The Australian Communications and Media Authority, ACMA,
 sued Optus in the Federal Court in May 2024, and the redacted concise statement it filed is public.
 Everything below is what ACMA alleges. Optus's systems are named in the filing only as black bars,
@@ -19,7 +19,7 @@ customer's information only after that customer had authenticated. And, ACMA all
 dormant and not in use since 2017. Nobody needed it. It was not decommissioned.
 
 In September 2018 a coding error was made in one of the access controls, and the error made that
-control ineffective for both domains. In June 2020 both domains became internet-facing with the
+control ineffective for both domains. By June 2020 both domains were internet-facing with the
 error in them. In August 2021 Optus detected that the Main Domain was vulnerable because of the
 error and fixed it there. It did not detect, and did not fix, the same issue on the Target
 Domain. The filing says the Target Domain "was permitted to sit dormant and vulnerable to attack
@@ -103,14 +103,12 @@ stops answering, deprecated means exactly what it meant the day before: the rout
 it served, through whatever hosts forward to it, with whatever controls happen to have reached it.
 
 Here is how that goes wrong at Ledger after the next repair, not this one. The chapter on resource
-consumption puts a budget of thirty requests a minute on the lookup routes, and it puts it at the
-gateway, keyed by host and route, because that is where every request passes. Every request on
-the host Ops listed. `ledger-staging.internal/v1/invoices/104` is forwarded by a rule that never
-saw the budget, so the walk that Peloton's researcher did by hand, and that the limiter was added
-to stop, runs at full speed against the one host nobody metered. The handler behind it still calls
-`LoadInvoiceFor`, so Alice still cannot read Birch's invoice that way. The point is not that this
-route leaks today. The point is that the next control, and the one after that, will be applied to
-the inventory, and this route is not in it. Optus's Target Domain did not need to be exploitable
+consumption put a thirty-per-minute budget on the email-lookup routes at the gateway and in their
+shared handler. The staging rule missed the gateway copy, but it cannot bypass the handler's
+budget on that lookup. The `/v1/invoices/104` route shown here is a different path; it still calls
+`LoadInvoiceFor`, so Alice cannot read Birch's invoice through staging. The point is not that this
+route leaks or runs unmetered today. The point is that the next host-level policy, applied only to
+Ops's inventory, may miss the undeclared name. Optus's Target Domain did not need to be exploitable
 in 2017 to be the way in five years later.
 
 So the question the BOLA chapter asked, "which routes can reach this data?", was one list short.
