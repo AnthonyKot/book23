@@ -24,8 +24,8 @@ can afford, because nothing counts the spending against the thing that matters.
 ## Where the bug lives: a limiter that counts the wrong thing
 
 Ledger has the same short-secret flow. When a customer forgets their password, Ledger texts a
-six-digit one-time code and checks it at `POST /v2/auth/otp/verify`. Here is that handler before
-this chapter's fix.
+six-digit one-time code and checks it at `POST /v2/auth/otp/verify`. The handler hands the code
+to the challenge store. Here is the store's check before this chapter's fix.
 
 ```go
 func (s *challengeStore) verifyVulnerable(input otpVerifyRequest) otpOutcome {
@@ -148,7 +148,10 @@ public record does not say; what it does say is that one call per number was eno
 
 Use Ledger at the point where Ops has limited the v2 lookup but has not yet added v1 to the
 gateway. The OTP challenge locks after 5 wrong codes per account, without a new request resetting
-the ten-minute window; `limit` caps at 50. Here are four routes, written as route → limiter key.
+the ten-minute window; `limit` caps at 50. (The test suite has no build for that midpoint: its
+vulnerable build is the chapter's before state, OTP flaw open and v1 unmetered, and its fixed
+build is the after state. The snapshot is for reasoning; the tests assert the two ends.) Here are
+four routes, written as route → limiter key.
 
 ```text
 A. POST /v2/auth/otp/verify   -> limit 5 per (account_id, challenge_id)

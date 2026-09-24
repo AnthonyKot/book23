@@ -118,7 +118,8 @@ var chapter05Declarations = []Route{
 
 `Access` has no usable zero value: a route that forgets to set it does not quietly become `Public`,
 it fails to register, and a test walks the table and asserts every route declares a level. The
-levels are `Public`, `User` and `TenantAdmin`. After `currentUser`, an invoice-by-ID route runs
+levels are `Public`, `User` and `TenantAdmin` (in the code the middle one is spelled
+`UserAccess`, because `User` is already the name of a type). After `currentUser`, an invoice-by-ID route runs
 `LoadInvoiceFor` first, returning 404 for an out-of-tenant ID; access middleware then checks the
 role before the handler:
 
@@ -177,9 +178,9 @@ caller had to clear.
 ## Exercise: which verb, which caller, which door
 
 Ledger as before: Alice is an ordinary Cedar user, Dana is Cedar's tenant admin, Ben is a Birch
-user; invoice 104 is Cedar's and 205 is Birch's. Each route below is registered with a declared
-access level in the fixed build and with none in the vulnerable build. You do not need a running
-service. For each case, name the caller's role, say which route declaration (or its absence) decides
+user; invoice 104 is Cedar's and 205 is Birch's. Each route below carries the same declaration in
+both builds; in the vulnerable build the `TenantAdmin` level is declared and not enforced. You do not need a running
+service. For each case, name the caller's role, say which route declaration decides
 the request, and give the response and whether any row changed.
 
 ```text
@@ -210,7 +211,7 @@ F. GET    /v2/Admin/users         Alice   —                        (note the c
   not-found first, so both builds answer 404. Tenant scope is checked before role, and being an
   admin of your own tenant is not being an admin of someone else's.
 - **D is vulnerable.** Alice is `User`; the user-list route needs `TenantAdmin`. Vulnerable build:
-  no declaration, so any logged-in caller gets Cedar's user list (200). Fixed build: 403. This is the
+  the declaration is not enforced, so any logged-in caller gets Cedar's user list (200). Fixed build: 403. This is the
   dealer portal's admin page — hidden in the front end, open at the API.
 - **D' is D with the right caller.** Dana clears `TenantAdmin`; 200 in both builds.
 - **E is the second door, and it undoes chapter 3.** Alice is `User`; the admin route needs
