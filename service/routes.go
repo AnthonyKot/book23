@@ -38,8 +38,17 @@ var chapter05Declarations = []Route{
 // end excerpt
 
 func declareChapter05Routes(routes []Route) []Route {
-	declarations := make(map[string]Access, len(chapter05Declarations))
-	for _, route := range chapter05Declarations {
+	return declareRoutes(routes, chapter05Declarations)
+}
+
+var chapter06Declarations = []Route{
+	{Method: http.MethodPost, Pattern: "/v2/refunds/{quote}/approve", Access: TenantAdmin},
+	{Method: http.MethodPost, Pattern: "/v2/invoices/{id}/remind", Access: UserAccess},
+}
+
+func declareRoutes(routes, policy []Route) []Route {
+	declarations := make(map[string]Access, len(policy))
+	for _, route := range policy {
 		key := route.Method + " " + route.Pattern
 		if route.Access != Public && route.Access != UserAccess && route.Access != TenantAdmin {
 			panic("ledger: invalid access declaration: " + key)

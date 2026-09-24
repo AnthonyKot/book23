@@ -10,7 +10,8 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 03 | Complete for batch 2; views, patches, and guard tested | Author reconciles mixed PATCH wording |
 | 04 | Complete for batch 2; challenge, lookup, and page limits tested | Author aligns OTP excerpt wording |
 | 05 | Complete for batch 2; access declarations, admin routes and exercise tested | Author aligns vulnerable-build declaration wording |
-| 06–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
+| 06 | Complete for batch 2; tenant allowance, approval and exercise tested | Author reviews thin confirm wrapper and reminder simulation |
+| 07–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -172,5 +173,38 @@ Chapter 01 exercise as a literal wire example.
   declarations exist but the privileged role check is skipped. The observable failure and exercise
   outcomes are the same. Rendered Chapter 05 HTML awaits the deferred build after Chapter 10.
 
-Next: Chapter 06 business-flow allowance. Chapter 09 still needs cumulative integration
+## Chapter 06 — completed in batch 2
+
+- `NewChapter6App` retains Chapters 01–05's fixed behavior in both modes. The Chapter 06
+  difference is at refund confirm: vulnerable mode accepts three fresh £400 quotes and records
+  £1,200 for Cedar; fixed mode records two and parks the third at £800 with HTTP 202 and
+  `{"status":"refund_needs_approval"}`. The first quote on invoice 104 remains `q-771`,
+  and a second confirm of that quote returns the original refund without recording another.
+- `Store.ConfirmRefund` locks the quote, invoice, refund list and tenant allowance decision
+  together. It sums recorded refunds for the quote's stored tenant on the UTC calendar day.
+  Cedar and Birch each have the established 100000-pence fixture allowance. A parked quote stays
+  parked after midnight; Dana's `POST /v2/refunds/{quote}/approve` records it only after the
+  Chapter 05 tenant-scope check and `TenantAdmin` role check. Alice sees 403 for a Cedar quote;
+  Ben sees 404. The rejected per-user counter is compiled but not registered as a mode; its
+  integration-identity gap is asserted directly in the test.
+- The exercise's 50-quote decoy leaves all money unmoved. The reminder route is implemented as
+  a deterministic fixture: vulnerable mode records 50 reminder events, fixed mode records the
+  first and returns `reminder_needs_review` for the rest. It sends no email. Quote velocity is
+  counted per tenant per UTC hour and exposed to the test through a store method; there is no
+  Ops HTTP route. UTC day/hour boundaries are fixture policy because the book does not specify
+  a tenant timezone. No new canonical number was introduced.
+- `service/ch06_test.go` covers the A–E exercise contrasts, the Ben cross-tenant row, the
+  integration-key and Dana sequences, approval scope and role, 50 open quotes, 50 reminders,
+  next-day behavior, concurrent confirms, and earlier access, identity and loader repairs.
+  `go test ./...`, `go test -race ./...`, `./verify.sh`, and `git diff --check` pass. Four printed
+  excerpts match their marked Go source; `verify.sh` requires them and rejects remaining
+  Chapter 06 placeholders. Rendered HTML awaits the batch build after Chapter 10.
+- Author note: the printed vulnerable confirm block contains its unrestricted store method,
+  where the per-request checks live. The fixed confirm wrapper delegates to the later printed
+  `Store.ConfirmRefund` method. The prose's “handler checks” wording can be read as the call
+  path, but a line-level description should name the store method. The chapter's “once the
+  refund routes exist” sentence is now stale. The reminder “emails” are simulated events in
+  this fixture, as expected for an offline test.
+
+Next: Chapter 07 outbound request boundary. Chapter 09 still needs cumulative integration
 after Chapter 08. Do not push this implementation branch from Lane A.

@@ -1,6 +1,6 @@
 # Every Request Was Valid
 
-<!-- Incident claims are gated in checks/claims/06.tsv against the FTC complaint, the stipulated order and the FTC release (resources/incidents/06/). Everything about the broker is the government's allegation; the defendants neither admitted nor denied it. -->
+<!-- Incident claims: checks/claims/06.tsv (archived FTC complaint, order and release). The broker account is alleged; defendants neither admitted nor denied it. -->
 
 In January 2021 the United States, on the Federal Trade Commission's behalf, filed a complaint in
 the Eastern District of New York against a Long Island ticket broker called Just In Time Tickets
@@ -50,7 +50,42 @@ Here is the confirm handler behind that button, as it stands after the earlier c
 was created with `LoadInvoiceFor`, so it can only exist for an invoice Alice's tenant owns, and
 confirm refunds the invoice stored with the quote, never one named in the body.
 
-{{excerpt:ch06-vulnerable-confirm}}
+```go
+func vulnerableChapter06Confirm(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, quote, ok := chapter06ConfirmInput(w, r, store)
+		if !ok {
+			return // session, body and quote tenant were checked
+		}
+		refund, status := store.UnrestrictedRefund(quote.ID, user, clock())
+		writeChapter06Decision(w, status, refund)
+	}
+}
+
+func (s *Store) UnrestrictedRefund(id string, actor User, at time.Time) (Refund, string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	quote, ok := s.quotes[id]
+	if !ok || quote.Tenant != actor.Tenant {
+		return Refund{}, refundMissing
+	}
+	if quote.Status == refundConfirmed {
+		refund, found := s.refundByQuoteLocked(id)
+		if found {
+			return refund, refundConfirmed
+		}
+		return Refund{}, refundInvalid
+	}
+	if quote.Status == refundNeedsApproval {
+		return Refund{}, refundNeedsApproval
+	}
+	invoice, found := s.invoices[quote.InvoiceID]
+	if !found || quote.Amount <= 0 || quote.Amount > invoice.Amount-invoice.Refunded {
+		return Refund{}, refundInvalid
+	}
+	return s.recordRefundLocked(quote, actor, at), refundConfirmed
+}
+```
 
 Read it looking for £1,000. It is not there. The handler checks that the quote belongs to the
 caller's tenant, that it has not already been confirmed, and that the amount does not exceed what
@@ -68,7 +103,18 @@ script never confirms a quote twice. It asks for a new one.
 
 The fix puts the business rule where the business flow actually executes:
 
-{{excerpt:ch06-fixed-confirm}}
+```go
+func fixedChapter06Confirm(store *Store, clock func() time.Time) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, quote, ok := chapter06ConfirmInput(w, r, store)
+		if !ok {
+			return
+		}
+		refund, status := store.ConfirmRefund(quote.ID, user, clock())
+		writeChapter06Decision(w, status, refund)
+	}
+}
+```
 
 Three details decide whether this is real.
 
@@ -95,7 +141,18 @@ the tenant key `ck_cedar_…` identifies Cedar's integration, not a person. The 
 both, because Cedar's accounting system issues refunds automatically. Here is the per-user
 counter as it would sit in the handler:
 
-{{excerpt:ch06-per-user-counter}}
+```go
+func refundedToday(user User, refunds []Refund, at time.Time) int {
+	total := 0
+	today := at.UTC().Format("2006-01-02")
+	for _, refund := range refunds {
+		if refund.Actor == user.Name && refund.At.UTC().Format("2006-01-02") == today {
+			total += refund.Amount
+		}
+	}
+	return total
+}
+```
 
 Now run the same script through the integration key. The key resolves to a service identity that
 has never refunded anything and gets a fresh bucket. Alice's session is at £1,000 and stopped;
@@ -124,7 +181,43 @@ Two more reasons this class is hard, both in the complaint.
 The fixed handler above calls into the store. Here is the store method, which is the choke point
 for this chapter in the way `LoadInvoiceFor` was for the first.
 
-{{excerpt:ch06-tenant-allowance}}
+```go
+func (s *Store) ConfirmRefund(id string, actor User, at time.Time) (Refund, string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	quote, ok := s.quotes[id]
+	if !ok || quote.Tenant != actor.Tenant {
+		return Refund{}, refundMissing
+	}
+	if quote.Status == refundConfirmed {
+		refund, found := s.refundByQuoteLocked(id)
+		if found {
+			return refund, refundConfirmed
+		}
+		return Refund{}, refundInvalid
+	}
+	if quote.Status == refundNeedsApproval {
+		return Refund{}, refundNeedsApproval
+	}
+	invoice, found := s.invoices[quote.InvoiceID]
+	if !found || quote.Amount <= 0 || quote.Amount > invoice.Amount-invoice.Refunded {
+		return Refund{}, refundInvalid
+	}
+	today := at.UTC().Format("2006-01-02")
+	total := 0
+	for _, refund := range s.refunds {
+		if refund.Tenant == quote.Tenant && refund.At.UTC().Format("2006-01-02") == today {
+			total += refund.Amount
+		}
+	}
+	if total+quote.Amount > s.allowances[quote.Tenant] {
+		quote.Status = refundNeedsApproval
+		s.quotes[id] = quote
+		return Refund{}, refundNeedsApproval
+	}
+	return s.recordRefundLocked(quote, actor, at), refundConfirmed
+}
+```
 
 Every route that can move money out of a tenant, `/v2/refunds/confirm` and any batch or
 integration route added later, goes through `ConfirmRefund`, which takes the tenant from the

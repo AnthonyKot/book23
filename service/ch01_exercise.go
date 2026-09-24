@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 )
 
 // Quote.Amount and Refund.Amount are integer pence in the Chapter 1 fixture.
@@ -19,10 +20,12 @@ type Quote struct {
 }
 
 type Refund struct {
-	QuoteID   string `json:"quote_id"`
-	InvoiceID int    `json:"invoice_id"`
-	Tenant    string `json:"tenant"`
-	Amount    int    `json:"amount"`
+	QuoteID   string    `json:"quote_id"`
+	InvoiceID int       `json:"invoice_id"`
+	Tenant    string    `json:"tenant"`
+	Amount    int       `json:"amount"`
+	At        time.Time `json:"-"`
+	Actor     string    `json:"-"`
 }
 
 func (s *Store) InvoicesWhere(tenant string) []Invoice {
@@ -143,6 +146,8 @@ func decodeOneJSON(r *http.Request, value any) error {
 }
 
 func (s *Store) newQuote(user User, invoice Invoice, amount int) Quote {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	id := "q-771"
 	if invoice.ID != 104 || s.quotes[id].ID != "" {
 		id = fmt.Sprintf("q-%d", s.nextQuoteNumber)

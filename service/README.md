@@ -13,8 +13,11 @@ is still a pilot that starts after the Chapter 1 loader repair; it does not yet 
 IP throttling, a 50-row page cap, and 30/min email-lookup budgets at both gateway and shared
 handler. Its in-memory limits, fixture OTP code, and simulated text delivery are teaching devices.
 `NewChapter5App` composes the earlier repairs and declares access for every registered route;
-its vulnerable mode skips the tenant-admin role decision while retaining tenant scope. Tests make
-no network requests.
+its vulnerable mode skips the tenant-admin role decision while retaining tenant scope.
+`NewChapter6App` retains that role decision in both modes. Its fixed confirm enforces a tenant's
+daily refund allowance in the in-memory store and parks over-limit quotes for admin approval;
+the vulnerable confirm omits that allowance. Reminder sends are counted as fixture events only.
+Tests make no network requests.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish
 that a real gateway matches its repository configuration, that traffic telemetry is complete,

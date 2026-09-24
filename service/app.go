@@ -44,6 +44,11 @@ func NewChapter5App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter05, time.Now)
 }
 
+// NewChapter6App retains Chapters 1-5's repairs and isolates refund-flow limits.
+func NewChapter6App(mode Mode) *App {
+	return buildAppWithClock(mode, chapter06, time.Now)
+}
+
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
 // but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
 // staging host; batch 2 integrates the intervening repairs after Chapter 8.
@@ -67,6 +72,7 @@ const (
 	chapter03
 	chapter04
 	chapter05
+	chapter06
 	chapter09
 )
 
@@ -87,18 +93,18 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 
 	store := seedStore()
 	mux := http.NewServeMux()
-	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05
+	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06
 	propertyMode := mode
-	if stage == chapter04 || stage == chapter05 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 {
 		propertyMode = Fixed
 	}
 	var limits *chapter04Limits
-	if stage == chapter04 || stage == chapter05 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 {
 		limits = newChapter04Limits(clock)
 	}
-	limitStage := stage == chapter04 || stage == chapter05
+	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06
 	limitMode := mode
-	if stage == chapter05 {
+	if stage == chapter05 || stage == chapter06 {
 		limitMode = Fixed
 	}
 	routes := []Route{{Method: http.MethodGet, Pattern: "/v2/invoices/{id}"}}
@@ -124,12 +130,24 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		} else {
 			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
 		}
-		mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
+		if stage == chapter06 {
+			mux.HandleFunc(quote.Method+" "+quote.Pattern, chapter06Quote(store, clock))
+		} else {
+			mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
+		}
 		confirmMode := mode
 		if stage != chapter01 {
 			confirmMode = Fixed // later stages retain Chapter 1's refund repair
 		}
-		mux.HandleFunc(confirm.Method+" "+confirm.Pattern, confirmRefund(store, confirmMode))
+		if stage == chapter06 {
+			if mode == Vulnerable {
+				mux.HandleFunc(confirm.Method+" "+confirm.Pattern, vulnerableChapter06Confirm(store, clock))
+			} else {
+				mux.HandleFunc(confirm.Method+" "+confirm.Pattern, fixedChapter06Confirm(store, clock))
+			}
+		} else {
+			mux.HandleFunc(confirm.Method+" "+confirm.Pattern, confirmRefund(store, confirmMode))
+		}
 	}
 
 	serveV1 := stage != chapter09 || mode == Vulnerable
@@ -173,9 +191,16 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(limitMode, limits.challenges, sessions)))
 			handler = chapter04Gateway(limitMode, limits, handler)
 		}
-		if stage == chapter05 {
-			routes = registerChapter05Routes(mux, routes, store, sessions, mode)
-			handler = chapter05Authorization(mode, mux, routes, store, sessions, handler)
+		if stage == chapter05 || stage == chapter06 {
+			accessMode := mode
+			if stage == chapter06 {
+				accessMode = Fixed
+			}
+			routes = registerChapter05Routes(mux, routes, store, sessions, accessMode)
+			if stage == chapter06 {
+				routes = registerChapter06Routes(mux, routes, store, mode, clock)
+			}
+			handler = chapter05Authorization(accessMode, mux, routes, store, sessions, handler)
 		}
 		identityMode := mode
 		if propertyStage {

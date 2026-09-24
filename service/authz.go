@@ -46,6 +46,8 @@ func chapter05Authorization(mode Mode, mux *http.ServeMux, routes []Route, store
 			guarded = scopeInvoice(store, guarded)
 		} else if pattern == "PATCH /v2/admin/users/{id}" {
 			guarded = scopeAdminUser(sessions, guarded)
+		} else if pattern == "POST /v2/refunds/{quote}/approve" {
+			guarded = scopeQuote(store, guarded)
 		}
 		guarded.ServeHTTP(w, r)
 	})

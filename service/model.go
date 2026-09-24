@@ -3,6 +3,7 @@ package ledger
 import (
 	"errors"
 	"sort"
+	"sync"
 )
 
 type Mode string
@@ -51,9 +52,13 @@ func (Invoice) MarshalJSON() ([]byte, error) {
 // end excerpt
 
 type Store struct {
+	mu              sync.Mutex
 	invoices        map[int]Invoice
 	quotes          map[string]Quote
 	refunds         []Refund
+	allowances      map[string]int
+	quoteVelocity   map[string]int
+	reminders       map[string]int
 	nextQuoteNumber int
 }
 
@@ -67,7 +72,8 @@ func seedStore() *Store {
 			Currency: "GBP", Status: "open", DueDate: "2026-11-18", Reference: "PO-Birch",
 			Customer:        Customer{Name: "Birch Customer", Email: "birch-billing@example.test", Phone: "+44 20 7946 8613", Address: "Birch Road"},
 			CollectionsNote: "Ledger-only review", Margin: 12800}, // pence: £640.00
-	}, quotes: make(map[string]Quote), nextQuoteNumber: 772}
+	}, quotes: make(map[string]Quote), allowances: map[string]int{"Cedar": 100000, "Birch": 100000},
+		quoteVelocity: make(map[string]int), reminders: make(map[string]int), nextQuoteNumber: 772}
 }
 
 func (s *Store) Invoice(id int) (Invoice, bool) {
