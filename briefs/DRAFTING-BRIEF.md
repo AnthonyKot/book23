@@ -1,3 +1,5 @@
+> Retired 2026-09-24: chapters 0–10 are drafted, reviewed and built. Kept for the record; `CONTEXT.md` and `docs/HANDOVER-2.md` are current.
+
 # Drafting brief — one page for a fresh agent writing one chapter of Book 23
 
 Read, in this order, before writing anything: this file; `CONTEXT.md` (cast, fixed-number table,
@@ -34,25 +36,9 @@ outcome, expected fixed outcome); excerpt names used; proposed additions to CONT
 
 Write only `chapters/NN-slug.md` and `briefs/NN.md` in `/home/diablo/book23`. Do not commit. Do not edit any other file: a Codex review pass may be running in this tree at the same time on chapters 0–3 and CONTEXT.md.
 
-## State of Ledger after chapters 0–4 (what you may rely on and must not contradict)
+## State of Ledger
 
-| After | Repair or fact in force |
-|---|---|
-| 0 | Ledger: invoicing API, tenants Cedar and Birch; Alice (Cedar), Ben (Birch), Dana (Cedar admin), Ops (platform team, gateway); `/v2` current, `/v1` older and still called by the mobile app; Go stdlib only |
-| 1 | `LoadInvoiceFor(user, id)` is the only way a handler gets an invoice; 404 for missing and forbidden alike; `/v1` read and `/v1/invoices/{id}/pdf` go through it but are **not retired** (that is ch. 9); two-user test loop over every invoice route; refund quote `q-771` → confirm must use the invoice stored with the quote |
-| 2 | `currentUser` resolves a bearer token through the session store (12-hour lifetime, fake clock); the mobile app key `mk_ledger_mobile_…` alone is not an identity; `/v1`'s old `X-User` header is ignored everywhere; tenant keys `ck_cedar_…` / `bk_birch_…` identify a tenant integration, not a person |
-| 3 | Invoice 104 = £1,800.00, 205 = £640.00; stored `store.Invoice` carries customer contact fields plus Ledger-internal `CollectionsNote` and `Margin`; responses encode `ViewFor(user, inv)` (ordinary vs admin view), never the row; `store.Invoice.MarshalJSON` returns an error; PATCH decodes typed `InvoicePatch{Reference}` / `ProfilePatch{DisplayName}` with unknown fields rejected; `/v1` PDF template bound to the view |
-| 4 | OTP: 6 digits, 10-minute challenge, budget of 5 wrong attempts **per challenge** then locked; the per-IP limiter stays as a second, separate limit; `?limit=` capped at 50; 30 requests/minute per lookup route, applied at Ops's gateway; incident is Instagram 2019 (Muthiyah), X/Twitter 2022 is an aside |
-
-| 5 | Every route declares an access level (`Public`, `User`, `TenantAdmin`); registration fails without one; middleware after `currentUser` denies with **403** (existence not hidden, unlike ch. 1's 404); `DELETE /v2/invoices/{id}` and `/v2/admin/*` are `TenantAdmin`; `PATCH /v2/admin/users/{id}` exists and is admin-only; tenant scope (`LoadInvoiceFor`) still checked first; the vulnerable-only `/v2/admin` prefix check is gone |
-| 6 | Refund flow: `POST /v2/refunds/quote` (`LoadInvoiceFor`, amount ≤ remaining) and `POST /v2/refunds/confirm` (refunds the invoice stored with the quote; confirming a quote twice returns the original refund); `store.ConfirmRefund` enforces a **£1,000 per tenant per day** allowance keyed on the tenant, not the caller; over it → `refund_needs_approval`, quote parked for Dana at `POST /v2/refunds/{quote}/approve` (`TenantAdmin`); Ops records quotes per tenant per hour as a signal; per-user counters are the rejected local fix |
-| 7 | One outbound client, `egress`: resolve once → reject private/loopback/link-local → dial the pinned address → never follow redirects; `http.Get`/bare `http.Client` banned from handlers; `POST /v2/webhooks/test` and the `/v1` PDF logo fetch both go through it; Cedar's webhook is `https://hooks.cedar.example/ledger` |
-| 8 | `Settings` struct, one literal per environment; `Debug` false in production (error bodies opaque: `{"error":"not found"}`); CORS origins listed, never `*`; `PublicRoutes` allow-list and a test that walks the ch. 5 route table and fails on any `Public` route not in it; `GET /v2/admin/health` is `TenantAdmin` and returns version only; `GET /v2/health` stays `Public` |
-| 9 | `/v1` retired: routes removed from code and gateway, `ledger-staging.internal` no longer forwarded, `ReconcileInventory` (declared hosts × code × gateway × traffic) prints nothing and runs as a test |
-
-| 10 | Partner rate feed `rates.partner.example` fetched hourly through `egress`; decoded into `rateRow{EUR}` with unknown fields rejected; accepted only inside 0.70–1.10, else last good rate kept and Ops paged; invoice 412 (Cedar, €300.00) stores `FXRate` 0.92 and `AmountEUR`; refund quote converts at the invoice's stored `FXRate`, never at today's rate |
-
-Chapter 11 adds to this table; a later chapter may not silently undo an earlier repair.
+Folded into `CONTEXT.md` §6 on 2026-09-24; the service and its tests are the spec.
 
 ## Register for the next chapters (from PLAN §3; incidents still need the source-and-class gate)
 

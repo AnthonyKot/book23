@@ -20,6 +20,11 @@ Authority order: this file → PLAN.md → GUIDANCE.md → chapter briefs. Start
 | 2026-09-23 | Word band is a target, not a ceiling; length may grow where it improves the chapter | author: "We may extend word limit if it makes essay better" |
 | 2026-09-23 | Prose may name a test file only once the marked excerpts exist; until then the exercise table says it is the chapter's test "to run once the service code exists" | Codex review checkpoint: chapters claimed tests that did not exist |
 | 2026-09-23 | Editorial correction: ch. 6 and ch. 10 incident choices remain open pending source-and-class fit; if a distinct API10 source fails the hunt, fold response consumption into ch. 7 and revise the register | the proposed Starbucks race is not the same mechanism as API6's excessive access; the named SiriusXM/Hyundai cases do not establish the proposed API10 partner-to-consumer chain |
+| 2026-09-24 | Chapters 08–10 reviewed by Codex (`review/codex-2026-09-24-08-10.md`); Lane A batch 2 built the cumulative service for ch. 1–10 (`docs/HANDOVER-2.md`): `NewChapterNApp(mode)` for every chapter, every exercise row a both-mode test, every printed Go block an exact marked excerpt | plan; the author aligned prose to the built code after each chapter |
+| 2026-09-24 | Production `PublicRoutes` has four entries: ch. 2's password login stays on the allow-list | the login is a real route callers reach without a session; retiring it would break the session exercise for no gain |
+| 2026-09-24 | Vulnerable builds carry the same route declarations as fixed builds; ch. 5's vulnerable mode declares `TenantAdmin` and does not enforce it | identical route composition across modes; same observable outcomes as "no declaration" |
+| 2026-09-24 | Refund allowance and quote velocity are counted on the UTC calendar day/hour | the book fixes no tenant timezone; fixture policy, not a business claim |
+| 2026-09-24 | A euro invoice with no stored `FXRate` gets 409 `rate_reconciliation_required` and an Ops page; it is never quoted at today's rate | ch. 10 review: the stored rate is the only rate a later step may read |
 
 ## 2. The service (the spine)
 
@@ -149,3 +154,24 @@ Bounty amounts and dates belong to real incidents and live in `checks/claims/NN.
   failure. [Sam Curry's automotive write-up](https://samcurry.net/web-hackers-vs-the-auto-industry/)
   separates the Hyundai account takeover and SiriusXM key exposure; it does not establish the
   proposed combined API10 chain. Both chapter incident slots remain open.
+
+## 6. State of Ledger after each chapter (as built; `service/` and its tests are the spec)
+
+Each chapter's `NewChapterNApp(mode)` has every earlier repair in force in both modes and only
+its own bug open in `Vulnerable`. A later chapter never undoes an earlier repair.
+
+| After | Repair or fact in force |
+|---|---|
+| 0 | Ledger: invoicing API, tenants Cedar and Birch; Alice (Cedar), Ben (Birch), Dana (Cedar admin), Ops (platform team, gateway); `/v2` current, `/v1` older and still called by the mobile app; Go stdlib only |
+| 1 | `LoadInvoiceFor(user, id)` is the only way a handler gets an invoice; 404 for missing and forbidden alike; `/v1` read and PDF go through it but are not retired until ch. 9; a test compares registered invoice routes with the two-user loop; refund quote `q-771` → confirm takes only a `quote_id` (400 if the body names an invoice) and refunds the invoice stored with the quote; `GET /v2/invoices?tenant=` filters on the caller's tenants |
+| 2 | `currentUser` resolves a bearer token through the session store (12-hour lifetime, fake clock; `POST /v2/auth/login` issues sessions); the mobile app key alone is not an identity; `X-User` is ignored everywhere; tenant keys identify a tenant integration, not a person; `GET /v2/me` says who the server thinks you are |
+| 3 | Invoice 104 = £1,800.00, 205 = £640.00; the stored row carries contact fields plus `CollectionsNote` and `Margin`; responses encode `ViewFor(user, inv)`, never the row; `Invoice.MarshalJSON` returns an error; PATCH decodes `InvoicePatch{Reference}` / `ProfilePatch{DisplayName}` with unknown fields rejected (a mixed body is a 400, nothing changes); `/v1` PDF bound to the view |
+| 4 | OTP: 6 digits, 10-minute challenge, 5 wrong attempts per challenge then locked, reissue does not reset; the per-IP limiter is a second, separate limit; `?limit=` capped at 50; 30/min per lookup route keyed on tenant+route at the gateway **and** in the shared handler, on v1 and v2 |
+| 5 | Every route declares `Public`, `User` (`UserAccess` in Go) or `TenantAdmin`; registration panics without one; tenant scope (`LoadInvoiceFor`) before role; cross-tenant 404, same-tenant wrong role 403; `DELETE /v2/invoices/{id}` and `/v2/admin/*` are `TenantAdmin`; no prefix guard in either mode |
+| 6 | `store.ConfirmRefund` decides allowance, refund record, quote status and balance under one lock; £1,000 per tenant per UTC day; over it → 202 `refund_needs_approval`, parked for Dana at `POST /v2/refunds/{quote}/approve`; confirming twice returns the original refund; quotes per tenant per hour recorded for Ops; the per-user counter is compiled, unwired, and tested as the rejected fix |
+| 7 | One outbound client, `egress`: HTTPS only, resolve once, refuse the answer set if any address is private/loopback/link-local/reserved, dial the pinned address with the hostname kept for TLS, no proxies, redirects returned not followed; `POST /v2/webhooks/test` and the PDF logo fetch use it; webhook delivery is not in the fixture |
+| 8 | `Settings{Debug, CORSOrigins, PublicRoutes}` one literal per environment; production `Debug:false`, error body exactly `{"error":"not found"}`, CORS origin `https://app.ledger.example` only; `PublicRoutes` = health, login, otp/request, otp/verify; `validateProductionSettings` runs at construction; `GET /v2/admin/health` is `TenantAdmin` and returns version only |
+| 9 | `/v1` routes removed from code and gateway in the fixed build; `ledger-staging.internal` no longer forwarded; `ReconcileInventory` over the full route table finds nothing; the three printed ch. 9 blocks are unchanged from the pilot |
+| 10 | `PollRates` hourly through `egress`; strict `rateRow{EUR}`; band 0.70–1.10 else last good rate kept and Ops paged; invoice 412 (Cedar, €300.00, 0.92 → 27600 pence) stores `FXRate` and `AmountEUR`; refund quote converts at the stored rate before the balance check and stores pence; confirm never reads the feed; legacy euro invoice without `FXRate` → 409 |
+
+Chapter 11 adds to this table.
