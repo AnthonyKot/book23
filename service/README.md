@@ -18,6 +18,10 @@ its vulnerable mode skips the tenant-admin role decision while retaining tenant 
 daily refund allowance in the in-memory store and parks over-limit quotes for admin approval;
 the vulnerable confirm omits that allowance. Reminder sends are counted as fixture events only.
 Tests make no network requests.
+`NewChapter7App` adds a shared outbound fetcher for webhook tests and the `/v1` PDF logo path.
+Fixed mode resolves once, refuses non-public addresses, pins the approved dial address, ignores
+environment proxies and stops at redirects. Chapter 7 tests inject DNS, dial and HTTP responses;
+the intentionally vulnerable mode uses default redirect behavior.
 
 This fixture proves only the response and inventory outcomes encoded here. It cannot establish
 that a real gateway matches its repository configuration, that traffic telemetry is complete,

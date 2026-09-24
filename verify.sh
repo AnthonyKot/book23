@@ -10,7 +10,7 @@ trap 'rm -f "$test_log"' EXIT
   go test -v ./...
 ) | tee "$test_log"
 
-for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter05ExerciseCases TestChapter05AdminVoidAndScopeOrder TestEveryRouteDeclares TestChapter05MissingDeclarationFailsRegistration TestChapter05EarlierRepairs TestChapter06ExerciseSequences TestChapter06ReminderExerciseAndEarlierRepairs TestChapter06AllowanceDayAndAtomicity TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
+for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter05ExerciseCases TestChapter05AdminVoidAndScopeOrder TestEveryRouteDeclares TestChapter05MissingDeclarationFailsRegistration TestChapter05EarlierRepairs TestChapter06ExerciseSequences TestChapter06ReminderExerciseAndEarlierRepairs TestChapter06AllowanceDayAndAtomicity TestChapter07WebhookExerciseCases TestChapter07LinkLocalDialAndPinning TestChapter07AddressClasses TestChapter07PDFSecondPathAndEarlierRepairs TestChapter07PDFLinkLocalAnswer TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
   if ! grep -Fq -- "--- PASS: $group" "$test_log"; then
     echo "missing passing pilot test group: $group" >&2
     exit 1
@@ -59,7 +59,7 @@ manifest_archives = {row["archive"] for row in sources}
 if unregistered := claim_archives - manifest_archives:
     raise SystemExit(f"claim archives absent from SOURCES.tsv: {sorted(unregistered)}")
 
-for number in ("01", "02", "03", "04", "05", "06", "09"):
+for number in ("01", "02", "03", "04", "05", "06", "07", "09"):
     chapters = list((root / "chapters").glob(f"{number}-*.md"))
     if len(chapters) != 1 or "{{excerpt:" in chapters[0].read_text(encoding="utf-8"):
         raise SystemExit(f"built chapter {number} still has an excerpt placeholder")
@@ -102,6 +102,13 @@ for name in ("ch06-vulnerable-confirm", "ch06-fixed-confirm", "ch06-per-user-cou
     match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
     if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch06:
         raise SystemExit(f"Chapter 06 printed excerpt {name} differs from marked Go source")
+
+ch07 = next((root / "chapters").glob("07-*.md")).read_text(encoding="utf-8")
+for name, file in (("ch07-webhook-vulnerable", "ch07_handlers.go"), ("ch07-egress-policy", "ch07_egress.go"), ("ch07-webhook-fixed", "ch07_handlers.go"), ("ch07-pdf-logo-fetch", "ch07_handlers.go")):
+    code = (root / "service" / file).read_text(encoding="utf-8")
+    match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
+    if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch07:
+        raise SystemExit(f"Chapter 07 printed excerpt {name} differs from marked Go source")
 
 class Links(HTMLParser):
     def __init__(self):

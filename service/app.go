@@ -49,6 +49,11 @@ func NewChapter6App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter06, time.Now)
 }
 
+// NewChapter7App retains Chapters 1-6's repairs and isolates outbound fetching.
+func NewChapter7App(mode Mode) *App {
+	return buildAppWithClock(mode, chapter07, time.Now)
+}
+
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
 // but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
 // staging host; batch 2 integrates the intervening repairs after Chapter 8.
@@ -73,6 +78,7 @@ const (
 	chapter04
 	chapter05
 	chapter06
+	chapter07
 	chapter09
 )
 
@@ -87,25 +93,38 @@ func buildApp(mode Mode, stage pilotStage) *App {
 }
 
 func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App {
+	return buildAppWithNetwork(mode, stage, clock, nil)
+}
+
+func buildAppWithNetwork(mode Mode, stage pilotStage, clock func() time.Time, network *chapter07Network) *App {
 	if mode != Vulnerable && mode != Fixed {
 		panic("ledger: unknown mode " + mode)
 	}
 
 	store := seedStore()
 	mux := http.NewServeMux()
-	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06
+	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07
 	propertyMode := mode
-	if stage == chapter04 || stage == chapter05 || stage == chapter06 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 {
 		propertyMode = Fixed
 	}
 	var limits *chapter04Limits
-	if stage == chapter04 || stage == chapter05 || stage == chapter06 {
+	if stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07 {
 		limits = newChapter04Limits(clock)
 	}
-	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06
+	limitStage := stage == chapter04 || stage == chapter05 || stage == chapter06 || stage == chapter07
 	limitMode := mode
-	if stage == chapter05 || stage == chapter06 {
+	if stage == chapter05 || stage == chapter06 || stage == chapter07 {
 		limitMode = Fixed
+	}
+	flowStage := stage == chapter06 || stage == chapter07
+	flowMode := mode
+	if stage == chapter07 {
+		flowMode = Fixed
+	}
+	var fetcher outboundFetcher
+	if stage == chapter07 {
+		fetcher = stage07Fetcher(mode, network)
 	}
 	routes := []Route{{Method: http.MethodGet, Pattern: "/v2/invoices/{id}"}}
 	secure := mode == Fixed || stage != chapter01
@@ -130,7 +149,7 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		} else {
 			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, listInvoicesWhere(store, secure))
 		}
-		if stage == chapter06 {
+		if flowStage {
 			mux.HandleFunc(quote.Method+" "+quote.Pattern, chapter06Quote(store, clock))
 		} else {
 			mux.HandleFunc(quote.Method+" "+quote.Pattern, quoteRefund(store))
@@ -139,8 +158,8 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		if stage != chapter01 {
 			confirmMode = Fixed // later stages retain Chapter 1's refund repair
 		}
-		if stage == chapter06 {
-			if mode == Vulnerable {
+		if flowStage {
+			if flowMode == Vulnerable {
 				mux.HandleFunc(confirm.Method+" "+confirm.Pattern, vulnerableChapter06Confirm(store, clock))
 			} else {
 				mux.HandleFunc(confirm.Method+" "+confirm.Pattern, fixedChapter06Confirm(store, clock))
@@ -156,7 +175,11 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		pdf := Route{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf"}
 		routes = append(routes, read, pdf)
 		registerStageInvoiceRoute(mux, read, store, propertyStage, propertyMode, secure, false)
-		registerStageInvoiceRoute(mux, pdf, store, propertyStage, propertyMode, secure, true)
+		if stage == chapter07 {
+			mux.HandleFunc(pdf.Method+" "+pdf.Pattern, chapter07PDF(store, fetcher))
+		} else {
+			registerStageInvoiceRoute(mux, pdf, store, propertyStage, propertyMode, secure, true)
+		}
 		if limitStage {
 			lookup := Route{Method: http.MethodGet, Pattern: "/v1/invoices"}
 			routes = append(routes, lookup)
@@ -191,14 +214,17 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(limitMode, limits.challenges, sessions)))
 			handler = chapter04Gateway(limitMode, limits, handler)
 		}
-		if stage == chapter05 || stage == chapter06 {
+		if stage == chapter05 || stage == chapter06 || stage == chapter07 {
 			accessMode := mode
-			if stage == chapter06 {
+			if stage == chapter06 || stage == chapter07 {
 				accessMode = Fixed
 			}
 			routes = registerChapter05Routes(mux, routes, store, sessions, accessMode)
-			if stage == chapter06 {
-				routes = registerChapter06Routes(mux, routes, store, mode, clock)
+			if flowStage {
+				routes = registerChapter06Routes(mux, routes, store, flowMode, clock)
+			}
+			if stage == chapter07 {
+				routes = registerChapter07Routes(mux, routes, mode, fetcher)
 			}
 			handler = chapter05Authorization(accessMode, mux, routes, store, sessions, handler)
 		}

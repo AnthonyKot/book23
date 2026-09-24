@@ -59,7 +59,12 @@ type Store struct {
 	allowances      map[string]int
 	quoteVelocity   map[string]int
 	reminders       map[string]int
+	branding        map[string]Branding
 	nextQuoteNumber int
+}
+
+type Branding struct {
+	LogoURL string
 }
 
 func seedStore() *Store {
@@ -73,7 +78,8 @@ func seedStore() *Store {
 			Customer:        Customer{Name: "Birch Customer", Email: "birch-billing@example.test", Phone: "+44 20 7946 8613", Address: "Birch Road"},
 			CollectionsNote: "Ledger-only review", Margin: 12800}, // pence: £640.00
 	}, quotes: make(map[string]Quote), allowances: map[string]int{"Cedar": 100000, "Birch": 100000},
-		quoteVelocity: make(map[string]int), reminders: make(map[string]int), nextQuoteNumber: 772}
+		quoteVelocity: make(map[string]int), reminders: make(map[string]int),
+		branding: map[string]Branding{"Cedar": {LogoURL: "https://logo.cedar.example/mark.png"}}, nextQuoteNumber: 772}
 }
 
 func (s *Store) Invoice(id int) (Invoice, bool) {

@@ -46,6 +46,10 @@ var chapter06Declarations = []Route{
 	{Method: http.MethodPost, Pattern: "/v2/invoices/{id}/remind", Access: UserAccess},
 }
 
+var chapter07Declarations = []Route{
+	{Method: http.MethodPost, Pattern: "/v2/webhooks/test", Access: UserAccess},
+}
+
 func declareRoutes(routes, policy []Route) []Route {
 	declarations := make(map[string]Access, len(policy))
 	for _, route := range policy {

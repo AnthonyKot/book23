@@ -11,7 +11,8 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 04 | Complete for batch 2; challenge, lookup, and page limits tested | Author aligns OTP excerpt wording |
 | 05 | Complete for batch 2; access declarations, admin routes and exercise tested | Author aligns vulnerable-build declaration wording |
 | 06 | Complete for batch 2; tenant allowance, approval and exercise tested | Author reviews thin confirm wrapper and reminder simulation |
-| 07–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
+| 07 | Complete for batch 2; shared egress, webhook/PDF paths and exercise tested | Author checks logo-fixture wording |
+| 08 | Reviewed prose and brief; service pending | Settings code, excerpts and tests |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -201,10 +202,44 @@ Chapter 01 exercise as a literal wire example.
   Chapter 06 placeholders. Rendered HTML awaits the batch build after Chapter 10.
 - Author note: the printed vulnerable confirm block contains its unrestricted store method,
   where the per-request checks live. The fixed confirm wrapper delegates to the later printed
-  `Store.ConfirmRefund` method. The prose's “handler checks” wording can be read as the call
-  path, but a line-level description should name the store method. The chapter's “once the
-  refund routes exist” sentence is now stale. The reminder “emails” are simulated events in
-  this fixture, as expected for an offline test.
+  `Store.ConfirmRefund` method. Commit `69c393b` aligned the prose with that call path and
+  removed the stale future-tense sentence. Reminder “emails” are simulated events in this
+  fixture, as expected for an offline test.
 
-Next: Chapter 07 outbound request boundary. Chapter 09 still needs cumulative integration
+## Chapter 07 — completed in batch 2
+
+- `NewChapter7App` retains Chapters 01–06's fixed behavior in both modes. The Chapter 07
+  vulnerable mode uses the injected default-behavior HTTP client for the webhook test and
+  tenant-logo fetch during `/v1/invoices/{id}/pdf`; fixed mode gives both routes the same
+  `egress` instance. The PDF handler still calls `LoadInvoiceFor` before any logo fetch and
+  renders the Chapter 03 public view. A missing or blocked logo leaves the invoice export
+  available without contact fields.
+- `egress.Fetch` requires HTTPS, resolves the hostname once, rejects the whole DNS answer set
+  if any address is private, loopback, link-local or reserved (including RFC 5737 test ranges),
+  and dials the approved IP with the original URL hostname retained for TLS verification.
+  It disables environment proxies and returns redirects without following them. The production
+  constructor uses the Go resolver and dialer; tests inject both. The fixture's
+  `https://logo.cedar.example/mark.png` is a new illustrative Cedar branding value, not a
+  canonical number or a live endpoint. The static deny ranges are a conservative snapshot of
+  IANA's [IPv4](https://www.iana.org/assignments/iana-ipv4-special-registry) and
+  [IPv6](https://www.iana.org/assignments/iana-ipv6-special-registry) special-purpose registries;
+  an actual deployment would need maintained address policy and network enforcement as well.
+- `service/ch07_test.go` covers the five exercise cases in both modes. The HTTP response
+  fixture shows the redirect reaching a synthetic metadata response only in vulnerable mode;
+  the link-local case proves a vulnerable dial attempt and a fixed pre-dial refusal, without
+  claiming a TLS handshake or token leak. A separate direct dial-callback test proves pinning;
+  a canned `RoundTripper` alone cannot prove it. Mixed DNS answers, reserved address classes,
+  the PDF logo redirect and link-local second path, and earlier loader, identity, view and role
+  repairs are also tested. No test opens a real socket.
+- Four printed excerpts match marked Go blocks. `verify.sh` requires the Chapter 07 test
+  groups, rejects placeholders in the built Markdown, and checks excerpt equality. Site HTML
+  remains deferred until the batch build after Chapter 10.
+- Fixture limit: the PDF renderer models the logo fetch but does not embed an image in its
+  minimal text-only PDF response. Webhook delivery itself is not implemented, although the
+  chapter mentions a delivery path that forwards a response body; the author should mark that
+  as outside the executable fixture or add it in a later build. The tested outbound paths are
+  the webhook test and PDF logo fetch. These are teaching fixtures, not claims about a deployed
+  network boundary.
+
+Next: Chapter 08 production settings. Chapter 09 still needs cumulative integration
 after Chapter 08. Do not push this implementation branch from Lane A.

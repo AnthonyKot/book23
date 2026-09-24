@@ -1,4 +1,4 @@
-<!-- Incident claims are gated in checks/claims/07.tsv against HackerOne report #341876 and Shopify's engineering recap (resources/incidents/07/). Ledger's webhook test is invented for the analogy and differs from Exchange's screenshot surface. -->
+<!-- Incident claims: checks/claims/07.tsv (archived HackerOne report and Shopify engineering recap). Ledger's webhook and logo fetch are invented analogies. -->
 
 # The Server That Fetched for You
 
@@ -38,7 +38,18 @@ Ledger lets a tenant register a webhook so it hears about paid invoices. Cedar's
 `POST /v2/webhooks/test`, which fetches the URL in the body and reports the status it got back. Here
 is that handler before this chapter's fix.
 
-{{excerpt:ch07-webhook-vulnerable}}
+```go
+func vulnerableChapter07Webhook(fetcher outboundFetcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rawURL, ok := chapter07WebhookInput(w, r) // checks only the submitted URL
+		if !ok {
+			return
+		}
+		reply, err := fetcher.Fetch(r.Context(), rawURL) // default client resolves and redirects
+		writeWebhookResult(w, reply, err)
+	}
+}
+```
 
 Read it the way `0xacb` read Exchange. The handler does check the URL: it must parse, it must be
 `https`, and it rejects the obvious literal `http://169.254.169.254/`. Then it hands the string to
@@ -61,12 +72,67 @@ connect, and the redirect.
 
 The fix moves the decision to those three moments and refuses to leave them:
 
-{{excerpt:ch07-egress-policy}}
+```go
+func (e *egress) Fetch(ctx context.Context, rawURL string) (*http.Response, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil {
+		return nil, errEgressDenied
+	}
+	host := strings.ToLower(u.Hostname())
+	addresses := []netip.Addr{}
+	if literal, err := netip.ParseAddr(host); err == nil {
+		addresses = append(addresses, literal)
+	} else {
+		addresses, err = e.resolve(ctx, host) // exactly one DNS lookup
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(addresses) == 0 {
+		return nil, errEgressDenied
+	}
+	for _, ip := range addresses {
+		if !publicAddress(ip) { // reject the entire answer set
+			return nil, errEgressDenied
+		}
+	}
+	port := u.Port()
+	if port == "" {
+		port = "443"
+	}
+	pinned := net.JoinHostPort(addresses[0].Unmap().String(), port)
+	transport := http.RoundTripper(&http.Transport{Proxy: nil, DialContext: func(ctx context.Context, network, _ string) (net.Conn, error) {
+		return e.dial(ctx, network, pinned) // URL host remains for TLS name validation
+	}})
+	if e.transport != nil {
+		transport = e.transport // canned test replies; dial pinning is tested separately
+	}
+	client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, errEgressDenied
+	}
+	return client.Do(req)
+}
+```
 
 The webhook test now goes through it, and nothing about the handler's own logic changes except the
 call it makes:
 
-{{excerpt:ch07-webhook-fixed}}
+```go
+func fixedChapter07Webhook(fetcher outboundFetcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rawURL, ok := chapter07WebhookInput(w, r)
+		if !ok {
+			return
+		}
+		reply, err := fetcher.Fetch(r.Context(), rawURL) // shared egress checks the socket target
+		writeWebhookResult(w, reply, err)
+	}
+}
+```
 
 Three details decide whether this is real.
 
@@ -106,7 +172,31 @@ The wrong fix is to copy the URL validation into the PDF renderer. The right fix
 exactly one way to make an outbound request — `egress` — and `http.Get`, `http.Client{}`, and their
 kin are banned from handler code. The PDF renderer fetches the logo through the same client:
 
-{{excerpt:ch07-pdf-logo-fetch}}
+```go
+func chapter07PDF(store *Store, fetcher outboundFetcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		id, err := strconv.Atoi(r.PathValue("id"))
+		invoice, found := store.LoadInvoiceFor(user, id)
+		if err != nil || !found {
+			http.NotFound(w, r)
+			return
+		}
+		logo := store.branding[invoice.Tenant].LogoURL
+		if logo != "" {
+			reply, err := fetcher.Fetch(r.Context(), logo)
+			if err == nil {
+				reply.Body.Close()
+			}
+		}
+		renderViewPDF(w, publicViewFor(invoice)) // unavailable logo never exposes a row
+	}
+}
+```
 
 Now the property holds by construction. A reviewer does not have to check that each fetch validated
 its URL; they have to check that each fetch went through `egress`, which is a `grep`. When Ledger
