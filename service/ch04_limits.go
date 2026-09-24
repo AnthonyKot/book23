@@ -242,7 +242,7 @@ func otpVerifyHandler(mode Mode, challenges *challengeStore, sessions *sessionSt
 			http.Error(w, "invalid OTP verify request", http.StatusBadRequest)
 			return
 		}
-		user, found := namedUser(input.AccountID)
+		user, found := sessions.userByName(input.AccountID)
 		if !found {
 			http.Error(w, "invalid OTP verify request", http.StatusBadRequest)
 			return

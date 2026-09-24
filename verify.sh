@@ -10,7 +10,7 @@ trap 'rm -f "$test_log"' EXIT
   go test -v ./...
 ) | tee "$test_log"
 
-for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
+for group in TestChapter01ExerciseCases TestChapter01RegisteredInvoiceRoutesCovered TestChapter01RefundSequence TestChapter02ExerciseCases TestChapter02SessionLifetimeAndLogin TestChapter02EarlierRepairAndRouteIdentity TestChapter02CredentialBoundary TestChapter03ExerciseReadCases TestChapter03ExercisePatchCases TestChapter03MarshalGuardAndEarlierRepairs TestChapter03SessionExpiryAndAllReadViews TestChapter04OTPExerciseCases TestChapter04LookupExerciseCases TestChapter04PageExerciseCases TestChapter04SharedHandlerAndEarlierRepairs TestChapter05ExerciseCases TestChapter05AdminVoidAndScopeOrder TestEveryRouteDeclares TestChapter05MissingDeclarationFailsRegistration TestChapter05EarlierRepairs TestChapter09ExerciseCases TestChapter09InventoryReconciliation; do
   if ! grep -Fq -- "--- PASS: $group" "$test_log"; then
     echo "missing passing pilot test group: $group" >&2
     exit 1
@@ -59,7 +59,7 @@ manifest_archives = {row["archive"] for row in sources}
 if unregistered := claim_archives - manifest_archives:
     raise SystemExit(f"claim archives absent from SOURCES.tsv: {sorted(unregistered)}")
 
-for number in ("01", "02", "03", "04", "09"):
+for number in ("01", "02", "03", "04", "05", "09"):
     chapters = list((root / "chapters").glob(f"{number}-*.md"))
     if len(chapters) != 1 or "{{excerpt:" in chapters[0].read_text(encoding="utf-8"):
         raise SystemExit(f"built chapter {number} still has an excerpt placeholder")
@@ -85,6 +85,16 @@ for name in ("ch04-otp-vulnerable", "ch04-limiter-per-ip", "ch04-otp-fixed"):
     match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
     if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch04:
         raise SystemExit(f"Chapter 04 printed excerpt {name} differs from marked Go source")
+
+ch05 = next((root / "chapters").glob("05-*.md")).read_text(encoding="utf-8")
+for name, file in (("ch05-vulnerable-delete", "authz.go"), ("ch05-access-decl", "routes.go"), ("ch05-require-access", "authz.go")):
+    code = (root / "service" / file).read_text(encoding="utf-8")
+    match = re.search(r"(?m)^// excerpt: " + name + r"\n(.*?)^// end excerpt$", code, re.S | re.M)
+    if not match or "```go\n" + match.group(1).rstrip("\n") + "\n```" not in ch05:
+        raise SystemExit(f"Chapter 05 printed excerpt {name} differs from marked Go source")
+test_code = (root / "service" / "ch05_test.go").read_text(encoding="utf-8")
+if not re.search(r"(?m)^// excerpt: ch05-declares-test\n(.*?)^// end excerpt$", test_code, re.S | re.M):
+    raise SystemExit("Chapter 05 declaration test marker missing")
 
 class Links(HTMLParser):
     def __init__(self):

@@ -9,7 +9,8 @@ remaining cumulative Ledger implementation, one chapter per run.
 | 02 | Complete for batch 2; session identity and exercise tested | Author reviews identity-probe wording |
 | 03 | Complete for batch 2; views, patches, and guard tested | Author reconciles mixed PATCH wording |
 | 04 | Complete for batch 2; challenge, lookup, and page limits tested | Author aligns OTP excerpt wording |
-| 05–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
+| 05 | Complete for batch 2; access declarations, admin routes and exercise tested | Author aligns vulnerable-build declaration wording |
+| 06–08 | Reviewed prose and briefs; service pending | Per-chapter code, excerpts and tests |
 | 09 | Pilot exists; integration through 02–08 pending | Cumulative app and regression tests |
 | 10 | Reviewed prose and brief; service pending | Partner response and refund tests |
 
@@ -139,5 +140,37 @@ Chapter 01 exercise as a literal wire example.
   and after states, and the author should make that distinction clear. The
   Chapter 04 Markdown is filled; rendered HTML awaits the deferred batch site build.
 
-Next: Chapter 05 declared function-level access. Chapter 09 still needs cumulative integration
+## Chapter 05 — completed in batch 2
+
+- `NewChapter5App` composes Chapters 01–04 in both modes. The Chapter 05 route inventory contains
+  eighteen routes, each with explicit `Public`, `UserAccess`, or `TenantAdmin` metadata in
+  `service/routes.go`. Go already has a `User` model type, so the Go constant for the prose's
+  `User` level is named `UserAccess`. Construction panics if a registered route lacks a
+  declaration or a declaration has no route.
+- The shared Chapter 05 authorization layer matches the registered method and path, derives the
+  caller from Chapter 02's session, checks invoice or target-user tenant scope first, then checks
+  the route's access level. Missing or cross-tenant targets answer 404; same-tenant wrong-role
+  requests answer 403 in fixed mode. Vulnerable mode deliberately skips only the
+  `TenantAdmin` role decision. The route table remains populated in both modes so route
+  composition is identical; the chapter's assertion that vulnerable routes have “none” should
+  be described as “not enforced” if the prose is later aligned to the executable fixture.
+- The new DELETE, admin invoice void, admin user list, and admin user-edit routes expose the
+  Chapter 05 contrast. User edits update the session store's user record and all live sessions,
+  so vulnerable Alice's promotion changes her subsequent Chapter 03 view; typed self-edit still
+  rejects `role`. Login and OTP issuance read the same user record after an edit. The fixture
+  keeps in-memory state and introduces no new canonical numbers.
+- `service/ch05_test.go` asserts every exercise A–F result in both modes, including row mutation,
+  admin view exposure, and the 404-before-403 order. It also exercises the void route, missing
+  declarations, all route access levels, and earlier loader, session, PDF view, OTP, page and
+  profile repairs. The three printed excerpts match their marked Go blocks; the fourth requested
+  marker, `ch05-declares-test`, is in the test file but has no placeholder in the drafted chapter.
+  `verify.sh` requires the test groups, excerpt equality and no Chapter 05 placeholders.
+- Author note: the printed vulnerable DELETE includes a redundant `LoadInvoiceFor` check because
+  the common route layer has already scoped the invoice before reaching the handler. This keeps
+  the chapter's local counterexample legible, while the fixed handler consumes the scoped row.
+  The chapter currently says the vulnerable build has no declarations; in the service, the
+  declarations exist but the privileged role check is skipped. The observable failure and exercise
+  outcomes are the same. Rendered Chapter 05 HTML awaits the deferred build after Chapter 10.
+
+Next: Chapter 06 business-flow allowance. Chapter 09 still needs cumulative integration
 after Chapter 08. Do not push this implementation branch from Lane A.

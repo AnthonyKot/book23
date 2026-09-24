@@ -39,6 +39,11 @@ func NewChapter4App(mode Mode) *App {
 	return buildAppWithClock(mode, chapter04, time.Now)
 }
 
+// NewChapter5App retains the first four repairs and isolates function access.
+func NewChapter5App(mode Mode) *App {
+	return buildAppWithClock(mode, chapter05, time.Now)
+}
+
 // NewChapter9App is the Chapter 9 pilot. It includes Chapter 1's loader repair,
 // but not yet the intervening Chapters 2-8. Its fixed side removes /v1 and the
 // staging host; batch 2 integrates the intervening repairs after Chapter 8.
@@ -61,12 +66,14 @@ const (
 	chapter02
 	chapter03
 	chapter04
+	chapter05
 	chapter09
 )
 
 type Route struct {
 	Method  string
 	Pattern string
+	Access  Access
 }
 
 func buildApp(mode Mode, stage pilotStage) *App {
@@ -80,14 +87,19 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 
 	store := seedStore()
 	mux := http.NewServeMux()
-	propertyStage := stage == chapter03 || stage == chapter04
+	propertyStage := stage == chapter03 || stage == chapter04 || stage == chapter05
 	propertyMode := mode
-	if stage == chapter04 {
+	if stage == chapter04 || stage == chapter05 {
 		propertyMode = Fixed
 	}
 	var limits *chapter04Limits
-	if stage == chapter04 {
+	if stage == chapter04 || stage == chapter05 {
 		limits = newChapter04Limits(clock)
+	}
+	limitStage := stage == chapter04 || stage == chapter05
+	limitMode := mode
+	if stage == chapter05 {
+		limitMode = Fixed
 	}
 	routes := []Route{{Method: http.MethodGet, Pattern: "/v2/invoices/{id}"}}
 	secure := mode == Fixed || stage != chapter01
@@ -105,8 +117,8 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		quote := Route{Method: http.MethodPost, Pattern: "/v2/refunds/quote"}
 		confirm := Route{Method: http.MethodPost, Pattern: "/v2/refunds/confirm"}
 		routes = append(routes, filteredList, quote, confirm)
-		if stage == chapter04 {
-			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter04Invoices(store, mode, limits))
+		if limitStage {
+			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter04Invoices(store, limitMode, limits))
 		} else if propertyStage {
 			mux.HandleFunc(filteredList.Method+" "+filteredList.Pattern, chapter03List(store, propertyMode, true))
 		} else {
@@ -127,10 +139,10 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 		routes = append(routes, read, pdf)
 		registerStageInvoiceRoute(mux, read, store, propertyStage, propertyMode, secure, false)
 		registerStageInvoiceRoute(mux, pdf, store, propertyStage, propertyMode, secure, true)
-		if stage == chapter04 {
+		if limitStage {
 			lookup := Route{Method: http.MethodGet, Pattern: "/v1/invoices"}
 			routes = append(routes, lookup)
-			mux.HandleFunc(lookup.Method+" "+lookup.Pattern, chapter04Lookup(store, mode, limits, "v1"))
+			mux.HandleFunc(lookup.Method+" "+lookup.Pattern, chapter04Lookup(store, limitMode, limits, "v1"))
 		}
 	}
 
@@ -152,14 +164,18 @@ func buildAppWithClock(mode Mode, stage pilotStage, clock func() time.Time) *App
 			mux.HandleFunc(patchInvoice.Method+" "+patchInvoice.Pattern, chapter03InvoicePatch(store, propertyMode))
 			mux.HandleFunc(patchProfile.Method+" "+patchProfile.Pattern, chapter03ProfilePatch(sessions, propertyMode))
 		}
-		if stage == chapter04 {
+		if limitStage {
 			requestOTP := Route{Method: http.MethodPost, Pattern: "/v2/auth/otp/request"}
 			verifyOTP := Route{Method: http.MethodPost, Pattern: "/v2/auth/otp/verify"}
 			routes = append(routes, requestOTP, verifyOTP)
-			mux.HandleFunc(requestOTP.Method+" "+requestOTP.Pattern, otpRequestHandler(mode, limits.challenges))
+			mux.HandleFunc(requestOTP.Method+" "+requestOTP.Pattern, otpRequestHandler(limitMode, limits.challenges))
 			mux.Handle(verifyOTP.Method+" "+verifyOTP.Pattern,
-				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(mode, limits.challenges, sessions)))
-			handler = chapter04Gateway(mode, limits, handler)
+				perIPGuard(limits.otpIP, otpIPBudget, otpVerifyHandler(limitMode, limits.challenges, sessions)))
+			handler = chapter04Gateway(limitMode, limits, handler)
+		}
+		if stage == chapter05 {
+			routes = registerChapter05Routes(mux, routes, store, sessions, mode)
+			handler = chapter05Authorization(mode, mux, routes, store, sessions, handler)
 		}
 		identityMode := mode
 		if propertyStage {

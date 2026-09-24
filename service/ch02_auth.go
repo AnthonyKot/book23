@@ -25,6 +25,7 @@ type sessionStore struct {
 	mu       sync.Mutex
 	clock    func() time.Time
 	sessions map[string]session
+	users    map[string]User
 	next     int
 }
 
@@ -32,7 +33,11 @@ func newSessionStore(clock func() time.Time) *sessionStore {
 	if clock == nil {
 		panic("ledger: nil clock")
 	}
-	return &sessionStore{clock: clock, sessions: map[string]session{
+	return &sessionStore{clock: clock, users: map[string]User{
+		"alice": usersByToken["alice-token"],
+		"ben":   usersByToken["ben-token"],
+		"dana":  usersByToken["dana-token"],
+	}, sessions: map[string]session{
 		"alice-token": {User: usersByToken["alice-token"], IssuedAt: clock()},
 		"ben-token":   {User: usersByToken["ben-token"], IssuedAt: clock()},
 		"dana-token":  {User: usersByToken["dana-token"], IssuedAt: clock()},
@@ -68,12 +73,32 @@ func (s *sessionStore) revoke(token string) {
 func (s *sessionStore) updateUser(originalName string, user User) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	s.users[strings.ToLower(originalName)] = user
 	for token, record := range s.sessions {
 		if record.User.Name == originalName {
 			record.User = user
 			s.sessions[token] = record
 		}
 	}
+}
+
+func (s *sessionStore) userByName(name string) (User, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	user, ok := s.users[strings.ToLower(name)]
+	return user, ok
+}
+
+func (s *sessionStore) usersFor(tenant string) []User {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	result := make([]User, 0)
+	for _, user := range s.users {
+		if user.Tenant == tenant {
+			result = append(result, user)
+		}
+	}
+	return result
 }
 
 type requestPrincipal struct {
@@ -176,7 +201,7 @@ func loginHandler(sessions *sessionStore) http.HandlerFunc {
 			http.Error(w, "invalid login", http.StatusBadRequest)
 			return
 		}
-		user, ok := namedUser(input.User)
+		user, ok := sessions.userByName(input.User)
 		if !ok || input.Password != "fixture-"+strings.ToLower(user.Name) {
 			http.Error(w, "invalid credentials", http.StatusUnauthorized)
 			return

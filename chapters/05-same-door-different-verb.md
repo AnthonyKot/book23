@@ -1,6 +1,6 @@
 # Same Door, Different Verb
 
-<!-- Incident claims are gated in checks/claims/05.tsv against Eaton Zveare's 77-slide DEF CON 33 deck, "Unexpected Connections" (10 Aug 2025), and his TechCrunch interview. Slides 6–21 document invite-only registration, the blank-token registration flaw, a profile update that established a session, browser-only admin denial, and an API that checked JSESSIONID but not admin permission. Slides 39–44 document the later impersonation pivot; slide 76 gives the disclosure dates. Keep the automaker unnamed. API5 is the book's classification, not the researcher's quoted label. -->
+<!-- Incident claims: checks/claims/05.tsv (archived primary slides and corroboration). Keep the automaker unnamed; API5 is the book's classification. -->
 
 In January 2025 Eaton Zveare spent a weekend on the web portal a large carmaker runs for its
 dealers across the United States. Dealers use it to order cars, record sales and manage customers.
@@ -37,7 +37,24 @@ invoice-by-ID route gets its invoice through `LoadInvoiceFor(user, id)`, which r
 from another tenant. That answers *may this caller see this invoice*. It says nothing about *what
 this caller may do to it*. Here is the delete route as it stands before this chapter's fix:
 
-{{excerpt:ch05-vulnerable-delete}}
+```go
+func vulnerableChapter05Delete(store *Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := currentUser(r)
+		id, err := strconv.Atoi(r.PathValue("id"))
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		if _, found := store.LoadInvoiceFor(user, id); !found {
+			http.NotFound(w, r)
+			return
+		}
+		delete(store.invoices, id) // tenant scope alone grants a destructive action
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+```
 
 Read what the check proves. `LoadInvoiceFor` confirms invoice 104 belongs to Alice's tenant, Cedar,
 so Alice clears it — and then the row is deleted. The same function that keeps Alice out of Birch's
@@ -76,7 +93,28 @@ call it, so that a route with no statement fails loudly instead of defaulting op
 Ledger already lists its routes in one table. This chapter gives each entry an access level and
 refuses to register a route without one:
 
-{{excerpt:ch05-access-decl}}
+```go
+var chapter05Declarations = []Route{
+	{Method: http.MethodGet, Pattern: "/v2/invoices/{id}", Access: UserAccess},
+	{Method: http.MethodPatch, Pattern: "/v2/invoices/{id}", Access: UserAccess},
+	{Method: http.MethodDelete, Pattern: "/v2/invoices/{id}", Access: TenantAdmin},
+	{Method: http.MethodGet, Pattern: "/v2/admin/users", Access: TenantAdmin},
+	{Method: http.MethodPatch, Pattern: "/v2/admin/users/{id}", Access: TenantAdmin},
+	{Method: http.MethodPost, Pattern: "/v2/admin/invoices/{id}/void", Access: TenantAdmin},
+	{Method: http.MethodGet, Pattern: "/v1/invoices/{id}", Access: UserAccess},
+	{Method: http.MethodGet, Pattern: "/v1/invoices/{id}/pdf", Access: UserAccess},
+	{Method: http.MethodGet, Pattern: "/v2/me/invoices", Access: UserAccess},
+	{Method: http.MethodGet, Pattern: "/v2/invoices", Access: UserAccess},
+	{Method: http.MethodPost, Pattern: "/v2/refunds/quote", Access: UserAccess},
+	{Method: http.MethodPost, Pattern: "/v2/refunds/confirm", Access: UserAccess},
+	{Method: http.MethodGet, Pattern: "/v1/invoices", Access: UserAccess},
+	{Method: http.MethodPost, Pattern: "/v2/auth/login", Access: Public},
+	{Method: http.MethodGet, Pattern: "/v2/me", Access: UserAccess},
+	{Method: http.MethodPatch, Pattern: "/v2/users/me", Access: UserAccess},
+	{Method: http.MethodPost, Pattern: "/v2/auth/otp/request", Access: Public},
+	{Method: http.MethodPost, Pattern: "/v2/auth/otp/verify", Access: Public},
+}
+```
 
 `Access` has no usable zero value: a route that forgets to set it does not quietly become `Public`,
 it fails to register, and a test walks the table and asserts every route declares a level. The
@@ -84,7 +122,26 @@ levels are `Public`, `User` and `TenantAdmin`. After `currentUser`, an invoice-b
 `LoadInvoiceFor` first, returning 404 for an out-of-tenant ID; access middleware then checks the
 role before the handler:
 
-{{excerpt:ch05-require-access}}
+```go
+func requireAccess(level Access, mode Mode, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if level == Public {
+			next.ServeHTTP(w, r)
+			return
+		}
+		user, ok := currentUser(r)
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if level == TenantAdmin && mode == Fixed && user.Role != "tenant-admin" {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+```
 
 Now the delete handler does no role logic of its own; it is reached only after the invoice scope
 and the route's declared level admit the caller. Tenant scoping stays in `LoadInvoiceFor`; the role

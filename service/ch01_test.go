@@ -46,22 +46,22 @@ type chapter01ReadCase struct {
 }
 
 var chapter01ReadCases = []chapter01ReadCase{
-	{"v2 Alice own invoice", "alice-token", "/v2/invoices/104", Route{"GET", "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}},
-	{"v2 Alice Birch invoice", "alice-token", "/v2/invoices/205", Route{"GET", "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Birch"`, ""}, chapter01Expectation{404, "", "Birch"}},
-	{"v2 Ben Cedar invoice", "ben-token", "/v2/invoices/104", Route{"GET", "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{404, "", "Cedar"}},
-	{"v1 Alice own invoice", "alice-token", "/v1/invoices/104", Route{"GET", "/v1/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}},
-	{"v1 Alice Birch invoice", "alice-token", "/v1/invoices/205", Route{"GET", "/v1/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Birch"`, ""}, chapter01Expectation{404, "", "Birch"}},
-	{"v1 Ben Cedar invoice", "ben-token", "/v1/invoices/104", Route{"GET", "/v1/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{404, "", "Cedar"}},
-	{"PDF Alice own invoice", "alice-token", "/v1/invoices/104/pdf", Route{"GET", "/v1/invoices/{id}/pdf"}, chapter01Expectation{200, "tenant=Cedar", ""}, chapter01Expectation{200, "tenant=Cedar", ""}},
-	{"PDF Alice Birch invoice", "alice-token", "/v1/invoices/205/pdf", Route{"GET", "/v1/invoices/{id}/pdf"}, chapter01Expectation{200, "tenant=Birch", ""}, chapter01Expectation{404, "", "Birch"}},
-	{"PDF Ben Cedar invoice", "ben-token", "/v1/invoices/104/pdf", Route{"GET", "/v1/invoices/{id}/pdf"}, chapter01Expectation{200, "tenant=Cedar", ""}, chapter01Expectation{404, "", "Cedar"}},
-	{"safe list decoy Alice", "alice-token", "/v2/me/invoices", Route{"GET", "/v2/me/invoices"}, chapter01Expectation{200, `"id":104`, `"id":205`}, chapter01Expectation{200, `"id":104`, `"id":205`}},
-	{"safe list decoy Ben", "ben-token", "/v2/me/invoices", Route{"GET", "/v2/me/invoices"}, chapter01Expectation{200, `"id":205`, `"id":104`}, chapter01Expectation{200, `"id":205`, `"id":104`}},
-	{"filtered list Alice asks Birch", "alice-token", "/v2/invoices?tenant=birch", Route{"GET", "/v2/invoices"}, chapter01Expectation{200, `"id":205`, `"id":104`}, chapter01Expectation{200, `[]`, `"id":205`}},
-	{"filtered list Alice asks Cedar", "alice-token", "/v2/invoices?tenant=cedar", Route{"GET", "/v2/invoices"}, chapter01Expectation{200, `"id":104`, `"id":205`}, chapter01Expectation{200, `"id":104`, `"id":205`}},
-	{"filtered list Ben asks Cedar", "ben-token", "/v2/invoices?tenant=cedar", Route{"GET", "/v2/invoices"}, chapter01Expectation{200, `"id":104`, `"id":205`}, chapter01Expectation{200, `[]`, `"id":104`}},
-	{"filtered list Ben asks Birch", "ben-token", "/v2/invoices?tenant=birch", Route{"GET", "/v2/invoices"}, chapter01Expectation{200, `"id":205`, `"id":104`}, chapter01Expectation{200, `"id":205`, `"id":104`}},
-	{"Dana Cedar admin", "dana-token", "/v2/invoices/104", Route{"GET", "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}},
+	{"v2 Alice own invoice", "alice-token", "/v2/invoices/104", Route{Method: "GET", Pattern: "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}},
+	{"v2 Alice Birch invoice", "alice-token", "/v2/invoices/205", Route{Method: "GET", Pattern: "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Birch"`, ""}, chapter01Expectation{404, "", "Birch"}},
+	{"v2 Ben Cedar invoice", "ben-token", "/v2/invoices/104", Route{Method: "GET", Pattern: "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{404, "", "Cedar"}},
+	{"v1 Alice own invoice", "alice-token", "/v1/invoices/104", Route{Method: "GET", Pattern: "/v1/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}},
+	{"v1 Alice Birch invoice", "alice-token", "/v1/invoices/205", Route{Method: "GET", Pattern: "/v1/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Birch"`, ""}, chapter01Expectation{404, "", "Birch"}},
+	{"v1 Ben Cedar invoice", "ben-token", "/v1/invoices/104", Route{Method: "GET", Pattern: "/v1/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{404, "", "Cedar"}},
+	{"PDF Alice own invoice", "alice-token", "/v1/invoices/104/pdf", Route{Method: "GET", Pattern: "/v1/invoices/{id}/pdf"}, chapter01Expectation{200, "tenant=Cedar", ""}, chapter01Expectation{200, "tenant=Cedar", ""}},
+	{"PDF Alice Birch invoice", "alice-token", "/v1/invoices/205/pdf", Route{Method: "GET", Pattern: "/v1/invoices/{id}/pdf"}, chapter01Expectation{200, "tenant=Birch", ""}, chapter01Expectation{404, "", "Birch"}},
+	{"PDF Ben Cedar invoice", "ben-token", "/v1/invoices/104/pdf", Route{Method: "GET", Pattern: "/v1/invoices/{id}/pdf"}, chapter01Expectation{200, "tenant=Cedar", ""}, chapter01Expectation{404, "", "Cedar"}},
+	{"safe list decoy Alice", "alice-token", "/v2/me/invoices", Route{Method: "GET", Pattern: "/v2/me/invoices"}, chapter01Expectation{200, `"id":104`, `"id":205`}, chapter01Expectation{200, `"id":104`, `"id":205`}},
+	{"safe list decoy Ben", "ben-token", "/v2/me/invoices", Route{Method: "GET", Pattern: "/v2/me/invoices"}, chapter01Expectation{200, `"id":205`, `"id":104`}, chapter01Expectation{200, `"id":205`, `"id":104`}},
+	{"filtered list Alice asks Birch", "alice-token", "/v2/invoices?tenant=birch", Route{Method: "GET", Pattern: "/v2/invoices"}, chapter01Expectation{200, `"id":205`, `"id":104`}, chapter01Expectation{200, `[]`, `"id":205`}},
+	{"filtered list Alice asks Cedar", "alice-token", "/v2/invoices?tenant=cedar", Route{Method: "GET", Pattern: "/v2/invoices"}, chapter01Expectation{200, `"id":104`, `"id":205`}, chapter01Expectation{200, `"id":104`, `"id":205`}},
+	{"filtered list Ben asks Cedar", "ben-token", "/v2/invoices?tenant=cedar", Route{Method: "GET", Pattern: "/v2/invoices"}, chapter01Expectation{200, `"id":104`, `"id":205`}, chapter01Expectation{200, `[]`, `"id":104`}},
+	{"filtered list Ben asks Birch", "ben-token", "/v2/invoices?tenant=birch", Route{Method: "GET", Pattern: "/v2/invoices"}, chapter01Expectation{200, `"id":205`, `"id":104`}, chapter01Expectation{200, `"id":205`, `"id":104`}},
+	{"Dana Cedar admin", "dana-token", "/v2/invoices/104", Route{Method: "GET", Pattern: "/v2/invoices/{id}"}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}, chapter01Expectation{200, `"tenant":"Cedar"`, ""}},
 }
 
 func TestChapter01ExerciseCases(t *testing.T) {
